@@ -64,7 +64,9 @@ std::string Shader::ReadShaderFile(const char* filePath) {
 	return content;
 }
 
-void Shader::Use() { glUseProgram(this->ShaderProgram); }
+void Shader::Use() { 
+	glUseProgram(ShaderProgram); 
+}
 
 GLuint Shader::GetShader() {
 	return ShaderProgram;

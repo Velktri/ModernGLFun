@@ -1,11 +1,16 @@
 #pragma once
+/* GLM */
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <GL/glew.h>
 #include <stdio.h>
 #include <vector>
 
 class Model {
 public:
-	Model(GLuint ShaderProgram);
+	Model();
 	~Model();
 
 	std::vector<GLfloat> vertices;
@@ -13,11 +18,13 @@ public:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-
-	void Transpose(float x, float y, float z);
-	void PrintVerts();
-
 	int vertSize;
+	int indicesSize;
 
+	glm::mat4 orientation;
+
+	void GenerateModel();
+	void TranslateModel(float x, float y, float z);
+	void RotateModel();
 };
 
