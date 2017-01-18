@@ -74,6 +74,14 @@ glm::vec3 Camera::GetPosition() {
 	return WorldPosition;
 }
 
+void Camera::SetProjection(glm::mat4 InProjection) {
+	Projection = InProjection;
+}
+
+glm::mat4 Camera::GetProjection() {
+	return Projection;
+}
+
 void Camera::updateCameraVectors() {
 	LocalFront = glm::normalize(WorldPosition - FocusPoint);
 	LocalRight = glm::normalize(glm::cross(LocalFront, WorldUp));

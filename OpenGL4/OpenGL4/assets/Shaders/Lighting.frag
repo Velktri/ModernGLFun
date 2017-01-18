@@ -34,6 +34,7 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform DirLight dirLight;
 uniform PointLight pointLight;
+uniform sampler2D texture_diffuse1;
 
 // Function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -61,6 +62,8 @@ void main()
     // result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
 
     color = vec4(result, 1.0);
+
+    //color = vec4(texture(texture_diffuse1, TexCoords));
 }
 
 // Calculates the color when using a directional light.

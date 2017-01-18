@@ -2,11 +2,11 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Models/Grid.h"
-#include "Models/Pyramid.h"
 #include "Lights/SpotLight.h"
 #include "Lights/SunLight.h"
 #include "Lights/PointLight.h"
 #include "Texture.h"
+#include "Models/Asset.h"
 
 /* Constants */
 static const GLuint WIDTH = 1920;
@@ -24,7 +24,6 @@ GLfloat lastY = HEIGHT / 2;
 
 
 int main(int argc, char *argv[]) {
-	auto t_start = std::chrono::high_resolution_clock::now();
 
 	/* SDL Init */
 	SDL_Init(SDL_INIT_VIDEO);
@@ -34,7 +33,7 @@ int main(int argc, char *argv[]) {
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_Window* window = SDL_CreateWindow("GeoViewer", /*760*/150, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("GeoViewer", 760, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
 	/* GLEW Init */
@@ -43,8 +42,8 @@ int main(int argc, char *argv[]) {
 	glEnable(GL_DEPTH_TEST);
 
 	/*Build Camera */
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.01f, 1000.0f);
 	Camera* worldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
+	worldCamera->SetProjection(glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.01f, 1000.0f));
 
 	/* Build Shaders */
 	Shader* SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
@@ -55,22 +54,15 @@ int main(int argc, char *argv[]) {
 	Grid* Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
 
 	/* Build Textures */
-	Texture* ModelDiffuse = new Texture("../../OpenGL4/assets/Textures/WoodenBox_diff.png");
-	Texture* ModelSpecular = new Texture("../../OpenGL4/assets/Textures/WoodenBox_spec.png");
+	Texture* ModelDiffuse = new Texture("OpenGL4/assets/Textures/WoodenBox_diff.png");
+	Texture* ModelSpecular = new Texture("OpenGL4/assets/Textures/WoodenBox_spec.png");
 
 	/* Build Models */
-	std::vector<Model*> modelList;
-	for (int i = 0; i < 5; i++) {
-		Model* data = new Model();
-		//data->GenerateModel();
-		data->GenerateArrayModel();
-		data->TranslateModel(i, 0, i);
-
-		data->AttachDiffuseTexture(ModelDiffuse);
-		data->AttachSpecularTexture(ModelSpecular);
-
-		modelList.push_back(data);
-	}
+	std::vector<Asset*> AssetList;
+	AssetList.push_back(new Asset("assets/Models/Custom/nanosuit/nanosuit.obj"));
+	AssetList.push_back(new Asset("assets/Models/Custom/lamborgini/Avent.obj"));
+	AssetList[0]->ScaleAsset(0.2f, 0.2f, 0.2f);
+	AssetList[1]->TranslateAsset(5.0f, 0.0f, 0.0f);
 
 	/* Build Lights */
 	std::vector<Light*> LightList;
@@ -79,6 +71,7 @@ int main(int argc, char *argv[]) {
 
 	/* Main Loop */
 	SDL_Event windowEvent;
+	auto t_start = std::chrono::high_resolution_clock::now();
 	while (true) {
 		auto t_now = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
@@ -111,17 +104,13 @@ int main(int argc, char *argv[]) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/* Render Scene */
-		SceneShader->Use();
-		glUniformMatrix4fv(SceneShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(Scene->orientation));
-		glUniformMatrix4fv(SceneShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(projection));
-		Scene->Draw();
+		Scene->Draw(SceneShader, worldCamera);
 
 
 		/* Render Models */
 		LightingShader->Use();
 		glUniformMatrix4fv(LightingShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(LightingShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(LightingShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetProjection()));
 
 		glUniform3f(LightingShader->ShaderList["viewPos"], worldCamera->GetPosition().x, worldCamera->GetPosition().y, worldCamera->GetPosition().z);
 		glUniform3f(LightingShader->ShaderList["dirLight.position"], 0.0f, 0.0f, 0.0f);
@@ -139,17 +128,16 @@ int main(int argc, char *argv[]) {
 		glUniform1f(LightingShader->ShaderList["pointLight.constant"], 1.0f);
 		glUniform1f(LightingShader->ShaderList["pointLight.linear"], 0.09);
 		glUniform1f(LightingShader->ShaderList["pointLight.quadratic"], 0.032);
-		glUniform1i(LightingShader->ShaderList["lightAmount"], LightList.size());
 
-		for each (Model* mod in modelList) {
+		for each (Asset* mod in AssetList) {
 			glUniformMatrix4fv(LightingShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
-			mod->Draw();
+			mod->Draw(LightingShader);
 		}
 
 		/* Render Lights */
 		LampShader->Use();
 		glUniformMatrix4fv(LampShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(LampShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(LampShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetProjection()));
 
 		for each (Light* li in LightList) {
 			glUniformMatrix4fv(LampShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
@@ -157,14 +145,13 @@ int main(int argc, char *argv[]) {
 			glDrawElements(GL_TRIANGLES, li->indicesSize, GL_UNSIGNED_INT, 0);
 		}
 
-
 		SDL_GL_SwapWindow(window);
 	}
 
 #pragma region Clean Up
 	/* Clean up */
-	for each (Model* mod in modelList) {
-		mod->~Model();
+	for each (Asset* mod in AssetList) {
+		mod->~Asset();
 	}
 
 	//TransformShader->~Shader();

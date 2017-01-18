@@ -13,6 +13,7 @@ public:
 
 	GLuint GetTexture();
 	std::string GetType();
+	void SetType(std::string InType);
 
 private:
 	GLuint texture;

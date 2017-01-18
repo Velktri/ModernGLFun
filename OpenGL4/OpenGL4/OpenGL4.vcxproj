@@ -151,10 +151,9 @@
     <ClCompile Include="Lights\SpotLight.cpp" />
     <ClCompile Include="Lights\SunLight.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Models\Asset.cpp" />
     <ClCompile Include="Models\Grid.cpp" />
-    <ClCompile Include="Models\Model.cpp" />
-    <ClCompile Include="Models\Pyramid.cpp" />
+    <ClCompile Include="Models\Mesh.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Shared\lodepng.cpp" />
     <ClCompile Include="Shared\pathtools.cpp" />
@@ -166,10 +165,9 @@
     <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Lights\SpotLight.h" />
     <ClInclude Include="Lights\SunLight.h" />
-    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Models\Asset.h" />
     <ClInclude Include="Models\Grid.h" />
-    <ClInclude Include="Models\Model.h" />
-    <ClInclude Include="Models\Pyramid.h" />
+    <ClInclude Include="Models\Mesh.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Shared\lodepng.h" />
     <ClInclude Include="Shared\pathtools.h" />

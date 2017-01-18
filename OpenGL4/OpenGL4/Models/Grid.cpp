@@ -53,7 +53,12 @@ Grid::~Grid() {
 
 }
 
-void Grid::Draw() {
+void Grid::Draw(Shader* shader, Camera* worldCamera) {
+	shader->Use();
+	glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+	glUniformMatrix4fv(shader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
+	glUniformMatrix4fv(shader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetProjection()));
+
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, vertSize);
 }

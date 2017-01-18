@@ -48,13 +48,10 @@
     <ClCompile Include="Models\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models\Model.cpp">
+    <ClCompile Include="Models\Asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models\Pyramid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="Models\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,16 +83,13 @@
     <ClInclude Include="Shared\pathtools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Pyramid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Models\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Model.h">
+    <ClInclude Include="Models\Asset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="Models\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

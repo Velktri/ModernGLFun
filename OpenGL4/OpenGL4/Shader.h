@@ -18,17 +18,15 @@ public:
 	Shader(const char* vertSource, const char* fragSource);
 	~Shader();
 
-
 	void Use();
 	GLuint GetShader();
 
 	std::unordered_map<std::string, GLuint> ShaderList;
-	std::unordered_map<std::string, std::vector<std::string>> StructList;
 
 private:
 	std::string ReadShaderFile(const char* filePath);
 	void CheckUniform(std::string line);
-	bool ParseStructs(std::string Shader);
+	std::unordered_map<std::string, std::vector<std::string>> ParseStructs(std::string Shader);
 	GLuint ShaderProgram;
 	std::vector<ShaderUniforms> UniformList;
 };

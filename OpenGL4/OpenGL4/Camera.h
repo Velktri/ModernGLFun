@@ -24,7 +24,8 @@ public:
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 
 	glm::vec3 GetPosition();
-
+	void SetProjection(glm::mat4 InProjection);
+	glm::mat4 GetProjection();
 
 private:
 	/* Camera World Attributes */
@@ -49,4 +50,5 @@ private:
 	void updateCameraVectors();
 	void Refocus();
 
+	glm::mat4 Projection;
 };

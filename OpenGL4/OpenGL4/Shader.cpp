@@ -62,7 +62,8 @@ std::string Shader::ReadShaderFile(const char* filePath) {
 
 	fileStream.close();
 
-	if (ParseStructs(content)) {
+	std::unordered_map<std::string, std::vector<std::string>> StructList = ParseStructs(content);
+	if (!StructList.empty()) {
 		std::vector<ShaderUniforms> tempList;
 		for each (ShaderUniforms uniforms in UniformList) {
 			std::unordered_map<std::string, std::vector<std::string>>::iterator i = StructList.find(uniforms.Type);
@@ -114,11 +115,11 @@ void Shader::CheckUniform(std::string line) {
 	iss.clear();
 }
 
-bool Shader::ParseStructs(std::string Shader) {
+std::unordered_map<std::string, std::vector<std::string>> Shader::ParseStructs(std::string Shader) {
+	std::unordered_map<std::string, std::vector<std::string>> StructList;
 	std::istringstream iss(Shader);
 	std::string line;
 	std::string StructName = "";
-	bool bHasStruct = false;
 
 	while (std::getline(iss, line)) {
 		std::string item;
@@ -136,7 +137,6 @@ bool Shader::ParseStructs(std::string Shader) {
 		} else if (words.size() > 0 && words.at(0).compare("struct") == 0) {
 			StructName = words.at(1);
 			StructList.insert(std::pair<std::string, std::vector<std::string>>(StructName, std::vector<std::string>()));
-			bHasStruct = true;
 		} else if (words.size() > 0 && StructName.length() > 0) {
 			std::string word = words.at(1);
 			word.pop_back();
@@ -146,9 +146,8 @@ bool Shader::ParseStructs(std::string Shader) {
 		iss2.clear();
 	}
 
-
 	iss.clear();
-	return bHasStruct;
+	return StructList;
 }
 
 void Shader::Use() { 
