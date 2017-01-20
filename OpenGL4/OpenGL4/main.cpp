@@ -1,27 +1,8 @@
-#include <chrono>
-#include "Shader.h"
-#include "Camera.h"
-#include "Models/Grid.h"
-#include "Lights/SpotLight.h"
-#include "Lights/SunLight.h"
-#include "Lights/PointLight.h"
-#include "Texture.h"
-#include "Models/Asset.h"
+#include "World.h"
 
 /* Constants */
 static const GLuint WIDTH = 1920;
 static const GLuint HEIGHT = 1080;
-static const int GRIDRADIUS_X = 10;
-static const int GRIDRADIUS_Y = 10;
-static const float GRIDSPACING = 1.0;
-
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
-GLfloat lastX = WIDTH / 2;
-GLfloat lastY = HEIGHT / 2;
-
-/* Prototypes */
-
 
 int main(int argc, char *argv[]) {
 
@@ -41,44 +22,12 @@ int main(int argc, char *argv[]) {
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 
-	/*Build Camera */
-	Camera* worldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
-	worldCamera->SetProjection(glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.01f, 1000.0f));
-
-	/* Build Shaders */
-	Shader* SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
-	Shader* LampShader = new Shader("assets/Shaders/Lamp.vert", "assets/Shaders/Lamp.frag");
-	Shader* LightingShader = new Shader("assets/Shaders/Lighting.vert", "assets/Shaders/Lighting.frag");
-
-	/* Build scene elements */
-	Grid* Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-
-	/* Build Textures */
-	Texture* ModelDiffuse = new Texture("OpenGL4/assets/Textures/WoodenBox_diff.png");
-	Texture* ModelSpecular = new Texture("OpenGL4/assets/Textures/WoodenBox_spec.png");
-
-	/* Build Models */
-	std::vector<Asset*> AssetList;
-	AssetList.push_back(new Asset("assets/Models/Custom/nanosuit/nanosuit.obj"));
-	AssetList.push_back(new Asset("assets/Models/Custom/lamborgini/Avent.obj"));
-	AssetList[0]->ScaleAsset(0.2f, 0.2f, 0.2f);
-	AssetList[1]->TranslateAsset(5.0f, 0.0f, 0.0f);
-
-	/* Build Lights */
-	std::vector<Light*> LightList;
-	Light* ALight = new Light(glm::vec3(-2.0f, 2.0f, 2.0f));
-	LightList.push_back(ALight);
-
-	/* Main Loop */
+	World* MyWorld = new World(WIDTH, HEIGHT);
 	SDL_Event windowEvent;
-	auto t_start = std::chrono::high_resolution_clock::now();
+	MyWorld->StartClock();
 	while (true) {
-		auto t_now = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
-		deltaTime = time - lastFrame;
-		lastFrame = time;
-
-		ALight->Translate(sin(time) / 20.0f, 0, cos(time) / 20.0f);
+		MyWorld->UpdateClock();
+		MyWorld->GetLights()[0]->Translate(sin(MyWorld->GetTime()) / 20.0f, 0, cos(MyWorld->GetTime()) / 20.0f);
 
 #pragma region Inputs
 		if (SDL_PollEvent(&windowEvent)) {
@@ -87,15 +36,15 @@ int main(int argc, char *argv[]) {
 			}
 
 			if (windowEvent.type == SDL_MOUSEWHEEL) {
-				worldCamera->ZoomCamera(windowEvent, deltaTime);
+				MyWorld->GetCamera()->ZoomCamera(windowEvent, MyWorld->GetDeltaTime());
 			}
 
 			if (windowEvent.type == SDL_KEYDOWN) {
-				worldCamera->processKeyEvents(windowEvent.key.keysym.sym, deltaTime);
+				MyWorld->GetCamera()->processKeyEvents(windowEvent.key.keysym.sym, MyWorld->GetDeltaTime());
 			}
 
 			if (windowEvent.type == SDL_MOUSEMOTION || windowEvent.type == SDL_MOUSEBUTTONDOWN || windowEvent.type == SDL_MOUSEBUTTONUP) {
-				worldCamera->ProcessMouseEvents(windowEvent, deltaTime);
+				MyWorld->GetCamera()->ProcessMouseEvents(windowEvent, MyWorld->GetDeltaTime());
 			}		
 		}
 #pragma endregion
@@ -103,62 +52,13 @@ int main(int argc, char *argv[]) {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/* Render Scene */
-		Scene->Draw(SceneShader, worldCamera);
-
-
-		/* Render Models */
-		LightingShader->Use();
-		glUniformMatrix4fv(LightingShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(LightingShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetProjection()));
-
-		glUniform3f(LightingShader->ShaderList["viewPos"], worldCamera->GetPosition().x, worldCamera->GetPosition().y, worldCamera->GetPosition().z);
-		glUniform3f(LightingShader->ShaderList["dirLight.position"], 0.0f, 0.0f, 0.0f);
-		glUniform3f(LightingShader->ShaderList["dirLight.ambient"], 0.05f, 0.05f, 0.05f);
-		glUniform3f(LightingShader->ShaderList["dirLight.diffuse"], 1.0f, 1.0f, 1.0f);
-		glUniform3f(LightingShader->ShaderList["dirLight.specular"], 0.5f, 0.5f, 0.5f);
-		glUniform1i(LightingShader->ShaderList["material.diffuse"], 0);
-		glUniform1i(LightingShader->ShaderList["material.specular"], 1);
-		glUniform1f(LightingShader->ShaderList["material.shininess"], 32.0f);
-
-		glUniform3f(LightingShader->ShaderList["pointLight.position"], LightList[0]->WorldPosition.x, LightList[0]->WorldPosition.y, LightList[0]->WorldPosition.z);
-		glUniform3f(LightingShader->ShaderList["pointLight.ambient"], 0.05f, 0.05f, 0.05f);
-		glUniform3f(LightingShader->ShaderList["pointLight.diffuse"], 0.8f, 0.8f, 0.8f);
-		glUniform3f(LightingShader->ShaderList["pointLight.specular"], 1.0f, 1.0f, 1.0f);
-		glUniform1f(LightingShader->ShaderList["pointLight.constant"], 1.0f);
-		glUniform1f(LightingShader->ShaderList["pointLight.linear"], 0.09);
-		glUniform1f(LightingShader->ShaderList["pointLight.quadratic"], 0.032);
-
-		for each (Asset* mod in AssetList) {
-			glUniformMatrix4fv(LightingShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
-			mod->Draw(LightingShader);
-		}
-
-		/* Render Lights */
-		LampShader->Use();
-		glUniformMatrix4fv(LampShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(LampShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(worldCamera->GetProjection()));
-
-		for each (Light* li in LightList) {
-			glUniformMatrix4fv(LampShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
-			glBindVertexArray(li->GetVAO());
-			glDrawElements(GL_TRIANGLES, li->indicesSize, GL_UNSIGNED_INT, 0);
-		}
-
+		MyWorld->RenderWorld();
 		SDL_GL_SwapWindow(window);
 	}
 
 #pragma region Clean Up
 	/* Clean up */
-	for each (Asset* mod in AssetList) {
-		mod->~Asset();
-	}
-
-	//TransformShader->~Shader();
-	Scene->~Grid();
-	LampShader->~Shader();
-	LightingShader->~Shader();
-	
+	MyWorld->~World();
 
 	SDL_GL_DeleteContext(context);
 	SDL_Quit();

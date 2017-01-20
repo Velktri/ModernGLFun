@@ -1,10 +1,11 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, std::vector<Texture> InTextures) {
+Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, std::vector<Texture> InTextures, Asset* InAsset) {
 	vertices = InVertices;
 	indices = InIndices;
 	textures = InTextures;
+	ParentAsset = InAsset;
 	SetupMesh();
 }
 
@@ -12,6 +13,7 @@ Mesh::~Mesh() {
 }
 
 void Mesh::Draw(Shader* shader) {
+
 	// Bind appropriate textures
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
@@ -42,6 +44,10 @@ void Mesh::Draw(Shader* shader) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+}
+
+Asset* Mesh::GetParentAsset() {
+	return ParentAsset;
 }
 
 void Mesh::SetupMesh() {

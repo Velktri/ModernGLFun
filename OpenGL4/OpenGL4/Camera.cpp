@@ -33,10 +33,6 @@ void Camera::ProcessMouseEvents(SDL_Event event, GLfloat deltaTime) {
 	}
 }
 
-glm::mat4 Camera::GetViewMatrix() {
-	return glm::lookAt(WorldPosition, FocusPoint, LocalUp);
-}
-
 void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime) {
 	GLfloat velocity_X = PanSpeed * deltaTime * Start_X;
 	GLfloat velocity_Y = PanSpeed * deltaTime * Start_Y;
@@ -81,6 +77,11 @@ void Camera::SetProjection(glm::mat4 InProjection) {
 glm::mat4 Camera::GetProjection() {
 	return Projection;
 }
+
+glm::mat4 Camera::GetViewMatrix() {
+	return glm::lookAt(WorldPosition, FocusPoint, LocalUp);
+}
+
 
 void Camera::updateCameraVectors() {
 	LocalFront = glm::normalize(WorldPosition - FocusPoint);

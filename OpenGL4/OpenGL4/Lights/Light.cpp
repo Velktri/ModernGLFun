@@ -66,3 +66,8 @@ void Light::BuildLight() {
 
 	orientation = glm::translate(orientation, WorldPosition);
 }
+
+void Light::Draw() {
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+}

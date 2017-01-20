@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include "../Shader.h"
+#include "../Models/Shader.h"
 #include "Mesh.h"
 #include <vector>
 #include <string>
@@ -10,6 +10,8 @@
 #include <Importer.hpp>
 #include <scene.h>
 #include <postprocess.h>
+
+class Mesh;
 
 
 class Asset {
@@ -26,13 +28,13 @@ public:
 	void ScaleAsset(float x, float y, float z);
 
 private:
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	std::string directory;
 	std::vector<Texture> textures_loaded;
 
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+	Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 };
 

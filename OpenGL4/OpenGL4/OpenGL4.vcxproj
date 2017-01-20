@@ -151,13 +151,18 @@
     <ClCompile Include="Lights\SpotLight.cpp" />
     <ClCompile Include="Lights\SunLight.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Managers\AssetManager.cpp" />
+    <ClCompile Include="Managers\LightManager.cpp" />
+    <ClCompile Include="Managers\ShaderManager.cpp" />
+    <ClCompile Include="Managers\TextureManager.cpp" />
     <ClCompile Include="Models\Asset.cpp" />
     <ClCompile Include="Models\Grid.cpp" />
     <ClCompile Include="Models\Mesh.cpp" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Models\Shader.cpp" />
+    <ClCompile Include="Models\Texture.cpp" />
     <ClCompile Include="Shared\lodepng.cpp" />
     <ClCompile Include="Shared\pathtools.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -165,13 +170,18 @@
     <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Lights\SpotLight.h" />
     <ClInclude Include="Lights\SunLight.h" />
+    <ClInclude Include="Managers\AssetManager.h" />
+    <ClInclude Include="Managers\LightManager.h" />
+    <ClInclude Include="Managers\ShaderManager.h" />
+    <ClInclude Include="Managers\TextureManager.h" />
     <ClInclude Include="Models\Asset.h" />
     <ClInclude Include="Models\Grid.h" />
     <ClInclude Include="Models\Mesh.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Models\Shader.h" />
+    <ClInclude Include="Models\Texture.h" />
     <ClInclude Include="Shared\lodepng.h" />
     <ClInclude Include="Shared\pathtools.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

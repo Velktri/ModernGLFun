@@ -10,7 +10,7 @@ Asset::~Asset() {
 
 void Asset::Draw(Shader* shader) {
 	for (GLuint i = 0; i < meshes.size(); i++) {
-		meshes[i].Draw(shader);
+		meshes[i]->Draw(shader);
 	}
 }
 
@@ -60,7 +60,7 @@ void Asset::processNode(aiNode* node, const aiScene* scene) {
 	}
 }
 
-Mesh Asset::processMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh* Asset::processMesh(aiMesh* mesh, const aiScene* scene) {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
@@ -95,7 +95,7 @@ Mesh Asset::processMesh(aiMesh* mesh, const aiScene* scene) {
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
-	return Mesh(vertices, indices, textures);
+	return new Mesh(vertices, indices, textures, this);
 }
 
 std::vector<Texture> Asset::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {

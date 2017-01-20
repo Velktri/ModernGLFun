@@ -20,6 +20,7 @@ public:
 
 	void Translate(float x, float y, float z);
 	void BuildLight();
+	void Draw();
 
 private:
 	GLuint VAO;
