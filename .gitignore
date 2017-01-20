@@ -1,0 +1,12 @@
+*.tmp
+*.iobj
+*.ipdb
+*.exe
+*.ilk
+*.pdb
+*.db
+*.opendb
+Release/
+x64/
+Debug/
+.vs/
