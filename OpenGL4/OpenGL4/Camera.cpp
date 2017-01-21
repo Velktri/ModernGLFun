@@ -15,24 +15,6 @@ Camera::Camera(glm::vec3 position) {
 Camera::~Camera() {
 }
 
-void Camera::processKeyEvents(SDL_Keycode key, GLfloat deltaTime) {
-	if (key == SDLK_f) {
-		Refocus();
-	}
-
-	if (key == SDLK_q) {
-
-	}
-}
-
-void Camera::ProcessMouseEvents(SDL_Event event, GLfloat deltaTime) {
-	if (event.button.button == SDL_BUTTON_LEFT && event.motion.state == 1) {
-		OrbitCamera(event.motion.xrel, event.motion.yrel, deltaTime);
-	} else if (event.button.button == SDL_BUTTON_X1) {
-		PanCamera(event.motion.xrel, event.motion.yrel, deltaTime);
-	}
-}
-
 void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime) {
 	GLfloat velocity_X = PanSpeed * deltaTime * Start_X;
 	GLfloat velocity_Y = PanSpeed * deltaTime * Start_Y;
@@ -45,11 +27,11 @@ void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime) {
 	updateCameraVectors();
 }
 
-void Camera::ZoomCamera(SDL_Event event, GLfloat deltaTime) {
+void Camera::ZoomCamera(int scroll, GLfloat deltaTime) {
 	GLfloat velocity = ZoomModifier * deltaTime;
-	if (event.wheel.y > 0)
+	if (scroll > 0)
 		WorldPosition -= LocalFront * velocity;
-	else if (event.wheel.y < 0)
+	else if (scroll < 0)
 		WorldPosition += LocalFront * velocity;
 	updateCameraVectors();
 }

@@ -15,13 +15,11 @@ public:
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 	~Camera();
 
-	void processKeyEvents(SDL_Keycode key, GLfloat deltaTime);
-	void ProcessMouseEvents(SDL_Event event, GLfloat deltaTime);
-
 	glm::mat4 GetViewMatrix();
 	void PanCamera(int Start_X, int Start_Y, GLfloat deltaTime);
-	void ZoomCamera(SDL_Event event, GLfloat deltaTime);
+	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
+	void Refocus();
 
 	glm::vec3 GetPosition();
 	void SetProjection(glm::mat4 InProjection);
@@ -48,7 +46,7 @@ private:
 	GLfloat Pitch;
 
 	void updateCameraVectors();
-	void Refocus();
+
 
 	glm::mat4 Projection;
 };

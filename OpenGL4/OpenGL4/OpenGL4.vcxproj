@@ -69,23 +69,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>..\bin\win64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>..\bin\win64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win32;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\Win32;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>..\bin\win32</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win32;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\Win32;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>..\bin\win32</OutDir>
@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Lights\PointLight.cpp" />
     <ClCompile Include="Lights\SpotLight.cpp" />
@@ -160,12 +161,17 @@
     <ClCompile Include="Models\Mesh.cpp" />
     <ClCompile Include="Models\Shader.cpp" />
     <ClCompile Include="Models\Texture.cpp" />
+    <ClCompile Include="Shared\imgui.cpp" />
+    <ClCompile Include="Shared\imgui_demo.cpp" />
+    <ClCompile Include="Shared\imgui_draw.cpp" />
+    <ClCompile Include="Shared\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="Shared\lodepng.cpp" />
     <ClCompile Include="Shared\pathtools.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Lights\Light.h" />
     <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Lights\SpotLight.h" />

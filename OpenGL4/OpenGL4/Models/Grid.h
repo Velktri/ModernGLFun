@@ -15,7 +15,6 @@ public:
 private:
 	GLuint VAO;
 	GLuint VBO;
-	GLuint EBO;
 	std::vector<GLfloat> vertices;
 	int vertSize;
 	glm::mat4 orientation;

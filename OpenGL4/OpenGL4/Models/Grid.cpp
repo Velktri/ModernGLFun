@@ -50,7 +50,8 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 
 
 Grid::~Grid() {
-
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 }
 
 void Grid::Draw(Shader* shader, Camera* worldCamera) {

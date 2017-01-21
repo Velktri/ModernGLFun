@@ -10,6 +10,9 @@ Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, std::v
 }
 
 Mesh::~Mesh() {
+	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 }
 
 void Mesh::Draw(Shader* shader) {
