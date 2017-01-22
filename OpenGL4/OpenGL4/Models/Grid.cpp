@@ -35,17 +35,25 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 
 	vertSize = vertices.size() / 3;
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
 
-	glBindVertexArray(VAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices), &vertices.front(), GL_STATIC_DRAW);
+	try {
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data()/*vertices.size() * sizeof(vertices), &vertices.front()*/, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		glBindVertexArray(0);
+	} catch (const std::exception &exc) {
+		// catch anything thrown within try block that derives from std::exception
+		std::cerr << exc.what();
+	}
 }
 
 

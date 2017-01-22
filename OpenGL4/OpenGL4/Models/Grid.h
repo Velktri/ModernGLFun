@@ -19,4 +19,3 @@ private:
 	int vertSize;
 	glm::mat4 orientation;
 };
-

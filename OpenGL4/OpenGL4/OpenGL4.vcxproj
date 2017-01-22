@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Lights\PointLight.cpp" />
@@ -167,10 +168,13 @@
     <ClCompile Include="Shared\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="Shared\lodepng.cpp" />
     <ClCompile Include="Shared\pathtools.cpp" />
+    <ClCompile Include="UI\Layout.cpp" />
+    <ClCompile Include="UI\Panel.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Lights\Light.h" />
     <ClInclude Include="Lights\PointLight.h" />
@@ -187,6 +191,8 @@
     <ClInclude Include="Models\Texture.h" />
     <ClInclude Include="Shared\lodepng.h" />
     <ClInclude Include="Shared\pathtools.h" />
+    <ClInclude Include="UI\Layout.h" />
+    <ClInclude Include="UI\Panel.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

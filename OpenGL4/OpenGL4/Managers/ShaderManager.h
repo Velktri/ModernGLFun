@@ -16,12 +16,14 @@ public:
 	Shader* GetSceneShader();
 	Shader* GetAssetShader();
 	Shader* GetLightShader();
+	Shader* GetScreenShader();
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights);
 
 private:
 	Shader* SceneShader;
 	Shader* AssetShader;
 	Shader* LightShader;
+	Shader* ScreenShader;
 
 	std::vector<Shader*> ShaderList;
 	void BuildShaders();

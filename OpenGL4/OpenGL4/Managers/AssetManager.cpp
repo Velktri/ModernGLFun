@@ -4,7 +4,7 @@
 
 AssetManager::AssetManager() {
 	BuildAssets();
-	//AssetList[0]->ScaleAsset(0.2f, 0.2f, 0.2f);
+	AssetList[0]->ScaleAsset(0.2f, 0.2f, 0.2f);
 	//AssetList[1]->TranslateAsset(5.0f, 0.0f, 0.0f);
 
 }
@@ -24,7 +24,7 @@ void AssetManager::DrawAssets(Shader* AssetShader) {
 }
 
 void AssetManager::BuildAssets() {
-	//AssetList.push_back(new Asset("assets/Models/Custom/nanosuit/nanosuit.obj"));
+	AssetList.push_back(new Asset("assets/Models/Custom/nanosuit/nanosuit.obj"));
 	//AssetList.push_back(new Asset("assets/Models/Custom/lamborgini/Avent.obj"));
 
 }

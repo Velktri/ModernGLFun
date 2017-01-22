@@ -22,6 +22,7 @@ public:
 	std::vector<Light*> GetLights();
 
 	void RenderWorld();
+	void RenderScreen();
 	void StartClock();
 	void UpdateClock();
 

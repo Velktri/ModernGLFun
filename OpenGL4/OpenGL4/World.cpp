@@ -47,6 +47,11 @@ void World::RenderWorld() {
 	LightManagement->Draw(ShaderManagement->GetLightShader());
 }
 
+void World::RenderScreen() {
+	ShaderManagement->GetScreenShader()->Use();
+
+}
+
 void World::StartClock() {
 	TimeStart = std::chrono::high_resolution_clock::now();
 	bIsClockRunning = true;

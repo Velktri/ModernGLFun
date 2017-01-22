@@ -25,6 +25,10 @@ Shader* ShaderManager::GetLightShader() {
 	return LightShader;
 }
 
+Shader* ShaderManager::GetScreenShader() {
+	return ScreenShader;
+}
+
 void ShaderManager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights) {
 	AssetShader->Use();
 	glUniformMatrix4fv(AssetShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
@@ -53,8 +57,10 @@ void ShaderManager::BuildShaders() {
 	SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
 	AssetShader = new Shader("assets/Shaders/Lighting.vert", "assets/Shaders/Lighting.frag");
 	LightShader = new Shader("assets/Shaders/Lamp.vert", "assets/Shaders/Lamp.frag");
+	ScreenShader = new Shader("assets/Shaders/Screen.vert", "assets/Shaders/Screen.frag");
 
 	ShaderList.push_back(SceneShader);
 	ShaderList.push_back(AssetShader);
 	ShaderList.push_back(LightShader);
+	ShaderList.push_back(ScreenShader);
 }
