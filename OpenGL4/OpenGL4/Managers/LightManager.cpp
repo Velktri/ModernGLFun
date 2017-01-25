@@ -32,5 +32,4 @@ void LightManager::Draw(Shader* shader) {
 
 void LightManager::BuildLights() {
 	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
-
 }

@@ -36,8 +36,7 @@ void FrameBuffer::RenderWorldFrame(World* world) {
 	world->RenderWorld();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 

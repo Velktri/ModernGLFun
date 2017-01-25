@@ -5,7 +5,9 @@
 Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path) {
 	WindowDimensions = InWindowDimensions;
 	Window = InWindow;
-	SceneDimensions = ImVec2(1280, 720);
+	bIsHoveringScene = false;
+	SceneSizeModifier = ImVec2(0.78f, 0.78f);
+	SceneDimensions = ImVec2(WindowDimensions.x * SceneSizeModifier.x, WindowDimensions.y * SceneSizeModifier.y);
 
 	ImGui_ImplSdlGL3_Init(Window);
 
@@ -18,47 +20,34 @@ Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path
 Layout::~Layout() {
 }
 
-void Layout::RenderLayout(GLuint TextureColorBuffer) {
+bool Layout::RenderLayout(GLuint TextureColorBuffer) {
+	bool bIsRunning = true;
+	bIsHoveringScene = false;
 	ImGui_ImplSdlGL3_NewFrame(Window);
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			//ShowExampleMenuFile();
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit")) {
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) { printf("Pressed Undo!"); }
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) { printf("Pressed Cut!"); }
-			if (ImGui::MenuItem("Copy", "CTRL+C")) { printf("Pressed Copy!"); }
-			if (ImGui::MenuItem("Paste", "CTRL+V")) { printf("Pressed Paste!"); }
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
 
+	bIsRunning = MainMenu();
+	AssetEditor();
+	SceneWindow(TextureColorBuffer);
+
+	ImGui::SetNextWindowSize(ImVec2(WindowDimensions.x - 1500, WindowDimensions.y - 470), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(1500, 470), ImGuiSetCond_FirstUseEver);
 	ImGui::ShowTestWindow();
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::SetNextWindowSize(SceneDimensions, ImGuiSetCond_FirstUseEver);
-	ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-	ImGui::Begin("test", false, ImGuiWindowFlags_NoMove | 
-								ImGuiWindowFlags_NoCollapse |
-								ImGuiWindowFlags_NoResize |
-								ImGuiWindowFlags_NoTitleBar |
-								ImGuiWindowFlags_NoScrollbar |
-								ImGuiWindowFlags_NoSavedSettings);
-
-	ImGui::Image((GLuint*) TextureColorBuffer, SceneDimensions, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
-	ImGui::End();
-	ImGui::PopStyleVar();
 
 	glViewport(0, 0, SceneDimensions.x, SceneDimensions.y);
 	ImGui::Render();
+	return bIsRunning;
 }
 
 ImVec2 Layout::GetSceneDimensions() {
 	return SceneDimensions;
+}
+
+void Layout::SetWorld(World* InWorld) {
+	world = InWorld;
+}
+
+bool Layout::GetSceneHovering() {
+	return bIsHoveringScene;
 }
 
 void Layout::BuildLayout(std::string path) {
@@ -72,19 +61,19 @@ void Layout::BuildDefaultLayout() {
 }
 
 void Layout::SetDefaultStyle(std::string path) {
-	//ImGuiStyle * style = &ImGui::GetStyle();
+	ImGuiStyle* style = &ImGui::GetStyle();
 
 	//style->WindowPadding = ImVec2(15, 15);
 	//style->WindowRounding = 5.0f;
-	//style->FramePadding = ImVec2(5, 5);
-	//style->FrameRounding = 4.0f;
-	//style->ItemSpacing = ImVec2(12, 8);
-	//style->ItemInnerSpacing = ImVec2(8, 6);
+	style->FramePadding = ImVec2(5, 3);
+	style->FrameRounding = 16.0f;
+	style->ItemSpacing = ImVec2(6, 6);
+	style->ItemInnerSpacing = ImVec2(6, 4);
 	//style->IndentSpacing = 25.0f;
 	//style->ScrollbarSize = 15.0f;
 	//style->ScrollbarRounding = 9.0f;
-	//style->GrabMinSize = 5.0f;
-	//style->GrabRounding = 3.0f;
+	style->GrabMinSize = 20.0f;
+	style->GrabRounding = 16.0f;
 
 	//style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	//style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
@@ -131,40 +120,156 @@ void Layout::SetDefaultStyle(std::string path) {
 	//style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 }
 
-//ImGui_ImplSdlGL3_NewFrame(window);
-//// 1. Show a simple window
-//// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-//{
-//	static float f = 0.0f;
-//	ImGui::Text("Hello, world!");
-//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-//	ImGui::ColorEdit3("clear color", (float*)&clear_color);
-//	if (ImGui::Button("Test Window")) show_test_window ^= 1;
-//	if (ImGui::Button("Another Window")) show_another_window ^= 1;
-//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//}
-//
-//// 2. Show another simple window, this time using an explicit Begin/End pair
-//if (show_another_window) {
-//	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-//	ImGui::Begin("Another Window", &show_another_window);
-//	ImGui::Text("Hello");
-//	ImGui::End();
-//}
-//
-//// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-//if (show_test_window) {
-//	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-//	ImGui::ShowTestWindow(&show_test_window);
-//}
-//
-//ImVec2 NewSize = ImVec2((int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-//
-//ImGui::SetNextWindowSize(ImVec2(1200, 900), ImGuiSetCond_FirstUseEver);
-//ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiSetCond_FirstUseEver);
-//ImGui::Begin("test", false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
-//ImGui::Image((GLuint*)textureColorbuffer, NewSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
-//ImGui::End();
-//
-//glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-//ImGui::Render();
+void Layout::ImportAsset() {
+	if (world) {
+		world->StopClock();
+		OPENFILENAME ofn;
+
+		ZeroMemory(&ofn, sizeof(ofn));
+
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = 0;
+		ofn.lpstrDefExt = 0;
+		ofn.lpstrFile  = new TCHAR[MAX_PATH];
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrFilter = "Object Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrInitialDir = _T("C:\\");
+		ofn.lpstrTitle = _T("Import");
+		ofn.Flags = OFN_SHOWHELP;
+
+		GetOpenFileName(&ofn);
+		world->GetAssetManager()->BuildAsset(ofn.lpstrFile);
+		world->StartClock();
+	} else {
+		printf("Current UI has no Access to World*");
+	}
+}
+
+void Layout::CreatePrimative(std::string name) {
+	if (name.compare("Cube") == 0) {
+		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/cube.obj");
+	} else if (name.compare("Plane") == 0) {
+		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/plane.obj");
+	} else if (name.compare("Sphere") == 0) {
+		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/Sphere.obj");
+	} else if (name.compare("Cylinder") == 0) {
+		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/cylinder.obj");
+	} else if (name.compare("SmoothTest") == 0) {
+		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/smoothSphere.obj");
+	}
+}
+
+bool Layout::MainMenu() {
+	bool check = true;
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Quit", NULL)) { check = false; }
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit")) {
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) { printf("Pressed Undo!"); }
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) { printf("Pressed Cut!"); }
+			if (ImGui::MenuItem("Copy", "CTRL+C")) { printf("Pressed Copy!"); }
+			if (ImGui::MenuItem("Paste", "CTRL+V")) { printf("Pressed Paste!"); }
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	return check;
+}
+
+void Layout::AssetEditor() {
+	ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(WindowDimensions.x - 420, 20), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Asset editor", false);
+		Asset* SelectedAsset = world->GetSelectedAsset();
+		ImGui::BeginChild("left pane", ImVec2(150, 0), true);
+			for each (Asset* a in world->GetAssetManager()->GetAssets()) {
+				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { world->SetSelectedAsset(a); }
+			}
+		ImGui::EndChild();
+	ImGui::SameLine();
+
+	if (SelectedAsset != NULL) {
+		ImGui::BeginGroup();
+			ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+				ImGui::Text(SelectedAsset->Name.c_str());
+				ImGui::Separator();
+										if (ImGui::Button("Move X")) { SelectedAsset->TranslateAsset(1, 0, 0); }
+				ImGui::SameLine();		if (ImGui::Button("Move Y")) { SelectedAsset->TranslateAsset(0, 1, 0); }
+				ImGui::SameLine();		if (ImGui::Button("Move Z")) { SelectedAsset->TranslateAsset(0, 0, 1); }
+
+										if (ImGui::Button("Move -X")) { SelectedAsset->TranslateAsset(-1, 0, 0); }
+				ImGui::SameLine();		if (ImGui::Button("Move -Y")) { SelectedAsset->TranslateAsset(0, -1, 0); }
+				ImGui::SameLine();		if (ImGui::Button("Move -Z")) { SelectedAsset->TranslateAsset(0, 0, -1); }
+			ImGui::EndChild();
+			ImGui::BeginChild("buttons");
+										if (ImGui::Button("Revert")) {}
+				ImGui::SameLine();		if (ImGui::Button("Save")) {}
+			ImGui::EndChild();
+		ImGui::EndGroup();
+	}
+	ImGui::End();
+}
+
+void Layout::SceneWindow(GLuint TextureColorBuffer) {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::SetNextWindowSize(ImVec2(SceneDimensions.x, SceneDimensions.y + 50.0f), ImGuiSetCond_FirstUseEver);
+
+	WindowPos = ImVec2(0.0f, WindowDimensions.y - SceneDimensions.y - 50.f);
+	ImGui::SetNextWindowPos(WindowPos, ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Scene", false, ImGuiWindowFlags_NoMove |
+								 ImGuiWindowFlags_NoCollapse |
+								 ImGuiWindowFlags_NoResize |
+								 ImGuiWindowFlags_NoTitleBar |
+								 ImGuiWindowFlags_NoScrollbar |
+								 ImGuiWindowFlags_NoSavedSettings |
+								 ImGuiWindowFlags_MenuBar);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 8.0f));
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("Menu")) {
+				//ShowExampleMenuFile();
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Examples")) {
+				ImGui::MenuItem("NULL", NULL, false); { };
+				ImGui::MenuItem("NULL", NULL, false); { };
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Help")) {
+				ImGui::MenuItem("NULL", NULL, false); { };
+				ImGui::MenuItem("NULL", NULL, false); { };
+				ImGui::MenuItem("NULL", NULL, false); { };
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+		ImGui::PopStyleVar(1);
+
+		ImGui::Spacing();
+		ImGui::BeginGroup();
+			ImGui::Indent(15.0f);
+
+									 if (ImGui::Button("Import"))		{ ImportAsset(); };
+			ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ CreatePrimative("Cube"); };
+			ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ CreatePrimative("Plane"); };
+			ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ CreatePrimative("Sphere"); };
+			ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ CreatePrimative("Cylinder"); };
+			ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ CreatePrimative("SmoothTest"); };
+		ImGui::EndGroup();
+
+		ImGui::BeginGroup();
+			ImGui::Image((GLuint*)TextureColorBuffer, SceneDimensions, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+		ImGui::EndGroup();
+		if (ImGui::IsItemHovered()) { bIsHoveringScene = true; };
+	ImGui::End();
+	ImGui::PopStyleVar(2);
+}

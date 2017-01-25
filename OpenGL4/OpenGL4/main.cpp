@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_Window* window = SDL_CreateWindow("GL_Render", 760, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_Window* window = SDL_CreateWindow("GL_Render", 200, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
 	/* GLEW Init */
@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
 
 	Layout* UILayout = new Layout(window, ImVec2(WIDTH, HEIGHT));
 	World* MyWorld = new World(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
+	UILayout->SetWorld(MyWorld);
 	Input* MyInput = new Input(MyWorld);
 	FrameBuffer* SceneFrames = new FrameBuffer(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
 
@@ -44,10 +45,11 @@ int main(int argc, char *argv[]) {
 		MyWorld->GetLights()[0]->Translate(sin(MyWorld->GetTime()) / 20.0f, 0, cos(MyWorld->GetTime()) / 20.0f);
 
 		MyInput->UpdateInput();
-		bIsRunning = MyInput->ExecuteInput();
+		bIsRunning = MyInput->ExecuteInput(UILayout->GetSceneHovering());
 
 		SceneFrames->RenderWorldFrame(MyWorld);
-		UILayout->RenderLayout(SceneFrames->GetFrameTexture());
+		bIsRunning &= UILayout->RenderLayout(SceneFrames->GetFrameTexture());
+
 		SDL_GL_SwapWindow(window);
 	}
 

@@ -8,7 +8,7 @@ public:
 	~TextureManager();
 
 private:
-	void BuildTextures();
+	void BuildTexture(std::string path);
 	std::vector<Texture*> TextureList;
 };
 

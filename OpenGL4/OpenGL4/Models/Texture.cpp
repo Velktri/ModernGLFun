@@ -1,12 +1,10 @@
 #include "Texture.h"
 
 Texture::Texture(std::string texturePath) {
-	std::string sExecutableDirectory = Path_StripFilename(Path_GetWorkingDirectory());
-	std::string strFullPath = Path_MakeAbsolute(texturePath, sExecutableDirectory);
-	unsigned nError = lodepng::decode(imageRGBA, textureWidth, textureHeight, strFullPath.c_str());
+	unsigned nError = lodepng::decode(imageRGBA, textureWidth, textureHeight, texturePath.c_str());
 
 	if (nError != 0) {
-		std::cout << "Texture Loading Failed: Could not find " << strFullPath << std::endl;
+		std::cout << "Texture Loading Failed: Could not find " << texturePath << std::endl;
 	} else {
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);

@@ -8,7 +8,7 @@ World::World(GLuint width, GLuint height) {
 
 	ShaderManagement = new ShaderManager();
 	TextureManagement = new TextureManager();
-	AssetManagement = new AssetManager();
+	AssetManagement = new AssetManager(ShaderManagement->GetDefaultShader());
 	LightManagement = new LightManager();
 
 	Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
@@ -39,8 +39,11 @@ void World::RenderWorld() {
 	Scene->Draw(ShaderManagement->GetSceneShader(), WorldCamera);
 
 	/* Draw Assets */
-	ShaderManagement->ShadeAssets(WorldCamera, LightManagement->GetLights());
-	AssetManagement->DrawAssets(ShaderManagement->GetAssetShader());
+	ShaderManagement->SetCurrentShader(NULL);
+	for each (Shader* s in ShaderManagement->GetUserShaderList()) {
+		ShaderManagement->ShadeAssets(WorldCamera, GetLights(), s);
+		AssetManagement->DrawAssets(s);
+	}
 
 	/* Draw Lights */
 	LightManagement->ShadeLights(WorldCamera, ShaderManagement->GetLightShader());
@@ -53,8 +56,19 @@ void World::RenderScreen() {
 }
 
 void World::StartClock() {
-	TimeStart = std::chrono::high_resolution_clock::now();
-	bIsClockRunning = true;
+	if (!bIsClockRunning) {
+		TimeStart = std::chrono::high_resolution_clock::now();
+		bIsClockRunning = true;
+	}
+}
+
+void World::StopClock() {
+	if (bIsClockRunning) {
+		bIsClockRunning = false;
+	}
+	DeltaTime = 0;
+	LastFrame = 0;
+
 }
 
 void World::UpdateClock() {
@@ -64,6 +78,18 @@ void World::UpdateClock() {
 		DeltaTime = time - LastFrame;
 		LastFrame = time;
 	}
+}
+
+AssetManager* World::GetAssetManager() {
+	return AssetManagement;
+}
+
+Asset* World::GetSelectedAsset() {
+	return SelectedAsset;
+}
+
+void World::SetSelectedAsset(Asset* InAsset) {
+	SelectedAsset = InAsset;
 }
 
 GLfloat World::GetDeltaTime() {

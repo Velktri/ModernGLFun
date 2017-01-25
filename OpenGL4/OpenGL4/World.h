@@ -24,7 +24,11 @@ public:
 	void RenderWorld();
 	void RenderScreen();
 	void StartClock();
+	void StopClock();
 	void UpdateClock();
+	AssetManager* GetAssetManager();
+	Asset* GetSelectedAsset();
+	void SetSelectedAsset(Asset* InAsset);
 
 	GLfloat GetDeltaTime();
 	GLfloat GetTime();
@@ -46,5 +50,7 @@ private:
 
 	float DeltaTime;
 	float LastFrame;
+
+	Asset* SelectedAsset;
 };
 

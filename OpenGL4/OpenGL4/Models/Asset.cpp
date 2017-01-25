@@ -1,7 +1,8 @@
 #include "Asset.h"
 
-Asset::Asset(GLchar* path) {
+Asset::Asset(std::string path) {
 	loadModel(path);
+	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 
@@ -16,6 +17,7 @@ void Asset::Draw(Shader* shader) {
 
 void Asset::TranslateAsset(float x, float y, float z) {
 	orientation = glm::translate(orientation, glm::vec3(x, y, z));
+	OriginPoint = glm::vec3(OriginPoint.x + x, OriginPoint.y + y, OriginPoint.z + z);
 }
 
 void Asset::RotateAsset(float x, float y, float z) {
@@ -36,6 +38,10 @@ void Asset::ScaleAsset(float x, float y, float z) {
 	orientation = glm::scale(orientation, glm::vec3(x, y, z));
 }
 
+glm::vec3 Asset::GetOrigin() {
+	return OriginPoint;
+}
+
 void Asset::loadModel(std::string path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -44,8 +50,8 @@ void Asset::loadModel(std::string path) {
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 		return;
 	}
-	directory = path.substr(0, path.find_last_of('/'));
-
+	directory = path.substr(0, path.find_last_of('\\'));
+	//Name = "Object";
 	processNode(scene->mRootNode, scene);
 }
 
@@ -103,7 +109,7 @@ std::vector<Texture> Asset::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	for (GLuint i = 0; i < mat->GetTextureCount(type); i++) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		Texture tex = Texture("OpenGL4/" + directory + '/' + str.C_Str());
+		Texture tex = Texture(directory + '\\' + str.C_Str());
 		tex.SetType(typeName);
 		textures.push_back(tex);
 	}

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <GL/glew.h>
+#include <imgui.h>
 #include "World.h"
 
 class Input {
@@ -8,10 +9,8 @@ public:
 	Input(World* InWorld);
 	~Input();
 	void UpdateInput();
-	bool ExecuteInput();
+	bool ExecuteInput(bool SceneHovering);
 
-	void ProcessMouseEvents();
-	bool ProcessKeyEvents();
 private:
 	SDL_Event windowEvent;
 	const Uint8* keyState;
@@ -24,5 +23,15 @@ private:
 
 	int xRelState;
 	int yRelState;
+
+	bool bLeftIsPressed;
+	glm::vec2 StartSelectionCoods;
+	glm::vec2 EndSelectionCoods;
+
+	void ProcessMouseEvents();
+	void ProcessKeyEvents();
+	void QuerySelection();
+	void SelectAssets(glm::vec2 Start, glm::vec2 End);
+	void DrawLine();
 };
 

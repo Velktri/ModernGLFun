@@ -9,6 +9,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include "Models\Asset.h"
+
+class Asset;
 
 class Camera {
 public:
@@ -19,9 +22,13 @@ public:
 	void PanCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
-	void Refocus();
+	void Refocus(Asset* InAsset);
 
 	glm::vec3 GetPosition();
+	glm::vec3 GetFrontCameraDirection();
+	glm::vec3 GetUpCameraDirection();
+	glm::vec3 GetRightCameraDirection();
+
 	void SetProjection(glm::mat4 InProjection);
 	glm::mat4 GetProjection();
 
@@ -40,10 +47,6 @@ private:
 	GLfloat PanSpeed;
 	GLfloat ZoomModifier;
 	GLfloat OrbitSpeed;
-
-	/* Eular Angles */
-	GLfloat Yaw;
-	GLfloat Pitch;
 
 	void updateCameraVectors();
 

@@ -2,11 +2,9 @@
 
 
 
-AssetManager::AssetManager() {
-	BuildAssets();
-	AssetList[0]->ScaleAsset(0.2f, 0.2f, 0.2f);
-	//AssetList[1]->TranslateAsset(5.0f, 0.0f, 0.0f);
-
+AssetManager::AssetManager(Shader* InDefaultShader) {
+	DefaultShader = InDefaultShader;
+	AssetMap[DefaultShader] = std::vector<Asset*>();
 }
 
 
@@ -16,15 +14,23 @@ AssetManager::~AssetManager() {
 	}
 }
 
-void AssetManager::DrawAssets(Shader* AssetShader) {
-	for each (Asset* mod in AssetList) {
-		glUniformMatrix4fv(AssetShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
-		mod->Draw(AssetShader);
+void AssetManager::DrawAssets(Shader* Shader) {
+	for each (Asset* mod in AssetMap[Shader]) {
+		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
+		mod->Draw(Shader);
 	}
 }
 
-void AssetManager::BuildAssets() {
-	AssetList.push_back(new Asset("assets/Models/Custom/nanosuit/nanosuit.obj"));
-	//AssetList.push_back(new Asset("assets/Models/Custom/lamborgini/Avent.obj"));
+void AssetManager::BuildAsset(std::string path) {
+	Asset* a = new Asset(path);
 
+	char label[128];
+	sprintf_s(label, "Object_%d", AssetList.size());
+	a->Name = label;
+	AssetMap[DefaultShader].push_back(a);
+	AssetList.push_back(a);
+}
+
+std::vector<Asset*> AssetManager::GetAssets() {
+	return AssetList;
 }

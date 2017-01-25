@@ -2243,13 +2243,13 @@ void ImGui::NewFrame()
         g.MovedWindowMoveId = 0;
     }
 
-    // Delay saving settings so we don't spam disk too much
-    if (g.SettingsDirtyTimer > 0.0f)
-    {
-        g.SettingsDirtyTimer -= g.IO.DeltaTime;
-        if (g.SettingsDirtyTimer <= 0.0f)
-            SaveIniSettingsToDisk(g.IO.IniFilename);
-    }
+    //// Delay saving settings so we don't spam disk too much
+    //if (g.SettingsDirtyTimer > 0.0f)
+    //{
+    //    g.SettingsDirtyTimer -= g.IO.DeltaTime;
+    //    if (g.SettingsDirtyTimer <= 0.0f)
+    //        SaveIniSettingsToDisk(g.IO.IniFilename);
+    //}
 
     // Find the window we are hovering. Child windows can extend beyond the limit of their parent so we need to derive HoveredRootWindow from HoveredWindow
     g.HoveredWindow = g.MovedWindow ? g.MovedWindow : FindHoveredWindow(g.IO.MousePos, false);

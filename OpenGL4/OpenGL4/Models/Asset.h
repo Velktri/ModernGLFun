@@ -16,7 +16,7 @@ class Mesh;
 
 class Asset {
 public:
-	Asset(GLchar* path);
+	Asset(std::string path);
 	~Asset();
 	void Draw(Shader* shader);
 
@@ -26,11 +26,13 @@ public:
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
+	glm::vec3 GetOrigin();
 
 private:
 	std::vector<Mesh*> meshes;
 	std::string directory;
 	std::vector<Texture> textures_loaded;
+	glm::vec3 OriginPoint;
 
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);

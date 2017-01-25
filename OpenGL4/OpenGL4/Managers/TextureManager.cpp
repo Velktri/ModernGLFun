@@ -3,7 +3,7 @@
 
 
 TextureManager::TextureManager() {
-	BuildTextures();
+
 }
 
 
@@ -13,8 +13,6 @@ TextureManager::~TextureManager() {
 	}
 }
 
-void TextureManager::BuildTextures() {
-	TextureList.push_back(new Texture("OpenGL4/assets/Textures/WoodenBox_diff.png"));
-	TextureList.push_back(new Texture("OpenGL4/assets/Textures/WoodenBox_spec.png"));
-
+void TextureManager::BuildTexture(std::string path) {
+	TextureList.push_back(new Texture(path));
 }

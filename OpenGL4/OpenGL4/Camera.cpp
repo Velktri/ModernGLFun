@@ -52,6 +52,18 @@ glm::vec3 Camera::GetPosition() {
 	return WorldPosition;
 }
 
+glm::vec3 Camera::GetFrontCameraDirection() {
+	return LocalFront;
+}
+
+glm::vec3 Camera::GetUpCameraDirection() {
+	return LocalUp;
+}
+
+glm::vec3 Camera::GetRightCameraDirection() {
+	return LocalRight;
+}
+
 void Camera::SetProjection(glm::mat4 InProjection) {
 	Projection = InProjection;
 }
@@ -71,7 +83,12 @@ void Camera::updateCameraVectors() {
 	LocalUp = glm::normalize(glm::cross(LocalRight, LocalFront));
 }
 
-void Camera::Refocus() {
-	FocusPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+void Camera::Refocus(Asset* InAsset) {
+	if (InAsset == NULL) {
+		FocusPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+	} else {
+		FocusPoint = InAsset->GetOrigin();
+	}
+
 	updateCameraVectors();
 }

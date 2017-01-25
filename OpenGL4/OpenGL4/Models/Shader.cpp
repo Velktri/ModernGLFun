@@ -151,7 +151,7 @@ std::unordered_map<std::string, std::vector<std::string>> Shader::ParseStructs(s
 }
 
 void Shader::Use() { 
-	glUseProgram(ShaderProgram); 
+	glUseProgram(ShaderProgram);
 
 	// Create transformations and get their uniform location
 	for each (ShaderUniforms shade in UniformList) {
