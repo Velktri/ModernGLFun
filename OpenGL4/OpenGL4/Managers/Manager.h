@@ -1,32 +1,38 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <vector>
-#include "../Models/Shader.h"
-#include "../Camera.h"
-#include "../Lights/Light.h"
+#include "../Models/Asset.h"
 
-class ShaderManager {
+class Manager {
 public:
-	ShaderManager();
-	~ShaderManager();
+	Manager();
+	~Manager();
+
 
 	Shader* GetSceneShader();
 	Shader* GetAssetShader();
 	Shader* GetLightShader();
 	Shader* GetScreenShader();
 	Shader* GetDefaultShader();
-
 	Shader* GetCurrentShader();
 	void SetCurrentShader(Shader* s);
-
 	std::vector<Shader*> GetUserShaderList();
 
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
 
+	void DrawAssets(Shader* AssetShader);
+	void BuildAsset(std::string path);
+	std::vector<Asset*> GetAssets();
+
+	std::vector<Light*> GetLights();
+	void ShadeLights(Camera* WorldCamera, Shader* LightShader);
+	void Draw(Shader* shader);
+
 private:
+	/* Assets */
+	std::unordered_map<Shader*, std::vector<Asset*>> AssetMap;
+	std::vector<Asset*> AssetList;
+
+	/* Shader */
 	Shader* SceneShader;
 	Shader* AssetShader;
 	Shader* LightShader;
@@ -38,5 +44,13 @@ private:
 	std::vector<Shader*> UserShaderList;
 	std::vector<Shader*> SystemShaderList;
 	void BuildShaders();
+
+	/* Textures */
+	void BuildTexture(std::string path);
+	std::vector<Texture*> TextureList;
+
+	/* Lights */
+	std::vector<Light*> LightsList;
+	void BuildLights();
 };
 

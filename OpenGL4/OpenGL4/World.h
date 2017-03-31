@@ -8,10 +8,7 @@
 
 #include "Camera.h"
 #include"Models\Grid.h"
-#include "Managers\ShaderManager.h"
-#include "Managers\AssetManager.h"
-#include "Managers\TextureManager.h"
-#include "Managers\LightManager.h"
+#include "Managers\Manager.h"
 
 class World {
 public:
@@ -26,9 +23,10 @@ public:
 	void StartClock();
 	void StopClock();
 	void UpdateClock();
-	AssetManager* GetAssetManager();
+
 	Asset* GetSelectedAsset();
 	void SetSelectedAsset(Asset* InAsset);
+	void SetManager(Manager* m);
 
 	GLfloat GetDeltaTime();
 	GLfloat GetTime();
@@ -36,10 +34,9 @@ public:
 private:
 	Camera* WorldCamera;
 	Grid* Scene;
-	ShaderManager* ShaderManagement;
-	AssetManager* AssetManagement;
-	TextureManager* TextureManagement;
-	LightManager* LightManagement;
+
+	Manager* MyManager;
+
 	std::chrono::time_point<std::chrono::steady_clock> TimeStart;
 	std::chrono::time_point<std::chrono::steady_clock> TimeNow;
 	bool bIsClockRunning;

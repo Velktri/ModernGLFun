@@ -3,7 +3,6 @@
 #include <vector>
 #include <SDL.h>
 #include <GL/glew.h>
-#include "Panel.h"
 #include <Windows.h>
 #include <tchar.h>
 #include "../World.h"
@@ -19,6 +18,8 @@ public:
 	bool RenderLayout(GLuint TextureColorBuffer);
 	ImVec2 GetSceneDimensions();
 	void SetWorld(World* InWorld);
+	void SetManager(Manager* m);
+
 	bool GetSceneHovering();
 
 private:
@@ -29,10 +30,8 @@ private:
 	ImVec2 SceneSizeModifier;
 	ImVec2 WindowPos;
 	bool bIsHoveringScene;
-	std::vector<Panel*> PanelList;
+	Manager* MyManager;
 
-	void BuildLayout(std::string path);
-	void BuildDefaultLayout();
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
 	void CreatePrimative(std::string name);

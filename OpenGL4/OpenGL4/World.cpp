@@ -1,15 +1,8 @@
 #include "World.h"
 
-
-
 World::World(GLuint width, GLuint height) {
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
 	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.01f, 1000.0f));
-
-	ShaderManagement = new ShaderManager();
-	TextureManagement = new TextureManager();
-	AssetManagement = new AssetManager(ShaderManagement->GetDefaultShader());
-	LightManagement = new LightManager();
 
 	Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
 	bIsClockRunning = false;
@@ -20,10 +13,6 @@ World::World(GLuint width, GLuint height) {
 
 World::~World() {
 	Scene->~Grid();
-	ShaderManagement->~ShaderManager();
-	TextureManagement->~TextureManager();
-	AssetManagement->~AssetManager();
-	LightManagement->~LightManager();
 }
 
 Camera* World::GetCamera() {
@@ -31,27 +20,27 @@ Camera* World::GetCamera() {
 }
 
 std::vector<Light*> World::GetLights() {
-	return LightManagement->GetLights();
+	return MyManager->GetLights();
 }
 
 void World::RenderWorld() {
 	/* Draw Scene */
-	Scene->Draw(ShaderManagement->GetSceneShader(), WorldCamera);
+	Scene->Draw(MyManager->GetSceneShader(), WorldCamera);
 
 	/* Draw Assets */
-	ShaderManagement->SetCurrentShader(NULL);
-	for each (Shader* s in ShaderManagement->GetUserShaderList()) {
-		ShaderManagement->ShadeAssets(WorldCamera, GetLights(), s);
-		AssetManagement->DrawAssets(s);
+	MyManager->SetCurrentShader(NULL);
+	for each (Shader* s in MyManager->GetUserShaderList()) {
+		MyManager->ShadeAssets(WorldCamera, GetLights(), s);
+		MyManager->DrawAssets(s);
 	}
 
 	/* Draw Lights */
-	LightManagement->ShadeLights(WorldCamera, ShaderManagement->GetLightShader());
-	LightManagement->Draw(ShaderManagement->GetLightShader());
+	MyManager->ShadeLights(WorldCamera, MyManager->GetLightShader());
+	MyManager->Draw(MyManager->GetLightShader());
 }
 
 void World::RenderScreen() {
-	ShaderManagement->GetScreenShader()->Use();
+	MyManager->GetScreenShader()->Use();
 
 }
 
@@ -80,16 +69,16 @@ void World::UpdateClock() {
 	}
 }
 
-AssetManager* World::GetAssetManager() {
-	return AssetManagement;
-}
-
 Asset* World::GetSelectedAsset() {
 	return SelectedAsset;
 }
 
 void World::SetSelectedAsset(Asset* InAsset) {
 	SelectedAsset = InAsset;
+}
+
+void World::SetManager(Manager* m) {
+	MyManager = m;
 }
 
 GLfloat World::GetDeltaTime() {

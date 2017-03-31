@@ -33,9 +33,9 @@ bool Input::ExecuteInput(bool SceneHovering) {
 		if (mouseState && SceneHovering) {
 			ProcessMouseEvents();
 		}
-	}/* else {
+	} else {
 		QuerySelection();
-	}*/
+	}
 
 	ProcessKeyEvents();
 	return true;
@@ -88,7 +88,7 @@ void Input::SelectAssets(glm::vec2 Start, glm::vec2 End) {
 	ray_eye.w = 0.0f;
 	glm::vec4 a = glm::vec4(glm::inverse(world->GetCamera()->GetViewMatrix()) * ray_eye);
 	glm::vec3 ray_wor = glm::vec3(a.x , a.y, a.z);
-	// don't forget to normalise the vector at some point
+	// don't forget to normalize the vector at some point
 	ray_wor = glm::normalize(ray_wor);
 
 	printf("Norm Dev Coords: %f, %f\n", x, y);

@@ -10,14 +10,16 @@ Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path
 	SceneDimensions = ImVec2(WindowDimensions.x * SceneSizeModifier.x, WindowDimensions.y * SceneSizeModifier.y);
 
 	ImGui_ImplSdlGL3_Init(Window);
-
-	BuildLayout(path);
 	SetDefaultStyle(path);
-
 }
 
 
 Layout::~Layout() {
+}
+
+
+void Layout::SetManager(Manager* m) {
+	MyManager = m;
 }
 
 bool Layout::RenderLayout(GLuint TextureColorBuffer) {
@@ -48,16 +50,6 @@ void Layout::SetWorld(World* InWorld) {
 
 bool Layout::GetSceneHovering() {
 	return bIsHoveringScene;
-}
-
-void Layout::BuildLayout(std::string path) {
-	if (path.compare("") == 0) {
-		BuildDefaultLayout();
-	}
-}
-
-void Layout::BuildDefaultLayout() {
-	//PanelList.push_back(new Panel("Main Menu"));
 }
 
 void Layout::SetDefaultStyle(std::string path) {
@@ -140,7 +132,7 @@ void Layout::ImportAsset() {
 		ofn.Flags = OFN_SHOWHELP;
 
 		GetOpenFileName(&ofn);
-		world->GetAssetManager()->BuildAsset(ofn.lpstrFile);
+		MyManager->BuildAsset(ofn.lpstrFile);
 		world->StartClock();
 	} else {
 		printf("Current UI has no Access to World*");
@@ -149,15 +141,15 @@ void Layout::ImportAsset() {
 
 void Layout::CreatePrimative(std::string name) {
 	if (name.compare("Cube") == 0) {
-		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/cube.obj");
+		MyManager->BuildAsset("assets/Models/Primatives/cube.obj");
 	} else if (name.compare("Plane") == 0) {
-		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/plane.obj");
+		MyManager->BuildAsset("assets/Models/Primatives/plane.obj");
 	} else if (name.compare("Sphere") == 0) {
-		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/Sphere.obj");
+		MyManager->BuildAsset("assets/Models/Primatives/Sphere.obj");
 	} else if (name.compare("Cylinder") == 0) {
-		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/cylinder.obj");
+		MyManager->BuildAsset("assets/Models/Primatives/cylinder.obj");
 	} else if (name.compare("SmoothTest") == 0) {
-		world->GetAssetManager()->BuildAsset("assets/Models/Primatives/smoothSphere.obj");
+		MyManager->BuildAsset("assets/Models/Primatives/smoothSphere.obj");
 	}
 }
 
@@ -188,7 +180,7 @@ void Layout::AssetEditor() {
 	ImGui::Begin("Asset editor", false);
 		Asset* SelectedAsset = world->GetSelectedAsset();
 		ImGui::BeginChild("left pane", ImVec2(150, 0), true);
-			for each (Asset* a in world->GetAssetManager()->GetAssets()) {
+			for each (Asset* a in MyManager->GetAssets()) {
 				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { world->SetSelectedAsset(a); }
 			}
 		ImGui::EndChild();
@@ -221,7 +213,7 @@ void Layout::SceneWindow(GLuint TextureColorBuffer) {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::SetNextWindowSize(ImVec2(SceneDimensions.x, SceneDimensions.y + 50.0f), ImGuiSetCond_FirstUseEver);
 
-	WindowPos = ImVec2(0.0f, WindowDimensions.y - SceneDimensions.y - 50.f);
+	WindowPos = ImVec2(0.0f, WindowDimensions.y - SceneDimensions.y - 49.f);
 	ImGui::SetNextWindowPos(WindowPos, ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Scene", false, ImGuiWindowFlags_NoMove |
 								 ImGuiWindowFlags_NoCollapse |
@@ -273,3 +265,4 @@ void Layout::SceneWindow(GLuint TextureColorBuffer) {
 	ImGui::End();
 	ImGui::PopStyleVar(2);
 }
+

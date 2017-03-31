@@ -1,14 +1,17 @@
-#include "ShaderManager.h"
+#include "Manager.h"
 
 
 
-ShaderManager::ShaderManager() {
+Manager::Manager() {
 	BuildShaders();
 	CurrentShader = DefaultShader;
+	AssetMap[DefaultShader] = std::vector<Asset*>();
+	BuildLights();
 }
 
 
-ShaderManager::~ShaderManager() {
+Manager::~Manager() {
+	/* Shaders */
 	for each (Shader* s in UserShaderList) {
 		s->~Shader();
 	}
@@ -16,41 +19,56 @@ ShaderManager::~ShaderManager() {
 	for each (Shader* s in SystemShaderList) {
 		s->~Shader();
 	}
+
+	/* Assets */
+	for each (Asset* mod in AssetList) {
+		mod->~Asset();
+	}
+
+	/* Textures */
+	for each (Texture* t in TextureList) {
+		t->~Texture();
+	}
+
+	/* Lights */
+	for each (Light* l in LightsList) {
+		l->~Light();
+	}
 }
 
-Shader* ShaderManager::GetSceneShader() {
+Shader* Manager::GetSceneShader() {
 	return SceneShader;
 }
 
-Shader* ShaderManager::GetAssetShader() {
+Shader* Manager::GetAssetShader() {
 	return AssetShader;
 }
 
-Shader* ShaderManager::GetLightShader() {
+Shader* Manager::GetLightShader() {
 	return LightShader;
 }
 
-Shader* ShaderManager::GetScreenShader() {
+Shader* Manager::GetScreenShader() {
 	return ScreenShader;
 }
 
-Shader* ShaderManager::GetDefaultShader() {
+Shader* Manager::GetDefaultShader() {
 	return DefaultShader;
 }
 
-Shader* ShaderManager::GetCurrentShader() {
+Shader* Manager::GetCurrentShader() {
 	return CurrentShader;
 }
 
-void ShaderManager::SetCurrentShader(Shader* s) {
+void Manager::SetCurrentShader(Shader* s) {
 	CurrentShader = s;
 }
 
-std::vector<Shader*> ShaderManager::GetUserShaderList() {
+std::vector<Shader*> Manager::GetUserShaderList() {
 	return UserShaderList;
 }
 
-void ShaderManager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader) {
+void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader) {
 	if (InCurrentShader != CurrentShader) {
 		CurrentShader = InCurrentShader;
 		CurrentShader->Use();
@@ -79,7 +97,7 @@ void ShaderManager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights,
 	}
 }
 
-void ShaderManager::BuildShaders() {
+void Manager::BuildShaders() {
 	SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
 	//AssetShader = new Shader("assets/Shaders/Lighting.vert", "assets/Shaders/Lighting.frag");
 	LightShader = new Shader("assets/Shaders/Lamp.vert", "assets/Shaders/Lamp.frag");
@@ -91,4 +109,51 @@ void ShaderManager::BuildShaders() {
 	SystemShaderList.push_back(LightShader);
 	SystemShaderList.push_back(ScreenShader);
 	UserShaderList.push_back(DefaultShader);
+}
+
+void Manager::DrawAssets(Shader* Shader) {
+	for each (Asset* mod in AssetMap[Shader]) {
+		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
+		mod->Draw(Shader);
+	}
+}
+
+void Manager::BuildAsset(std::string path) {
+	Asset* a = new Asset(path);
+
+	char label[128];
+	sprintf_s(label, "Object_%d", AssetList.size());
+	a->Name = label;
+	AssetMap[DefaultShader].push_back(a);
+	AssetList.push_back(a);
+}
+
+std::vector<Asset*> Manager::GetAssets() {
+	return AssetList;
+}
+
+
+std::vector<Light*> Manager::GetLights() {
+	return LightsList;
+}
+
+void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader) {
+	LightShader->Use();
+	glUniformMatrix4fv(LightShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
+	glUniformMatrix4fv(LightShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
+}
+
+void Manager::Draw(Shader* shader) {
+	for each (Light* li in LightsList) {
+		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
+		li->Draw();
+	}
+}
+
+void Manager::BuildTexture(std::string path) {
+	TextureList.push_back(new Texture(path));
+}
+
+void Manager::BuildLights() {
+	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
 }
