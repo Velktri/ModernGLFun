@@ -147,14 +147,16 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Lights\PointLight.cpp" />
     <ClCompile Include="Lights\SpotLight.cpp" />
     <ClCompile Include="Lights\SunLight.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Managers\Manager.cpp" />
+    <ClCompile Include="Manager.cpp" />
     <ClCompile Include="Models\Asset.cpp" />
     <ClCompile Include="Models\Grid.cpp" />
     <ClCompile Include="Models\Mesh.cpp" />
@@ -172,13 +174,15 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Lights\Light.h" />
     <ClInclude Include="Lights\PointLight.h" />
     <ClInclude Include="Lights\SpotLight.h" />
     <ClInclude Include="Lights\SunLight.h" />
-    <ClInclude Include="Managers\Manager.h" />
+    <ClInclude Include="Line.h" />
+    <ClInclude Include="Manager.h" />
     <ClInclude Include="Models\Asset.h" />
     <ClInclude Include="Models\Grid.h" />
     <ClInclude Include="Models\Mesh.h" />

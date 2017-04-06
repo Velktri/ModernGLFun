@@ -1,6 +1,6 @@
 #include "FrameBuffer.h"
-
-
+#include "World.h"
+#include <iostream>
 
 FrameBuffer::FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y) {
 	FrameSize_X = InFrameSize_X;

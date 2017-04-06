@@ -1,4 +1,7 @@
 #include "Shader.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 Shader::Shader(const char* vertFile, const char* fragFile) {
 	std::string tempvert = ReadShaderFile(vertFile);

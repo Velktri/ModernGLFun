@@ -1,14 +1,17 @@
 #pragma once
 #include <chrono>
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
-#include "Camera.h"
-#include"Models\Grid.h"
-#include "Managers\Manager.h"
+class Camera;
+class Grid;
+class Manager;
+class Line;
+class Light;
+class Asset;
 
 class World {
 public:
@@ -23,18 +26,16 @@ public:
 	void StartClock();
 	void StopClock();
 	void UpdateClock();
-
-	Asset* GetSelectedAsset();
-	void SetSelectedAsset(Asset* InAsset);
 	void SetManager(Manager* m);
 
 	GLfloat GetDeltaTime();
 	GLfloat GetTime();
 
+	Asset* CastRaytrace(glm::vec2 DeviceCoords);
+
 private:
 	Camera* WorldCamera;
 	Grid* Scene;
-
 	Manager* MyManager;
 
 	std::chrono::time_point<std::chrono::steady_clock> TimeStart;
@@ -48,6 +49,9 @@ private:
 	float DeltaTime;
 	float LastFrame;
 
-	Asset* SelectedAsset;
+	GLuint SceneWidth;
+	GLuint SceneHeight;
+
+	Line* line;
 };
 

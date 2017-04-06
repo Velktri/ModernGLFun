@@ -1,6 +1,10 @@
 #include "Engine.h"
-
-
+#include "World.h"
+#include "UI/Layout.h"
+#include "Input.h"
+#include "FrameBuffer.h"
+#include "Manager.h"
+#include "Lights\Light.h"
 
 Engine::Engine() {
 	WIDTH = 1920;
@@ -43,10 +47,13 @@ bool Engine::Init() {
 	UILayout = new Layout(MainWindow, ImVec2(WIDTH, HEIGHT));
 	MyManager = new Manager();
 	MyWorld = new World(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
-	UILayout->SetManager(MyManager);
-	MyWorld->SetManager(MyManager);
-	UILayout->SetWorld(MyWorld);
 	MyInput = new Input(MyWorld);
+
+	UILayout->SetManager(MyManager);
+	UILayout->SetWorld(MyWorld);
+
+	MyWorld->SetManager(MyManager);
+	MyInput->SetManger(MyManager);
 
 	SceneFrames = new FrameBuffer(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
 

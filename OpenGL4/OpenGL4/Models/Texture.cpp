@@ -1,4 +1,7 @@
 #include "Texture.h"
+#include <iostream>
+#include "../Shared/pathtools.h"
+#include "../Shared/lodepng.h"
 
 Texture::Texture(std::string texturePath) {
 	unsigned nError = lodepng::decode(imageRGBA, textureWidth, textureHeight, texturePath.c_str());

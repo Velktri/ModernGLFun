@@ -1,8 +1,12 @@
 #pragma once
 #include <SDL.h>
 #include <GL/glew.h>
-#include <imgui.h>
-#include "World.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class World;
+class Manager;
 
 class Input {
 public:
@@ -10,6 +14,7 @@ public:
 	~Input();
 	void UpdateInput();
 	bool ExecuteInput(bool SceneHovering);
+	void SetManger(Manager* m);
 
 private:
 	SDL_Event windowEvent;
@@ -17,6 +22,7 @@ private:
 	Uint32 mouseState;
 	Uint32 relativeMouseState;
 	World* world;
+	Manager* MyManager;
 
 	int xState;
 	int yState;

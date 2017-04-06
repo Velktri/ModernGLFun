@@ -1,5 +1,11 @@
 #include "Layout.h"
-
+#include "../World.h"
+#include "../Manager.h"
+#include "../Models/Asset.h"
+#include "../Models/Mesh.h"
+#include <Windows.h>
+#include <vector>
+#include <tchar.h>
 
 
 Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path) {
@@ -13,10 +19,8 @@ Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path
 	SetDefaultStyle(path);
 }
 
-
 Layout::~Layout() {
 }
-
 
 void Layout::SetManager(Manager* m) {
 	MyManager = m;
@@ -140,16 +144,18 @@ void Layout::ImportAsset() {
 }
 
 void Layout::CreatePrimative(std::string name) {
-	if (name.compare("Cube") == 0) {
-		MyManager->BuildAsset("assets/Models/Primatives/cube.obj");
+	if (name.compare("Empty") == 0) {
+		MyManager->BuildAsset();
+	} else if (name.compare("Cube") == 0) {
+		MyManager->BuildAsset("assets/Models/Primitives/cube.obj");
 	} else if (name.compare("Plane") == 0) {
-		MyManager->BuildAsset("assets/Models/Primatives/plane.obj");
+		MyManager->BuildAsset("assets/Models/Primitives/plane.obj");
 	} else if (name.compare("Sphere") == 0) {
-		MyManager->BuildAsset("assets/Models/Primatives/Sphere.obj");
+		MyManager->BuildAsset("assets/Models/Primitives/Sphere.obj");
 	} else if (name.compare("Cylinder") == 0) {
-		MyManager->BuildAsset("assets/Models/Primatives/cylinder.obj");
+		MyManager->BuildAsset("assets/Models/Primitives/cylinder.obj");
 	} else if (name.compare("SmoothTest") == 0) {
-		MyManager->BuildAsset("assets/Models/Primatives/smoothSphere.obj");
+		MyManager->BuildAsset("assets/Models/Primitives/smoothSphere.obj");
 	}
 }
 
@@ -178,17 +184,18 @@ void Layout::AssetEditor() {
 	ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(WindowDimensions.x - 420, 20), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Asset editor", false);
-		Asset* SelectedAsset = world->GetSelectedAsset();
+		Asset* SelectedAsset = MyManager->GetSelectedAsset();
 		ImGui::BeginChild("left pane", ImVec2(150, 0), true);
 			for each (Asset* a in MyManager->GetAssets()) {
-				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { world->SetSelectedAsset(a); }
+				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { MyManager->SetSelectedAsset(a); }
 			}
 		ImGui::EndChild();
 	ImGui::SameLine();
 
 	if (SelectedAsset != NULL) {
 		ImGui::BeginGroup();
-			ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+		ImVec2 i = ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing());
+			ImGui::BeginChild("Item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
 				ImGui::Text(SelectedAsset->Name.c_str());
 				ImGui::Separator();
 										if (ImGui::Button("Move X")) { SelectedAsset->TranslateAsset(1, 0, 0); }
@@ -198,7 +205,28 @@ void Layout::AssetEditor() {
 										if (ImGui::Button("Move -X")) { SelectedAsset->TranslateAsset(-1, 0, 0); }
 				ImGui::SameLine();		if (ImGui::Button("Move -Y")) { SelectedAsset->TranslateAsset(0, -1, 0); }
 				ImGui::SameLine();		if (ImGui::Button("Move -Z")) { SelectedAsset->TranslateAsset(0, 0, -1); }
+
+				ImGui::Separator();
+
+				ImGui::Text("Mesh Properties");
+				ImGui::Separator();
+
+				static int selection = -1;
+				ImGui::Text(MyManager->GetSelectedAsset()->GetMesh() ? MyManager->GetSelectedAsset()->GetMesh()->GetName().c_str() : "None");
+
+				ImGui::SameLine();		if (ImGui::Button("Set Mesh")) { ImGui::OpenPopup("select"); }
+
+				if (ImGui::BeginPopup("select")) {
+					std::vector<Mesh*> meshList = MyManager->GetMeshList();
+					for (int i = 0; i < meshList.size(); i++) {
+						if (ImGui::Selectable(meshList[i]->GetName().c_str())) { selection = i; SelectedAsset->SetMesh(meshList.at(i)); }
+					}
+
+					ImGui::EndPopup();
+				}
 			ImGui::EndChild();
+
+
 			ImGui::BeginChild("buttons");
 										if (ImGui::Button("Revert")) {}
 				ImGui::SameLine();		if (ImGui::Button("Save")) {}
@@ -251,6 +279,7 @@ void Layout::SceneWindow(GLuint TextureColorBuffer) {
 			ImGui::Indent(15.0f);
 
 									 if (ImGui::Button("Import"))		{ ImportAsset(); };
+			ImGui::SameLine();		 if (ImGui::Button("Empty Asset"))  { CreatePrimative("Empty"); };
 			ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ CreatePrimative("Cube"); };
 			ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ CreatePrimative("Plane"); };
 			ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ CreatePrimative("Sphere"); };

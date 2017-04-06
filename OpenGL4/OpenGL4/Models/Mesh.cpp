@@ -1,5 +1,11 @@
 #include "Mesh.h"
-
+#include "../Models/Shader.h"
+#include "../Models/Texture.h"
+#include "../Camera.h"
+#include "../Lights/Light.h"
+#include "Asset.h"
+#include <sstream>
+#include "Texture.h"
 
 Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, std::vector<Texture> InTextures, Asset* InAsset) {
 	vertices = InVertices;
@@ -51,6 +57,10 @@ void Mesh::Draw(Shader* shader) {
 
 Asset* Mesh::GetParentAsset() {
 	return ParentAsset;
+}
+
+std::string Mesh::GetName() {
+	return Name;
 }
 
 void Mesh::SetupMesh() {

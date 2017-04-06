@@ -1,7 +1,7 @@
 #pragma once
 #include <GL/glew.h>
-#include <iostream>
-#include "World.h"
+
+class World;
 
 class FrameBuffer {
 public:

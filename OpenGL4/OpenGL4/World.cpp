@@ -1,4 +1,11 @@
 #include "World.h"
+#include "Camera.h"
+#include "Models\Grid.h"
+#include "Manager.h"
+#include "Line.h"
+#include "Lights\Light.h"
+#include "Models\Asset.h"
+#include "Models\Shader.h"
 
 World::World(GLuint width, GLuint height) {
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
@@ -8,8 +15,10 @@ World::World(GLuint width, GLuint height) {
 	bIsClockRunning = false;
 	DeltaTime = 0.0f;
 	LastFrame = 0.0f;
-}
 
+	SceneWidth = width;
+	SceneHeight = height;
+}
 
 World::~World() {
 	Scene->~Grid();
@@ -26,6 +35,12 @@ std::vector<Light*> World::GetLights() {
 void World::RenderWorld() {
 	/* Draw Scene */
 	Scene->Draw(MyManager->GetSceneShader(), WorldCamera);
+
+	/* Draw Debug Lines */
+	if (line) {
+		line->Draw(MyManager->GetSceneShader(), WorldCamera);
+	}
+
 
 	/* Draw Assets */
 	MyManager->SetCurrentShader(NULL);
@@ -69,14 +84,6 @@ void World::UpdateClock() {
 	}
 }
 
-Asset* World::GetSelectedAsset() {
-	return SelectedAsset;
-}
-
-void World::SetSelectedAsset(Asset* InAsset) {
-	SelectedAsset = InAsset;
-}
-
 void World::SetManager(Manager* m) {
 	MyManager = m;
 }
@@ -89,4 +96,34 @@ GLfloat World::GetTime() {
 	return LastFrame;
 }
 
+Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {
+	glm::vec2 ScreenSize = glm::vec2(SceneWidth, SceneHeight);
+	DeviceCoords.y -= 237.0f;
 
+	float x = (2.0f * DeviceCoords.x) / ScreenSize.x - 1.0f;
+	float y = 1.0f - (2.0f * DeviceCoords.y) / ScreenSize.y;
+	float z = 1.0f;
+	glm::vec3 ray_nds = glm::vec3(x, y, z);
+
+	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
+
+	glm::vec4 ray_eye = glm::inverse(WorldCamera->GetProjection()) * ray_clip;
+	ray_eye.z = -1.0f;
+	ray_eye.w = 0.0f;
+
+	glm::vec4 a = glm::vec4(glm::inverse(WorldCamera->GetViewMatrix()) * ray_eye);
+	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
+	ray_wor = glm::normalize(ray_wor);
+
+	glm::vec3 lStart = WorldCamera->GetPosition();
+	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
+	if (line)
+	{
+		delete line;
+		line = new Line(lStart, lEnd);
+	} else {
+		line = new Line(lStart, lEnd);
+	}
+
+	return NULL;
+}

@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "Models\Asset.h"
+#include <iostream>
 
 Camera::Camera(glm::vec3 position) {
 	WorldPosition = position;

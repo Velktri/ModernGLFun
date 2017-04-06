@@ -1,7 +1,5 @@
 #include "Light.h"
 
-
-
 Light::Light() {
 	WorldPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	BuildLight();

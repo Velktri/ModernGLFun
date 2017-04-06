@@ -1,9 +1,6 @@
 #pragma once
-#include "World.h"
-#include "UI/Layout.h"
-#include "Input.h"
-#include "FrameBuffer.h"
-#include "Managers/Manager.h"
+#include <GL/glew.h>
+#include <SDL.h>
 
 class Engine {
 public:
@@ -15,11 +12,11 @@ public:
 	void CleanUp();
 
 private:
-	World* MyWorld;
-	Layout* UILayout;
-	Input* MyInput;
-	Manager* MyManager;
-	FrameBuffer* SceneFrames;
+	class World* MyWorld;
+	class Layout* UILayout;
+	class Input* MyInput;
+	class Manager* MyManager;
+	class FrameBuffer* SceneFrames;
 	SDL_Window* MainWindow;
 	SDL_GLContext context;
 

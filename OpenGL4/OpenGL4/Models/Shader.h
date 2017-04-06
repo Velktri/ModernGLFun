@@ -1,10 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include <stdio.h>
 #include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
 #include <vector>
 #include <unordered_map>
 

@@ -2,9 +2,6 @@
 #include <GL/glew.h>
 #include <string>
 #include <vector>
-#include "../Shared/pathtools.h"
-#include "../Shared/lodepng.h"
-#include <iostream>
 
 class Texture {
 public:

@@ -1,6 +1,11 @@
 #include "Manager.h"
-
-
+#include "Models/Asset.h"
+#include "Models/Shader.h"
+#include "Models/Mesh.h"
+#include "Camera.h"
+#include "Entity.h"
+#include "Models/Texture.h"
+#include "Lights/Light.h"
 
 Manager::Manager() {
 	BuildShaders();
@@ -36,6 +41,10 @@ Manager::~Manager() {
 	}
 }
 
+std::vector<Mesh*> Manager::GetMeshList() {
+	return MeshList;
+}
+
 Shader* Manager::GetSceneShader() {
 	return SceneShader;
 }
@@ -66,6 +75,14 @@ void Manager::SetCurrentShader(Shader* s) {
 
 std::vector<Shader*> Manager::GetUserShaderList() {
 	return UserShaderList;
+}
+
+Asset* Manager::GetSelectedAsset() {
+	return SelectedAsset;
+}
+
+void Manager::SetSelectedAsset(Asset* InAsset) {
+	SelectedAsset = InAsset;
 }
 
 void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader) {
@@ -120,6 +137,22 @@ void Manager::DrawAssets(Shader* Shader) {
 
 void Manager::BuildAsset(std::string path) {
 	Asset* a = new Asset(path);
+
+	char label[128];
+	sprintf_s(label, "Object_%d", AssetList.size());
+	a->Name = label;
+	AssetMap[DefaultShader].push_back(a);
+	AssetList.push_back(a);
+	if (MeshList.size() == 0) {
+		MeshList = a->GetMeshes();
+	} else {
+		std::vector<Mesh*> temp = a->GetMeshes();
+		MeshList.insert(std::end(MeshList), std::begin(temp), std::end(temp));
+	}
+}
+
+void Manager::BuildAsset() {
+	Asset* a = new Asset();
 
 	char label[128];
 	sprintf_s(label, "Object_%d", AssetList.size());

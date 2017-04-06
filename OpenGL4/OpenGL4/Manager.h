@@ -1,13 +1,20 @@
 #pragma once
 #include <vector>
-#include "../Models/Asset.h"
+#include <unordered_map>
+
+class Shader;
+class Asset;
+class Mesh;
+class Light;
+class Camera;
+class Texture;
 
 class Manager {
 public:
 	Manager();
 	~Manager();
 
-
+	std::vector<Mesh*> GetMeshList();
 	Shader* GetSceneShader();
 	Shader* GetAssetShader();
 	Shader* GetLightShader();
@@ -16,11 +23,15 @@ public:
 	Shader* GetCurrentShader();
 	void SetCurrentShader(Shader* s);
 	std::vector<Shader*> GetUserShaderList();
+	Asset* GetSelectedAsset();
+	void SetSelectedAsset(Asset* InAsset);
+
 
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
 
 	void DrawAssets(Shader* AssetShader);
 	void BuildAsset(std::string path);
+	void BuildAsset();
 	std::vector<Asset*> GetAssets();
 
 	std::vector<Light*> GetLights();
@@ -31,6 +42,7 @@ private:
 	/* Assets */
 	std::unordered_map<Shader*, std::vector<Asset*>> AssetMap;
 	std::vector<Asset*> AssetList;
+	Asset* SelectedAsset;
 
 	/* Shader */
 	Shader* SceneShader;
@@ -52,5 +64,8 @@ private:
 	/* Lights */
 	std::vector<Light*> LightsList;
 	void BuildLights();
+
+	/* Meshes */
+	std::vector<Mesh*> MeshList;
 };
 

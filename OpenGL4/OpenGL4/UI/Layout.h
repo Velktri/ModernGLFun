@@ -1,14 +1,13 @@
 #pragma once
-#include <string>
-#include <vector>
 #include <SDL.h>
 #include <GL/glew.h>
-#include <Windows.h>
-#include <tchar.h>
-#include "../World.h"
+#include <string>
 
 #include <imgui.h>
 #include "imgui_impl_sdl_gl3.h"
+
+class World;
+class Manager;
 
 class Layout {
 public:

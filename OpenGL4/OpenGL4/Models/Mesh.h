@@ -2,18 +2,13 @@
 #include <GL/glew.h>
 #include <string>
 #include <vector>
-#include <sstream>
-#include "../Models/Shader.h"
-#include "../Models/Texture.h"
-#include "../Camera.h"
-#include "../Lights/Light.h"
-#include "Asset.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 class Asset;
+class Texture;
+class Shader;
 
 struct Vertex {
 	glm::vec3 Position;
@@ -34,11 +29,12 @@ public:
 
 	void Draw(Shader* shader);
 	Asset* GetParentAsset();
+	std::string GetName();
 
 private:
 	GLuint VAO, VBO, EBO;
 	void SetupMesh();
 	Asset* ParentAsset;
-
+	std::string Name;
 };
 

@@ -1,18 +1,49 @@
 #include "Asset.h"
+#include "../Models/Shader.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include <iostream>
+
+Asset::Asset() {
+	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+	StaticMesh= NULL;
+	TextureMap = NULL;
+}
 
 Asset::Asset(std::string path) {
 	loadModel(path);
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+	StaticMesh = NULL;
+	TextureMap = NULL;
 }
 
-
 Asset::~Asset() {
+
 }
 
 void Asset::Draw(Shader* shader) {
-	for (GLuint i = 0; i < meshes.size(); i++) {
+	GLuint i = 0;
+	for (i; i < meshes.size(); i++) {
 		meshes[i]->Draw(shader);
 	}
+
+	if (i == 0) {
+		StaticMesh->Draw(shader);
+	}
+}
+
+
+Mesh* Asset::GetMesh() {
+	return StaticMesh;
+}
+
+void Asset::SetMesh(Mesh* InMesh) {
+	StaticMesh = InMesh;
+	meshes.push_back(InMesh);
+}
+
+Texture* Asset::GetTexture() {
+	return TextureMap;
 }
 
 void Asset::TranslateAsset(float x, float y, float z) {
@@ -38,8 +69,13 @@ void Asset::ScaleAsset(float x, float y, float z) {
 	orientation = glm::scale(orientation, glm::vec3(x, y, z));
 }
 
+
 glm::vec3 Asset::GetOrigin() {
 	return OriginPoint;
+}
+
+std::vector<Mesh*> Asset::GetMeshes() {
+	return meshes;
 }
 
 void Asset::loadModel(std::string path) {

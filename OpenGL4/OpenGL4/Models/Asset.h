@@ -1,10 +1,10 @@
 #pragma once
 #include <GL/glew.h>
-#include "../Models/Shader.h"
-#include "Mesh.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <string>
-#include <iostream>
 
 /* Assimp */
 #include <Importer.hpp>
@@ -12,27 +12,37 @@
 #include <postprocess.h>
 
 class Mesh;
-
+class Texture;
+class Shader;
 
 class Asset {
 public:
+	Asset();
 	Asset(std::string path);
 	~Asset();
 	void Draw(Shader* shader);
 
+	Mesh* GetMesh();
+	void SetMesh(Mesh* InMesh);
+	Texture* GetTexture();
+
 	std::string Name;
 	glm::mat4 orientation;
+
 
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
 	glm::vec3 GetOrigin();
+	std::vector<Mesh*> GetMeshes();
 
 private:
 	std::vector<Mesh*> meshes;
 	std::string directory;
 	std::vector<Texture> textures_loaded;
 	glm::vec3 OriginPoint;
+	Mesh* StaticMesh;
+	Texture* TextureMap;
 
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
