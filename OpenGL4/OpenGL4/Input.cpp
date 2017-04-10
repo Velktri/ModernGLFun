@@ -76,14 +76,6 @@ void Input::SelectAssets(glm::vec2 Start, glm::vec2 End) {
 	world->CastRaytrace(Start);
 }
 
-
-void Input::DrawLine() {
-	glm::vec3 camDir = world->GetCamera()->GetFrontCameraDirection();
-	glm::vec3 h = world->GetCamera()->GetRightCameraDirection();
-	glm::vec3 v = world->GetCamera()->GetUpCameraDirection();
-
-}
-
 void Input::SetManger(Manager* m) {
 	MyManager = m;
 }

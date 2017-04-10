@@ -1,12 +1,11 @@
 #include "Engine.h"
 
 int main(int argc, char *argv[]) {
-	Engine* engine = new Engine();
-	if (!engine->Init()) {
+	if (!Engine::getInstance().Init()) {
 		return -1;
 	}
 
-	engine->Run();
-	engine->CleanUp();
+	Engine::getInstance().Run();
+	Engine::getInstance().CleanUp();
 	return 0;
 }

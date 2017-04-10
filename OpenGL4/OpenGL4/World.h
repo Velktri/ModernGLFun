@@ -12,6 +12,7 @@ class Manager;
 class Line;
 class Light;
 class Asset;
+class Curve;
 
 class World {
 public:
@@ -30,6 +31,7 @@ public:
 
 	GLfloat GetDeltaTime();
 	GLfloat GetTime();
+	void CreateCurve();
 
 	Asset* CastRaytrace(glm::vec2 DeviceCoords);
 
@@ -53,5 +55,6 @@ private:
 	GLuint SceneHeight;
 
 	Line* line;
+	Curve* curve;
 };
 

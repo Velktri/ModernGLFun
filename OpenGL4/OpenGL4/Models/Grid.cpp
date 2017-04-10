@@ -35,8 +35,6 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 		vertices.push_back(GridDistance); // z
 	}
 
-	vertSize = vertices.size() / 3;
-
 	Init();
 }
 

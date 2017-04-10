@@ -53,6 +53,8 @@ private:
 
 	Shader* CurrentShader;
 
+	bool bIsWireFrame;
+
 	std::vector<Shader*> UserShaderList;
 	std::vector<Shader*> SystemShaderList;
 	void BuildShaders();

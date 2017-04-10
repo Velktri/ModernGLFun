@@ -38,6 +38,5 @@ private:
 	void ProcessKeyEvents();
 	void QuerySelection();
 	void SelectAssets(glm::vec2 Start, glm::vec2 End);
-	void DrawLine();
 };
 

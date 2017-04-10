@@ -11,8 +11,6 @@ Line::Line(glm::vec3 Start, glm::vec3 End) {
 	vertices.push_back(End.y);
 	vertices.push_back(End.z);
 
-	vertSize = vertices.size() / 3;
-
 	Init();
 }
 

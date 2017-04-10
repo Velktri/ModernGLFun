@@ -12,6 +12,7 @@ Manager::Manager() {
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 	BuildLights();
+	bIsWireFrame = false;
 }
 
 

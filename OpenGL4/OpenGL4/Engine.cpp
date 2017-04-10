@@ -6,13 +6,10 @@
 #include "Manager.h"
 #include "Lights\Light.h"
 
-Engine::Engine() {
+bool Engine::Init() {
 	WIDTH = 1920;
 	HEIGHT = 1080;
 	bIsRunning = true;
-}
-
-bool Engine::Init() {
 
 	/* SDL Init */
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {

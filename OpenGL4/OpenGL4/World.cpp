@@ -6,6 +6,7 @@
 #include "Lights\Light.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
+#include "Curve.h"
 
 World::World(GLuint width, GLuint height) {
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
@@ -39,6 +40,10 @@ void World::RenderWorld() {
 	/* Draw Debug Lines */
 	if (line) {
 		line->Draw(MyManager->GetSceneShader(), WorldCamera);
+	}
+
+	if (curve) {
+		curve->Draw(MyManager->GetSceneShader(), WorldCamera);
 	}
 
 
@@ -94,6 +99,10 @@ GLfloat World::GetDeltaTime() {
 
 GLfloat World::GetTime() {
 	return LastFrame;
+}
+
+void World::CreateCurve() {
+	curve = new Curve();
 }
 
 Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {

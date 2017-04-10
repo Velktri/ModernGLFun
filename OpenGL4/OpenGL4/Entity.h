@@ -5,10 +5,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
-enum ShaderType { 
-	NONE = 0, 
-	GRID = 1, 
-	LINE = 2, 
+enum ShaderType {
+	NONE = 0,
+	GRID = 1,
+	LINE = 2,
+	CURVE = 3
 };
 
 class Entity {

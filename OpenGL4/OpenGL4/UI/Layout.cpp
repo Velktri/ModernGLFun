@@ -8,6 +8,7 @@
 #include <tchar.h>
 
 
+
 Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path) {
 	WindowDimensions = InWindowDimensions;
 	Window = InWindow;
@@ -156,6 +157,8 @@ void Layout::CreatePrimative(std::string name) {
 		MyManager->BuildAsset("assets/Models/Primitives/cylinder.obj");
 	} else if (name.compare("SmoothTest") == 0) {
 		MyManager->BuildAsset("assets/Models/Primitives/smoothSphere.obj");
+	} else if (name.compare("Curve") == 0) {
+		world->CreateCurve();
 	}
 }
 
@@ -285,6 +288,7 @@ void Layout::SceneWindow(GLuint TextureColorBuffer) {
 			ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ CreatePrimative("Sphere"); };
 			ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ CreatePrimative("Cylinder"); };
 			ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ CreatePrimative("SmoothTest"); };
+			ImGui::SameLine();		 if (ImGui::Button("Curve"))		{ CreatePrimative("Curve"); };
 		ImGui::EndGroup();
 
 		ImGui::BeginGroup();

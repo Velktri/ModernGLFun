@@ -4,14 +4,21 @@
 
 class Engine {
 public:
-	Engine();
+	static Engine& getInstance() {
+		static Engine instance;
+		return instance;
+	}
 
-public:
+	Engine(Engine const&) = delete;
+	void operator=(Engine const&) = delete;
+
 	bool Init();
 	void Run();
 	void CleanUp();
 
 private:
+	Engine() {}
+
 	class World* MyWorld;
 	class Layout* UILayout;
 	class Input* MyInput;

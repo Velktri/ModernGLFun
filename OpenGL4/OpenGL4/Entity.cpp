@@ -13,6 +13,7 @@ Entity::~Entity() {
 }
 
 void Entity::Init() {
+	vertSize = vertices.size() / 3;
 	try {
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -39,5 +40,5 @@ void Entity::Draw(Shader* shader, Camera* WorldCamera) {
 	glUniform1i(shader->ShaderList["type"], type);
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINES, 0, vertSize);
+	(type == CURVE) ? glDrawArrays(GL_LINE_STRIP, 0, vertSize) : glDrawArrays(GL_LINES, 0, vertSize);
 }
