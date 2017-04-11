@@ -86,6 +86,10 @@ void Manager::SetSelectedAsset(Asset* InAsset) {
 	SelectedAsset = InAsset;
 }
 
+void Manager::SetPickerShader() {
+	CurrentShader = PickerShader;
+}
+
 void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader) {
 	if (InCurrentShader != CurrentShader) {
 		CurrentShader = InCurrentShader;
@@ -117,12 +121,14 @@ void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shade
 
 void Manager::BuildShaders() {
 	SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
+	PickerShader = new Shader("assets/Shaders/Picker.vert", "assets/Shaders/Picker.frag");
 	//AssetShader = new Shader("assets/Shaders/Lighting.vert", "assets/Shaders/Lighting.frag");
 	LightShader = new Shader("assets/Shaders/Lamp.vert", "assets/Shaders/Lamp.frag");
 	ScreenShader = new Shader("assets/Shaders/Screen.vert", "assets/Shaders/Screen.frag");
 	DefaultShader = new Shader("assets/Shaders/Default.vert", "assets/Shaders/Default.frag");
 
 	SystemShaderList.push_back(SceneShader);
+	SystemShaderList.push_back(PickerShader);
 	//ShaderList.push_back(AssetShader);
 	SystemShaderList.push_back(LightShader);
 	SystemShaderList.push_back(ScreenShader);
@@ -142,6 +148,7 @@ void Manager::BuildAsset(std::string path) {
 	char label[128];
 	sprintf_s(label, "Object_%d", AssetList.size());
 	a->Name = label;
+	a->AssetID = AssetList.size();
 	AssetMap[DefaultShader].push_back(a);
 	AssetList.push_back(a);
 	if (MeshList.size() == 0) {
@@ -181,6 +188,20 @@ void Manager::Draw(Shader* shader) {
 	for each (Light* li in LightsList) {
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
 		li->Draw();
+	}
+}
+
+void Manager::CheckForSelection(int InID) {
+	bool bIsFound = false;
+	for each (Asset* a in AssetList) {
+		if (a->AssetID == InID) {
+			SelectedAsset = a;
+			bIsFound = true;
+		}
+	}
+
+	if (!bIsFound) {
+		SelectedAsset = NULL;
 	}
 }
 

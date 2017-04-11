@@ -8,6 +8,7 @@
 Input::Input(World* InWorld) {
 	world = InWorld;
 	bLeftIsPressed = false;
+	bColorPick = false;
 }
 
 
@@ -33,12 +34,12 @@ bool Input::ExecuteInput(bool SceneHovering) {
 
 	SDL_PumpEvents();
 	if (keyState[SDL_SCANCODE_LALT] || keyState[SDL_SCANCODE_RALT]) {
-		if (mouseState && SceneHovering) {
-			ProcessMouseEvents();
-		}
+		if (mouseState && SceneHovering) { ProcessMouseEvents(); }
 	} else {
-		QuerySelection();
+		if (SceneHovering) { QuerySelection(); }
 	}
+
+	StartSelectionCoods = glm::vec2(xState, yState);
 
 	ProcessKeyEvents();
 	return true;
@@ -74,6 +75,7 @@ void Input::QuerySelection() {
 
 void Input::SelectAssets(glm::vec2 Start, glm::vec2 End) {
 	world->CastRaytrace(Start);
+	bColorPick = true;
 }
 
 void Input::SetManger(Manager* m) {

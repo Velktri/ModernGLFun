@@ -15,6 +15,8 @@ public:
 	void UpdateInput();
 	bool ExecuteInput(bool SceneHovering);
 	void SetManger(Manager* m);
+	glm::vec2 StartSelectionCoods;
+	bool bColorPick;
 
 private:
 	SDL_Event windowEvent;
@@ -31,7 +33,6 @@ private:
 	int yRelState;
 
 	bool bLeftIsPressed;
-	glm::vec2 StartSelectionCoods;
 	glm::vec2 EndSelectionCoods;
 
 	void ProcessMouseEvents();

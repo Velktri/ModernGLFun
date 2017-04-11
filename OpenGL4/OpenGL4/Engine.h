@@ -24,6 +24,8 @@ private:
 	class Input* MyInput;
 	class Manager* MyManager;
 	class FrameBuffer* SceneFrames;
+	class FrameBuffer* PickerFrames;
+
 	SDL_Window* MainWindow;
 	SDL_GLContext context;
 

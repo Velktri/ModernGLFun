@@ -59,6 +59,25 @@ void World::RenderWorld() {
 	MyManager->Draw(MyManager->GetLightShader());
 }
 
+void World::RenderColorWorld() {
+
+	MyManager->SetPickerShader();
+	Shader* shader = MyManager->GetCurrentShader();
+	shader->Use();
+	
+	glUniformMatrix4fv(shader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
+	glUniformMatrix4fv(shader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(glm::scale(WorldCamera->GetProjection(), glm::vec3(1, -1, 1))));
+
+	for each (Asset* mod in MyManager->GetAssets()) {
+		int r = (mod->AssetID & 0x000000FF) >> 0;
+		int g = (mod->AssetID & 0x0000FF00) >> 8;
+		int b = (mod->AssetID & 0x00FF0000) >> 16;
+		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
+		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+		mod->Draw(shader);
+	}
+}
+
 void World::RenderScreen() {
 	MyManager->GetScreenShader()->Use();
 
@@ -103,6 +122,10 @@ GLfloat World::GetTime() {
 
 void World::CreateCurve() {
 	curve = new Curve();
+}
+
+Curve* World::GetCurve() {
+	return curve;
 }
 
 Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {

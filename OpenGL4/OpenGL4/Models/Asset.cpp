@@ -11,10 +11,11 @@ Asset::Asset() {
 }
 
 Asset::Asset(std::string path) {
-	loadModel(path);
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	StaticMesh = NULL;
 	TextureMap = NULL;
+	loadModel(path);
+	(meshes[0]) ? StaticMesh = meshes[0] : StaticMesh = NULL;
+	
 }
 
 Asset::~Asset() {

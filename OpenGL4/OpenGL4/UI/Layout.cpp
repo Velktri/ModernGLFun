@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <vector>
 #include <tchar.h>
+#include "../Curve.h"
 
 
 
@@ -192,8 +193,50 @@ void Layout::AssetEditor() {
 			for each (Asset* a in MyManager->GetAssets()) {
 				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { MyManager->SetSelectedAsset(a); }
 			}
+			Curve* curve = world->GetCurve();
+			if (ImGui::Selectable("Curve", curve)) { SelectedAsset = NULL; MyManager->SetSelectedAsset(NULL); }
+
 		ImGui::EndChild();
 	ImGui::SameLine();
+
+	if (curve && !SelectedAsset) {
+		ImGui::BeginGroup();
+			ImVec2 i = ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing());
+				ImGui::BeginChild("Item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+					ImGui::Text("P0");
+					ImGui::Separator();
+											if (ImGui::Button("Move X")) { curve->UpdateControlPoint(1, glm::vec3(1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, 1.0f)); }
+
+											if (ImGui::Button("Move -X")) { curve->UpdateControlPoint(1, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, -1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+					ImGui::Text("P1");
+					ImGui::Separator();
+											if (ImGui::Button("Move X2")) { curve->UpdateControlPoint(2, glm::vec3(1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, 1.0f)); }
+
+											if (ImGui::Button("Move -X2")) { curve->UpdateControlPoint(2, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, -1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+					ImGui::Text("P2");
+					ImGui::Separator();
+											if (ImGui::Button("Move X3")) { curve->UpdateControlPoint(3, glm::vec3(1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, 1.0f)); }
+
+											if (ImGui::Button("Move -X3")) { curve->UpdateControlPoint(3, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, -1.0f, 0.0f)); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+					ImGui::Separator();
+				ImGui::EndChild();
+		ImGui::EndGroup();
+	} else 
 
 	if (SelectedAsset != NULL) {
 		ImGui::BeginGroup();

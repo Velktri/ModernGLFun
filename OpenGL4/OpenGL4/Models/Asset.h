@@ -35,6 +35,7 @@ public:
 	void ScaleAsset(float x, float y, float z);
 	glm::vec3 GetOrigin();
 	std::vector<Mesh*> GetMeshes();
+	int AssetID;
 
 private:
 	std::vector<Mesh*> meshes;
@@ -43,6 +44,7 @@ private:
 	glm::vec3 OriginPoint;
 	Mesh* StaticMesh;
 	Texture* TextureMap;
+
 
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);

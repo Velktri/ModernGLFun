@@ -23,6 +23,7 @@ public:
 	std::vector<Light*> GetLights();
 
 	void RenderWorld();
+	void RenderColorWorld();
 	void RenderScreen();
 	void StartClock();
 	void StopClock();
@@ -32,6 +33,7 @@ public:
 	GLfloat GetDeltaTime();
 	GLfloat GetTime();
 	void CreateCurve();
+	Curve* GetCurve();
 
 	Asset* CastRaytrace(glm::vec2 DeviceCoords);
 

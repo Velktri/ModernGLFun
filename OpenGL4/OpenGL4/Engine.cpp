@@ -53,6 +53,7 @@ bool Engine::Init() {
 	MyInput->SetManger(MyManager);
 
 	SceneFrames = new FrameBuffer(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
+	PickerFrames = new FrameBuffer(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
 
 	return true;
 }
@@ -65,6 +66,13 @@ void Engine::Run() {
 
 		MyInput->UpdateInput();
 		bIsRunning = MyInput->ExecuteInput(UILayout->GetSceneHovering());
+
+		if (MyInput->bColorPick) {
+			glm::vec2 coords = MyInput->StartSelectionCoods;
+			coords.y -= (HEIGHT - UILayout->GetSceneDimensions().y);
+			MyManager->CheckForSelection(PickerFrames->RenderColorPick(MyWorld, coords));
+			MyInput->bColorPick = false;
+		}
 
 		SceneFrames->RenderWorldFrame(MyWorld);
 		bIsRunning &= UILayout->RenderLayout(SceneFrames->GetFrameTexture());

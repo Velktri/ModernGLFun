@@ -25,6 +25,7 @@ public:
 	std::vector<Shader*> GetUserShaderList();
 	Asset* GetSelectedAsset();
 	void SetSelectedAsset(Asset* InAsset);
+	void SetPickerShader();
 
 
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
@@ -37,6 +38,7 @@ public:
 	std::vector<Light*> GetLights();
 	void ShadeLights(Camera* WorldCamera, Shader* LightShader);
 	void Draw(Shader* shader);
+	void CheckForSelection(int InID);
 
 private:
 	/* Assets */
@@ -50,6 +52,7 @@ private:
 	Shader* LightShader;
 	Shader* ScreenShader;
 	Shader* DefaultShader;
+	Shader* PickerShader;
 
 	Shader* CurrentShader;
 

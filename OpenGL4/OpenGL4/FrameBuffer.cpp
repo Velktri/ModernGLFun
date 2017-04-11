@@ -40,6 +40,27 @@ void FrameBuffer::RenderWorldFrame(World* world) {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords) {
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	world->RenderColorWorld();
+
+	glFlush();
+	glFinish();
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	unsigned char data[4];
+	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	return (data[0] + data[1] * 256 + data[2] * 256 * 256);
+}
+
 GLuint FrameBuffer::GetFrameTexture() {
 	return FrameTexture;
 }
@@ -55,14 +76,14 @@ GLuint FrameBuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil
 	else if (!depth && stencil)
 		attachment_type = GL_STENCIL_INDEX;
 
-	//Generate texture ID and load texture data 
 	GLuint textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	if (!depth && !stencil)
+	if (!depth && !stencil) {
 		glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, FrameSize_X, FrameSize_Y, 0, attachment_type, GL_UNSIGNED_BYTE, NULL);
-	else // Using both a stencil and depth test, needs special format arguments
+	} else {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, FrameSize_X, FrameSize_Y, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
