@@ -1,21 +1,22 @@
 #include "World.h"
 #include "Camera.h"
-#include "Models\Grid.h"
 #include "Manager.h"
-#include "Line.h"
-#include "Lights\Light.h"
+#include "Models\Grid.h"
+#include "Models\Line.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
-#include "Curve.h"
+#include "Models\Curve.h"
+#include "Lights\Light.h"
+#include "Timer.h"
 
 World::World(GLuint width, GLuint height) {
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
 	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.01f, 1000.0f));
 
 	Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-	bIsClockRunning = false;
-	DeltaTime = 0.0f;
-	LastFrame = 0.0f;
+	SystemElements.push_back(Scene);
+
+	WorldClock = new Timer();
 
 	SceneWidth = width;
 	SceneHeight = height;
@@ -34,29 +35,8 @@ std::vector<Light*> World::GetLights() {
 }
 
 void World::RenderWorld() {
-	/* Draw Scene */
-	Scene->Draw(MyManager->GetSceneShader(), WorldCamera);
-
-	/* Draw Debug Lines */
-	if (line) {
-		line->Draw(MyManager->GetSceneShader(), WorldCamera);
-	}
-
-	if (curve) {
-		curve->Draw(MyManager->GetSceneShader(), WorldCamera);
-	}
-
-
-	/* Draw Assets */
-	MyManager->SetCurrentShader(NULL);
-	for each (Shader* s in MyManager->GetUserShaderList()) {
-		MyManager->ShadeAssets(WorldCamera, GetLights(), s);
-		MyManager->DrawAssets(s);
-	}
-
-	/* Draw Lights */
-	MyManager->ShadeLights(WorldCamera, MyManager->GetLightShader());
-	MyManager->Draw(MyManager->GetLightShader());
+	RenderSystemEntities();
+	RenderUserEntities();
 }
 
 void World::RenderColorWorld() {
@@ -74,58 +54,40 @@ void World::RenderColorWorld() {
 		int b = (mod->AssetID & 0x00FF0000) >> 16;
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
 		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
-		mod->Draw(shader);
+		mod->Draw(shader, WorldCamera);
 	}
 }
-
-void World::RenderScreen() {
-	MyManager->GetScreenShader()->Use();
-
-}
-
-void World::StartClock() {
-	if (!bIsClockRunning) {
-		TimeStart = std::chrono::high_resolution_clock::now();
-		bIsClockRunning = true;
-	}
-}
-
-void World::StopClock() {
-	if (bIsClockRunning) {
-		bIsClockRunning = false;
-	}
-	DeltaTime = 0;
-	LastFrame = 0;
-
-}
-
-void World::UpdateClock() {
-	if (bIsClockRunning) {
-		TimeNow = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration_cast<std::chrono::duration<float>>(TimeNow - TimeStart).count();
-		DeltaTime = time - LastFrame;
-		LastFrame = time;
-	}
-}
+//
+//void World::StartClock() {
+//	WorldClock->Start();
+//}
+//
+//void World::StopClock() {
+//	WorldClock->Stop();
+//}
+//
+//void World::UpdateClock() {
+//	WorldClock->Update();
+//}
 
 void World::SetManager(Manager* m) {
 	MyManager = m;
 }
+//
+//GLfloat World::GetDeltaTime() {
+//	return WorldClock->GetDeltaTime();
+//}
+//
+//GLfloat World::GetTime() {
+//	return WorldClock->GetTime();
+//}
 
-GLfloat World::GetDeltaTime() {
-	return DeltaTime;
-}
-
-GLfloat World::GetTime() {
-	return LastFrame;
+Timer* World::GetTimer() {
+	return WorldClock;
 }
 
 void World::CreateCurve() {
-	curve = new Curve();
-}
-
-Curve* World::GetCurve() {
-	return curve;
+	SystemElements.push_back(new Curve());
 }
 
 Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {
@@ -149,13 +111,29 @@ Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {
 
 	glm::vec3 lStart = WorldCamera->GetPosition();
 	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
-	if (line)
-	{
-		delete line;
-		line = new Line(lStart, lEnd);
-	} else {
-		line = new Line(lStart, lEnd);
-	}
+
+	SystemElements.push_back(new Line(lStart, lEnd));
 
 	return NULL;
+}
+
+void World::RenderSystemEntities() {
+	MyManager->SetSystemShader(WorldCamera);
+	for each (Entity* e in SystemElements) {
+		e->Draw(MyManager->GetSceneShader(), WorldCamera);
+	}
+}
+
+void World::RenderUserEntities() {
+
+	/* Draw Assets */
+	MyManager->SetCurrentShader(NULL);
+	for each (Shader* s in MyManager->GetUserShaderList()) {
+		MyManager->ShadeAssets(WorldCamera, GetLights(), s);
+		MyManager->DrawAssets(WorldCamera, s);
+	}
+
+	/* Draw Lights */
+	MyManager->ShadeLights(WorldCamera, MyManager->GetLightShader());
+	MyManager->Draw(MyManager->GetLightShader());
 }

@@ -8,15 +8,11 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 		float startPoint = (-1 * ColumnRadius) * spacing;
 		float endPoint = (ColumnRadius) * spacing;
 
-		/* Start */
-		vertices.push_back(GridDistance);  // x
-		vertices.push_back(0.0f); // y
-		vertices.push_back(startPoint); // z
-
-		/* End */
-		vertices.push_back(GridDistance); // x
-		vertices.push_back(0.0f); // y
-		vertices.push_back(endPoint); // z
+		Vertex start, end;
+		start.Position = glm::vec3(GridDistance, 0.0f, startPoint);
+		end.Position = glm::vec3(GridDistance, 0.0f, endPoint);
+		vertices.push_back(start);
+		vertices.push_back(end);
 	}
 
 	for (int i = -1 * ColumnRadius; i <= ColumnRadius; i++) {
@@ -24,15 +20,11 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 		float startPoint = (-1 * RowRadius) * spacing;
 		float endPoint = (RowRadius) * spacing;
 
-		/* Start */
-		vertices.push_back(startPoint); // x
-		vertices.push_back(0.0f); // y
-		vertices.push_back(GridDistance); // z
-
-		/* End */
-		vertices.push_back(endPoint); // x
-		vertices.push_back(0.0f); // y
-		vertices.push_back(GridDistance); // z
+		Vertex start, end;
+		start.Position = glm::vec3(startPoint, 0.0f, GridDistance);
+		end.Position = glm::vec3(endPoint, 0.0f, GridDistance);
+		vertices.push_back(start);
+		vertices.push_back(end);
 	}
 
 	Init();

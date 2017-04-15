@@ -2,15 +2,14 @@
 #include <imgui.h>
 #include "World.h"
 #include "Camera.h"
+#include "Timer.h"
 #include "Manager.h"
-
 
 Input::Input(World* InWorld) {
 	world = InWorld;
 	bLeftIsPressed = false;
 	bColorPick = false;
 }
-
 
 Input::~Input() {
 }
@@ -24,7 +23,7 @@ void Input::UpdateInput() {
 bool Input::ExecuteInput(bool SceneHovering) {
 	while (SDL_PollEvent(&windowEvent)) {
 		if (windowEvent.type == SDL_MOUSEWHEEL && SceneHovering) {
-			world->GetCamera()->ZoomCamera(windowEvent.wheel.y, world->GetDeltaTime());
+			world->GetCamera()->ZoomCamera(windowEvent.wheel.y, world->GetTimer()->GetDeltaTime());
 		}
 
 		if (windowEvent.type == SDL_QUIT) {
@@ -45,12 +44,11 @@ bool Input::ExecuteInput(bool SceneHovering) {
 	return true;
 }
 
-
 void Input::ProcessMouseEvents() {
 	if (mouseState & SDL_BUTTON_LMASK) {
-		world->GetCamera()->OrbitCamera(xRelState, yRelState, world->GetDeltaTime());
+		world->GetCamera()->OrbitCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
 	} else if (mouseState & SDL_BUTTON_RMASK) {
-		world->GetCamera()->PanCamera(xRelState, yRelState, world->GetDeltaTime());
+		world->GetCamera()->PanCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
 	}
 }
 

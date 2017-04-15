@@ -12,18 +12,20 @@
 #include <postprocess.h>
 
 class Mesh;
+class Entity;
 class Texture;
 class Shader;
+class Camera;
 
 class Asset {
 public:
 	Asset();
 	Asset(std::string path);
 	~Asset();
-	void Draw(Shader* shader);
+	void Draw(Shader* shader, Camera* WorldCamera);
 
-	Mesh* GetMesh();
-	void SetMesh(Mesh* InMesh);
+	Entity* GetMesh();
+	void SetMesh(Entity* InMesh);
 	Texture* GetTexture();
 
 	std::string Name;
@@ -34,15 +36,15 @@ public:
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
 	glm::vec3 GetOrigin();
-	std::vector<Mesh*> GetMeshes();
+	std::vector<Entity*> GetMeshes();
 	int AssetID;
 
 private:
-	std::vector<Mesh*> meshes;
+	std::vector<Entity*> meshes;
 	std::string directory;
 	std::vector<Texture> textures_loaded;
 	glm::vec3 OriginPoint;
-	Mesh* StaticMesh;
+	Entity* StaticMesh;
 	Texture* TextureMap;
 
 

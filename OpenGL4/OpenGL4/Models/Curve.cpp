@@ -11,7 +11,6 @@ Curve::Curve() {
 	p2 = glm::vec3(6.0f, 4.0f, 0.0f);
 
 	EvaluateCubic();
-
 	Init();
 }
 
@@ -25,9 +24,13 @@ void Curve::EvaluateCubic() {
 	float t = 0 - step;
 	for (float u = 0; u <= StepSize; u++) {
 		t += step;
-		vertices.push_back(((1 - t)*(1 - t)*p0.x) + (2 * (1 - t) * t* p1.x) + (t*t*p2.x));
-		vertices.push_back(((1 - t)*(1 - t)*p0.y) + (2 * (1 - t) * t* p1.y) + (t*t*p2.y));
-		vertices.push_back(((1 - t)*(1 - t)*p0.z) + (2 * (1 - t) * t* p1.z) + (t*t*p2.z));
+
+		Vertex point;
+		point.Position = glm::vec3(((1 - t)*(1 - t)*p0.x) + (2 * (1 - t) * t* p1.x) + (t*t*p2.x),
+								   ((1 - t)*(1 - t)*p0.y) + (2 * (1 - t) * t* p1.y) + (t*t*p2.y),
+								   ((1 - t)*(1 - t)*p0.z) + (2 * (1 - t) * t* p1.z) + (t*t*p2.z));
+
+		vertices.push_back(point);
 		check++;
 	}
 }

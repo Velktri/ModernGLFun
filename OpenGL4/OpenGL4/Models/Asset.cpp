@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include <iostream>
+#include "../Camera.h"
 
 Asset::Asset() {
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -22,23 +23,22 @@ Asset::~Asset() {
 
 }
 
-void Asset::Draw(Shader* shader) {
+void Asset::Draw(Shader* shader, Camera* WorldCamera) {
 	GLuint i = 0;
 	for (i; i < meshes.size(); i++) {
-		meshes[i]->Draw(shader);
+		meshes[i]->Draw(shader, WorldCamera);
 	}
 
 	if (i == 0) {
-		StaticMesh->Draw(shader);
+		StaticMesh->Draw(shader, WorldCamera);
 	}
 }
 
-
-Mesh* Asset::GetMesh() {
+Entity* Asset::GetMesh() {
 	return StaticMesh;
 }
 
-void Asset::SetMesh(Mesh* InMesh) {
+void Asset::SetMesh(Entity* InMesh) {
 	StaticMesh = InMesh;
 	meshes.push_back(InMesh);
 }
@@ -75,7 +75,7 @@ glm::vec3 Asset::GetOrigin() {
 	return OriginPoint;
 }
 
-std::vector<Mesh*> Asset::GetMeshes() {
+std::vector<Entity*> Asset::GetMeshes() {
 	return meshes;
 }
 
@@ -138,7 +138,7 @@ Mesh* Asset::processMesh(aiMesh* mesh, const aiScene* scene) {
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
-	return new Mesh(vertices, indices, textures, this);
+	return new Mesh(vertices, indices, this);
 }
 
 std::vector<Texture> Asset::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {

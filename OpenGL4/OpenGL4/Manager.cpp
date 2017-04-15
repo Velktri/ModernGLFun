@@ -3,7 +3,7 @@
 #include "Models/Shader.h"
 #include "Models/Mesh.h"
 #include "Camera.h"
-#include "Entity.h"
+#include "Models/Entity.h"
 #include "Models/Texture.h"
 #include "Lights/Light.h"
 
@@ -42,7 +42,7 @@ Manager::~Manager() {
 	}
 }
 
-std::vector<Mesh*> Manager::GetMeshList() {
+std::vector<Entity*> Manager::GetMeshList() {
 	return MeshList;
 }
 
@@ -135,11 +135,17 @@ void Manager::BuildShaders() {
 	UserShaderList.push_back(DefaultShader);
 }
 
-void Manager::DrawAssets(Shader* Shader) {
+void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader) {
 	for each (Asset* mod in AssetMap[Shader]) {
 		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
-		mod->Draw(Shader);
+		mod->Draw(Shader, WorldCamera);
 	}
+}
+
+void Manager::SetSystemShader(Camera* WorldCamera) {
+	SceneShader->Use();
+	glUniformMatrix4fv(SceneShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
+	glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
 }
 
 void Manager::BuildAsset(std::string path) {
@@ -154,7 +160,7 @@ void Manager::BuildAsset(std::string path) {
 	if (MeshList.size() == 0) {
 		MeshList = a->GetMeshes();
 	} else {
-		std::vector<Mesh*> temp = a->GetMeshes();
+		std::vector<Entity*> temp = a->GetMeshes();
 		MeshList.insert(std::end(MeshList), std::begin(temp), std::end(temp));
 	}
 }

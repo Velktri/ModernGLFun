@@ -3,11 +3,11 @@
 #include "../Manager.h"
 #include "../Models/Asset.h"
 #include "../Models/Mesh.h"
+#include "../Models/Curve.h"
+#include "../Timer.h"
 #include <Windows.h>
 #include <vector>
 #include <tchar.h>
-#include "../Curve.h"
-
 
 
 Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path) {
@@ -120,7 +120,7 @@ void Layout::SetDefaultStyle(std::string path) {
 
 void Layout::ImportAsset() {
 	if (world) {
-		world->StopClock();
+		world->GetTimer()->Stop();
 		OPENFILENAME ofn;
 
 		ZeroMemory(&ofn, sizeof(ofn));
@@ -139,7 +139,7 @@ void Layout::ImportAsset() {
 
 		GetOpenFileName(&ofn);
 		MyManager->BuildAsset(ofn.lpstrFile);
-		world->StartClock();
+		world->GetTimer()->Start();
 	} else {
 		printf("Current UI has no Access to World*");
 	}
@@ -193,91 +193,86 @@ void Layout::AssetEditor() {
 			for each (Asset* a in MyManager->GetAssets()) {
 				if (ImGui::Selectable(a->Name.c_str(), SelectedAsset == a)) { MyManager->SetSelectedAsset(a); }
 			}
-			Curve* curve = world->GetCurve();
-			if (ImGui::Selectable("Curve", curve)) { SelectedAsset = NULL; MyManager->SetSelectedAsset(NULL); }
-
 		ImGui::EndChild();
 	ImGui::SameLine();
+	if (SelectedAsset) {
+		if (SelectedAsset->GetMesh()->GetType() == CURVE) {
+			Curve* curve = (Curve*) SelectedAsset->GetMesh();
+			ImGui::BeginGroup();
+				ImVec2 i = ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing());
+					ImGui::BeginChild("Item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+						ImGui::Text("P0");
+						ImGui::Separator();
+												if (ImGui::Button("Move X")) { curve->UpdateControlPoint(1, glm::vec3(1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, 1.0f)); }
 
-	if (curve && !SelectedAsset) {
-		ImGui::BeginGroup();
+												if (ImGui::Button("Move -X")) { curve->UpdateControlPoint(1, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, -1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+						ImGui::Text("P1");
+						ImGui::Separator();
+												if (ImGui::Button("Move X2")) { curve->UpdateControlPoint(2, glm::vec3(1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, 1.0f)); }
+
+												if (ImGui::Button("Move -X2")) { curve->UpdateControlPoint(2, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, -1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+						ImGui::Text("P2");
+						ImGui::Separator();
+												if (ImGui::Button("Move X3")) { curve->UpdateControlPoint(3, glm::vec3(1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, 1.0f)); }
+
+												if (ImGui::Button("Move -X3")) { curve->UpdateControlPoint(3, glm::vec3(-1.0f, 0.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, -1.0f, 0.0f)); }
+						ImGui::SameLine();		if (ImGui::Button("Move -Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, -1.0f)); }
+
+						ImGui::Separator();
+					ImGui::EndChild();
+			ImGui::EndGroup();
+		} else if (SelectedAsset->GetMesh()->GetType() == MESH) {
+			ImGui::BeginGroup();
 			ImVec2 i = ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing());
 				ImGui::BeginChild("Item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-					ImGui::Text("P0");
+					ImGui::Text(SelectedAsset->Name.c_str());
 					ImGui::Separator();
-											if (ImGui::Button("Move X")) { curve->UpdateControlPoint(1, glm::vec3(1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, 1.0f)); }
+											if (ImGui::Button("Move X")) { SelectedAsset->TranslateAsset(1, 0, 0); }
+					ImGui::SameLine();		if (ImGui::Button("Move Y")) { SelectedAsset->TranslateAsset(0, 1, 0); }
+					ImGui::SameLine();		if (ImGui::Button("Move Z")) { SelectedAsset->TranslateAsset(0, 0, 1); }
 
-											if (ImGui::Button("Move -X")) { curve->UpdateControlPoint(1, glm::vec3(-1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Y")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, -1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Z")) { curve->UpdateControlPoint(1, glm::vec3(0.0f, 0.0f, -1.0f)); }
-
-					ImGui::Text("P1");
-					ImGui::Separator();
-											if (ImGui::Button("Move X2")) { curve->UpdateControlPoint(2, glm::vec3(1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, 1.0f)); }
-
-											if (ImGui::Button("Move -X2")) { curve->UpdateControlPoint(2, glm::vec3(-1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Y2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, -1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Z2")) { curve->UpdateControlPoint(2, glm::vec3(0.0f, 0.0f, -1.0f)); }
-
-					ImGui::Text("P2");
-					ImGui::Separator();
-											if (ImGui::Button("Move X3")) { curve->UpdateControlPoint(3, glm::vec3(1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, 1.0f)); }
-
-											if (ImGui::Button("Move -X3")) { curve->UpdateControlPoint(3, glm::vec3(-1.0f, 0.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Y3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, -1.0f, 0.0f)); }
-					ImGui::SameLine();		if (ImGui::Button("Move -Z3")) { curve->UpdateControlPoint(3, glm::vec3(0.0f, 0.0f, -1.0f)); }
+											if (ImGui::Button("Move -X")) { SelectedAsset->TranslateAsset(-1, 0, 0); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Y")) { SelectedAsset->TranslateAsset(0, -1, 0); }
+					ImGui::SameLine();		if (ImGui::Button("Move -Z")) { SelectedAsset->TranslateAsset(0, 0, -1); }
 
 					ImGui::Separator();
-				ImGui::EndChild();
-		ImGui::EndGroup();
-	} else 
 
-	if (SelectedAsset != NULL) {
-		ImGui::BeginGroup();
-		ImVec2 i = ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing());
-			ImGui::BeginChild("Item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-				ImGui::Text(SelectedAsset->Name.c_str());
-				ImGui::Separator();
-										if (ImGui::Button("Move X")) { SelectedAsset->TranslateAsset(1, 0, 0); }
-				ImGui::SameLine();		if (ImGui::Button("Move Y")) { SelectedAsset->TranslateAsset(0, 1, 0); }
-				ImGui::SameLine();		if (ImGui::Button("Move Z")) { SelectedAsset->TranslateAsset(0, 0, 1); }
+					ImGui::Text("Mesh Properties");
+					ImGui::Separator();
 
-										if (ImGui::Button("Move -X")) { SelectedAsset->TranslateAsset(-1, 0, 0); }
-				ImGui::SameLine();		if (ImGui::Button("Move -Y")) { SelectedAsset->TranslateAsset(0, -1, 0); }
-				ImGui::SameLine();		if (ImGui::Button("Move -Z")) { SelectedAsset->TranslateAsset(0, 0, -1); }
+					static int selection = -1;
+					ImGui::Text(MyManager->GetSelectedAsset()->GetMesh() ? MyManager->GetSelectedAsset()->GetMesh()->GetName().c_str() : "None");
 
-				ImGui::Separator();
+					ImGui::SameLine();		if (ImGui::Button("Set Mesh")) { ImGui::OpenPopup("select"); }
 
-				ImGui::Text("Mesh Properties");
-				ImGui::Separator();
+					if (ImGui::BeginPopup("select")) {
+						std::vector<Entity*> meshList = MyManager->GetMeshList();
+						for (int i = 0; i < meshList.size(); i++) {
+							if (ImGui::Selectable(meshList[i]->GetName().c_str())) { selection = i; SelectedAsset->SetMesh(meshList.at(i)); }
+						}
 
-				static int selection = -1;
-				ImGui::Text(MyManager->GetSelectedAsset()->GetMesh() ? MyManager->GetSelectedAsset()->GetMesh()->GetName().c_str() : "None");
-
-				ImGui::SameLine();		if (ImGui::Button("Set Mesh")) { ImGui::OpenPopup("select"); }
-
-				if (ImGui::BeginPopup("select")) {
-					std::vector<Mesh*> meshList = MyManager->GetMeshList();
-					for (int i = 0; i < meshList.size(); i++) {
-						if (ImGui::Selectable(meshList[i]->GetName().c_str())) { selection = i; SelectedAsset->SetMesh(meshList.at(i)); }
+						ImGui::EndPopup();
 					}
-
-					ImGui::EndPopup();
-				}
-			ImGui::EndChild();
-
-
-			ImGui::BeginChild("buttons");
-										if (ImGui::Button("Revert")) {}
-				ImGui::SameLine();		if (ImGui::Button("Save")) {}
-			ImGui::EndChild();
-		ImGui::EndGroup();
+				ImGui::EndChild();
+				ImGui::BeginChild("buttons");
+											if (ImGui::Button("Revert")) {}
+					ImGui::SameLine();		if (ImGui::Button("Save")) {}
+				ImGui::EndChild();
+			ImGui::EndGroup();
+		}
 	}
 	ImGui::End();
 }

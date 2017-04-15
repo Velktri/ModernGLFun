@@ -5,6 +5,7 @@
 #include "FrameBuffer.h"
 #include "Manager.h"
 #include "Lights\Light.h"
+#include "Timer.h"
 
 bool Engine::Init() {
 	WIDTH = 1920;
@@ -59,10 +60,10 @@ bool Engine::Init() {
 }
 
 void Engine::Run() {
-	MyWorld->StartClock();
+	MyWorld->GetTimer()->Start();
 	while (bIsRunning) {
-		MyWorld->UpdateClock();
-		MyWorld->GetLights()[0]->Translate(sin(MyWorld->GetTime()) / 20.0f, 0, cos(MyWorld->GetTime()) / 20.0f);
+		MyWorld->GetTimer()->Update();
+		MyWorld->GetLights()[0]->Translate(sin(MyWorld->GetTimer()->GetTime()) / 20.0f, 0, cos(MyWorld->GetTimer()->GetTime()) / 20.0f);
 
 		MyInput->UpdateInput();
 		bIsRunning = MyInput->ExecuteInput(UILayout->GetSceneHovering());
