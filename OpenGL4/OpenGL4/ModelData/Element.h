@@ -22,10 +22,7 @@ public:
 	~Element();
 
 	void Render(class Shader* shader, class Camera* WorldCamera);
-	std::string GetName();
-	Asset* GetParentAsset();
 	int GetType();
-	std::vector<Element*> GetComponents();
 
 protected:
 	void Init();
@@ -34,8 +31,5 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 
-	int type;
-	std::string Name;
-	Asset* ParentAsset;
-	std::vector<Element*> Components;
+	ShaderType type;
 };

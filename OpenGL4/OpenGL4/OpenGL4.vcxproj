@@ -71,24 +71,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin\win64</OutDir>
+    <OutDir>..\bin\win64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin\win64</OutDir>
+    <OutDir>..\bin\win64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win32;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\Win32;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <OutDir>..\bin\win32</OutDir>
+    <OutDir>..\bin\win32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win32;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\Win32;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <OutDir>..\bin\win32</OutDir>
+    <OutDir>..\bin\win32\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -145,10 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components\ComponentBase.cpp" />
+    <ClCompile Include="Components\MeshComponent.cpp" />
+    <ClCompile Include="Models\MeshAsset.cpp" />
     <ClCompile Include="System\Camera.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="System\FrameBuffer.cpp" />
-    <ClCompile Include="Components\Gizmo.cpp" />
+    <ClCompile Include="ModelData\Gizmo.cpp" />
     <ClCompile Include="System\Input.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Lights\PointLight.cpp" />
@@ -157,13 +160,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="System\Manager.cpp" />
     <ClCompile Include="Models\Asset.cpp" />
-    <ClCompile Include="Components\Curve.cpp" />
-    <ClCompile Include="Components\Element.cpp" />
-    <ClCompile Include="Components\Grid.cpp" />
-    <ClCompile Include="Components\Line.cpp" />
-    <ClCompile Include="Components\Mesh.cpp" />
+    <ClCompile Include="ModelData\Curve.cpp" />
+    <ClCompile Include="ModelData\Element.cpp" />
+    <ClCompile Include="ModelData\Grid.cpp" />
+    <ClCompile Include="ModelData\Line.cpp" />
+    <ClCompile Include="ModelData\Mesh.cpp" />
     <ClCompile Include="Models\Shader.cpp" />
-    <ClCompile Include="Models\Texture.cpp" />
+    <ClCompile Include="ModelData\Texture.cpp" />
     <ClCompile Include="Shared\imgui.cpp" />
     <ClCompile Include="Shared\imgui_demo.cpp" />
     <ClCompile Include="Shared\imgui_draw.cpp" />
@@ -175,10 +178,13 @@
     <ClCompile Include="System\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\ComponentBase.h" />
+    <ClInclude Include="Components\MeshComponent.h" />
+    <ClInclude Include="Models\MeshAsset.h" />
     <ClInclude Include="System\Camera.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="System\FrameBuffer.h" />
-    <ClInclude Include="Components\Gizmo.h" />
+    <ClInclude Include="ModelData\Gizmo.h" />
     <ClInclude Include="HelperTypes.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="Lights\Light.h" />
@@ -187,13 +193,13 @@
     <ClInclude Include="Lights\SunLight.h" />
     <ClInclude Include="System\Manager.h" />
     <ClInclude Include="Models\Asset.h" />
-    <ClInclude Include="Components\Curve.h" />
-    <ClInclude Include="Components\Element.h" />
-    <ClInclude Include="Components\Grid.h" />
-    <ClInclude Include="Components\Line.h" />
-    <ClInclude Include="Components\Mesh.h" />
+    <ClInclude Include="ModelData\Curve.h" />
+    <ClInclude Include="ModelData\Element.h" />
+    <ClInclude Include="ModelData\Grid.h" />
+    <ClInclude Include="ModelData\Line.h" />
+    <ClInclude Include="ModelData\Mesh.h" />
     <ClInclude Include="Models\Shader.h" />
-    <ClInclude Include="Models\Texture.h" />
+    <ClInclude Include="ModelData\Texture.h" />
     <ClInclude Include="Shared\lodepng.h" />
     <ClInclude Include="Shared\pathtools.h" />
     <ClInclude Include="System\Timer.h" />

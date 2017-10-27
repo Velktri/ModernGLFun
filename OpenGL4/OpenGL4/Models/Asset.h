@@ -12,17 +12,20 @@
 #include <postprocess.h>
 
 class Mesh;
-class Element;
+class ComponentBase;
 class Texture;
 class Shader;
 class Camera;
 
+/** 
+	An empty asset with no components.
+	Base class for all Assets.
+*/
 class Asset {
 public:
 	Asset();
 	~Asset();
 	void Render(Shader* shader, Camera* WorldCamera);
-	void AddComponent(Element* InMesh);
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
@@ -32,14 +35,14 @@ public:
 
 	/** Getters */
 	glm::vec3 GetOrigin();
-	std::vector<Element*> GetComponents();
 	GLuint GetAssetID();
 	glm::mat4 GetWorldSpace();
+	ComponentBase* GetRoot();
 
 private:
-	std::vector<Element*> Components;
 	glm::vec3 OriginPoint;
 	glm::mat4 WorldSpaceOrientation;
 	GLuint AssetID;
+	ComponentBase* Root;
 };
 

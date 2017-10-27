@@ -17,7 +17,7 @@ public:
 	bool RenderLayout(GLuint TextureColorBuffer);
 	ImVec2 GetSceneDimensions();
 	void SetWorld(World* InWorld);
-	void SetManager(Manager* m);
+	void SetManager(Manager* InManager);
 
 	bool GetSceneHovering();
 

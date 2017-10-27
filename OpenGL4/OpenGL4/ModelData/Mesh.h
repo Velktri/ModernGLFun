@@ -8,7 +8,7 @@ class Shader;
 
 class Mesh : public Element {
 public:
-	Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, Asset* InAsset);
+	Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices);
 	~Mesh();
 };
 

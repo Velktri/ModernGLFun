@@ -11,6 +11,7 @@ Camera::Camera(glm::vec3 position)
 	PanSpeed = 1.0f;
 	ZoomModifier = 50.0f;
 	OrbitSpeed = 25.0f;
+	CameraNearDistance = 0.5f;
 
 	updateCameraVectors();
 }
@@ -37,10 +38,15 @@ void Camera::ZoomCamera(int scroll, GLfloat deltaTime)
 	GLfloat velocity = ZoomModifier * deltaTime;
 	if (scroll > 0)
 	{
-		WorldPosition -= ForwardVector * velocity;
+		/* Zooming In */
+		if (glm::length(FocusPoint - (WorldPosition - (ForwardVector * velocity))) > CameraNearDistance)
+		{
+			WorldPosition -= ForwardVector * velocity;
+		}
 	}
 	else if (scroll < 0)
 	{
+		/* Zooming Out */
 		WorldPosition += ForwardVector * velocity;
 	}
 

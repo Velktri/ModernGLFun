@@ -21,7 +21,7 @@ public:
 
 	Camera* GetCamera();
 	std::vector<Light*> GetLights();
-	void SetManager(Manager* m);
+	void SetManager(Manager* InManager);
 
 	void RenderWorld();
 	void RenderColorWorld();

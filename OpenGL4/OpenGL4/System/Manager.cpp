@@ -2,12 +2,13 @@
 #include "Camera.h"
 #include "Models/Asset.h"
 #include "Models/Shader.h"
-#include "Models/Texture.h"
-#include "Components/Mesh.h"
-#include "Components/Element.h"
+#include "ModelData/Texture.h"
+#include "ModelData/Mesh.h"
+#include "ModelData/Element.h"
 #include "Lights/Light.h"
 
-Manager::Manager() {
+Manager::Manager()
+{
 	BuildShaders();
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
@@ -15,82 +16,41 @@ Manager::Manager() {
 }
 
 
-Manager::~Manager() {
+Manager::~Manager()
+{
 	/* Shaders */
-	for each (Shader* s in UserShaderList) {
-		s->~Shader();
-	}
-
-	for each (Shader* s in SystemShaderList) {
-		s->~Shader();
-	}
+	for each (Shader* s in UserShaderList)   {  s->~Shader();  }
+	for each (Shader* s in SystemShaderList) {  s->~Shader();  }
 
 	/* Assets */
-	for each (Asset* mod in AssetList) {
-		mod->~Asset();
-	}
+	for each (Asset* mod in AssetList)  {  mod->~Asset();  }
 
 	/* Textures */
-	for each (Texture* t in TextureList) {
-		t->~Texture();
-	}
+	for each (Texture* t in TextureList)  {  t->~Texture();  }
 
 	/* Lights */
-	for each (Light* l in LightsList) {
-		l->~Light();
-	}
+	for each (Light* l in LightsList)  {  l->~Light();  }
 }
 
-std::vector<Element*> Manager::GetMeshList() {
-	return MeshList;
-}
-
-Shader* Manager::GetSceneShader() {
-	return SceneShader;
-}
-
-Shader* Manager::GetAssetShader() {
-	return AssetShader;
-}
-
-Shader* Manager::GetLightShader() {
-	return LightShader;
-}
-
-Shader* Manager::GetScreenShader() {
-	return ScreenShader;
-}
-
-Shader* Manager::GetDefaultShader() {
-	return DefaultShader;
-}
-
-Shader* Manager::GetCurrentShader() {
-	return CurrentShader;
-}
-
-void Manager::SetCurrentShader(Shader* s) {
+void Manager::SetCurrentShader(Shader* s)
+{
 	CurrentShader = s;
 }
 
-std::vector<Shader*> Manager::GetUserShaderList() {
-	return UserShaderList;
-}
-
-Asset* Manager::GetSelectedAsset() {
-	return SelectedAsset;
-}
-
-void Manager::SetSelectedAsset(Asset* InAsset) {
+void Manager::SetSelectedAsset(Asset* InAsset)
+{
 	SelectedAsset = InAsset;
 }
 
-void Manager::SetPickerShader() {
+void Manager::SetPickerShader()
+{
 	CurrentShader = PickerShader;
 }
 
-void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader) {
-	if (InCurrentShader != CurrentShader) {
+void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader)
+{
+	if (InCurrentShader != CurrentShader)
+	{
 		CurrentShader = InCurrentShader;
 		CurrentShader->Use();
 
@@ -118,7 +78,8 @@ void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shade
 	}
 }
 
-void Manager::BuildShaders() {
+void Manager::BuildShaders()
+{
 	SceneShader = new Shader("assets/Shaders/Scene.vert", "assets/Shaders/Scene.frag");
 	PickerShader = new Shader("assets/Shaders/Picker.vert", "assets/Shaders/Picker.frag");
 	//AssetShader = new Shader("assets/Shaders/Lighting.vert", "assets/Shaders/Lighting.frag");
@@ -134,14 +95,17 @@ void Manager::BuildShaders() {
 	UserShaderList.push_back(DefaultShader);
 }
 
-void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader) {
-	for each (Asset* mod in AssetMap[Shader]) {
+void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader)
+{
+	for each (Asset* mod in AssetMap[Shader])
+	{
 		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
 		mod->Render(Shader, WorldCamera);
 	}
 }
 
-void Manager::SetSystemShader(Camera* WorldCamera) {
+void Manager::SetSystemShader(Camera* WorldCamera)
+{
 	SceneShader->Use();
 	glUniformMatrix4fv(SceneShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
 	glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
@@ -164,7 +128,8 @@ void Manager::SetSystemShader(Camera* WorldCamera) {
 //	}
 //}
 
-void Manager::BuildAsset() {
+void Manager::BuildAsset()
+{
 	Asset* a = new Asset();
 
 	char label[128];
@@ -174,46 +139,59 @@ void Manager::BuildAsset() {
 	AssetList.push_back(a);
 }
 
-std::vector<Asset*> Manager::GetAssets() {
-	return AssetList;
-}
-
-
-std::vector<Light*> Manager::GetLights() {
-	return LightsList;
-}
-
-void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader) {
+void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader)
+{
 	LightShader->Use();
 	glUniformMatrix4fv(LightShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
 	glUniformMatrix4fv(LightShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
 }
 
-void Manager::Draw(Shader* shader) {
-	for each (Light* li in LightsList) {
+void Manager::Draw(Shader* shader)
+{
+	for each (Light* li in LightsList)
+	{
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
 		li->Draw();
 	}
 }
 
-void Manager::CheckForSelection(int InID) {
+void Manager::CheckForSelection(int InID)
+{
 	bool bIsFound = false;
-	for each (Asset* a in AssetList) {
-		if (a->GetAssetID() == InID) {
+	for each (Asset* a in AssetList)
+	{
+		if (a->GetAssetID() == InID)
+		{
 			SelectedAsset = a;
 			bIsFound = true;
 		}
 	}
 
-	if (!bIsFound) {
+	if (!bIsFound)
+	{
 		SelectedAsset = NULL;
 	}
 }
 
-void Manager::BuildTexture(std::string path) {
+void Manager::BuildTexture(std::string path)
+{
 	TextureList.push_back(new Texture(path));
 }
 
-void Manager::BuildLights() {
+void Manager::BuildLights()
+{
 	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
 }
+
+
+std::vector<Element*> Manager::GetMeshList() { return MeshList; }
+Shader* Manager::GetSceneShader() { return SceneShader; }
+Shader* Manager::GetAssetShader() { return AssetShader; }
+Shader* Manager::GetLightShader() { return LightShader; }
+Shader* Manager::GetScreenShader() { return ScreenShader; }
+Shader* Manager::GetDefaultShader() { return DefaultShader; }
+Shader* Manager::GetCurrentShader() { return CurrentShader; }
+std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
+Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
+std::vector<Asset*> Manager::GetAssets() { return AssetList; }
+std::vector<Light*> Manager::GetLights() { return LightsList; }

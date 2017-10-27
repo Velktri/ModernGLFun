@@ -46,6 +46,7 @@ private:
 	GLfloat PanSpeed;
 	GLfloat ZoomModifier;
 	GLfloat OrbitSpeed;
+	GLfloat CameraNearDistance;
 
 	void updateCameraVectors();
 

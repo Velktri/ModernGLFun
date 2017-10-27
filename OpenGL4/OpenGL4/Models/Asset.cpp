@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "Components/Element.h"
+#include "Components/ComponentBase.h"
 #include "System/Camera.h"
 #include <iostream>
 
@@ -10,6 +10,7 @@
 Asset::Asset()
 {
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
+	Root = new ComponentBase();
 }
 
 Asset::~Asset()
@@ -19,15 +20,7 @@ Asset::~Asset()
 
 void Asset::Render(Shader* shader, Camera* WorldCamera)
 {
-	for (Element* Component : Components)
-	{
-		Component->Render(shader, WorldCamera);
-	}
-}
-
-void Asset::AddComponent(Element* InComponent)
-{
-	Components.push_back(InComponent);
+	//Root->Render(shader, WorldCamera);
 }
 
 void Asset::TranslateAsset(float x, float y, float z)
@@ -49,7 +42,8 @@ void Asset::ScaleAsset(float x, float y, float z)
 }
 
 
+/** Getters */
 glm::vec3 Asset::GetOrigin() { return OriginPoint; }
-std::vector<Element*> Asset::GetComponents() { return Components; }
 GLuint Asset::GetAssetID() { return AssetID; }
 glm::mat4 Asset::GetWorldSpace() { return WorldSpaceOrientation; }
+ComponentBase* Asset::GetRoot() { return Root; }

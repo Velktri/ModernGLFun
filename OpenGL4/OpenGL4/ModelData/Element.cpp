@@ -6,7 +6,6 @@
 Element::Element()
 {
 	type = NONE;
-	ParentAsset = NULL;
 }
 
 Element::~Element()
@@ -81,30 +80,9 @@ void Element::Render(Shader* shader, Camera* WorldCamera)
 		(type == CURVE) ? glDrawArrays(GL_LINE_STRIP, 0, vertices.size()) : glDrawArrays(GL_LINES, 0, vertices.size());
 		glBindVertexArray(0);
 	}
-
-	/* Render attached children */
-	for (Element* Component : Components)
-	{
-		Component->Render(shader, WorldCamera);
-	}
-}
-
-std::string Element::GetName()
-{
-	return Name;
-}
-
-Asset* Element::GetParentAsset()
-{
-	return ParentAsset;
 }
 
 int Element::GetType()
 {
 	return type;
-}
-
-std::vector<Element*> Element::GetComponents()
-{
-	return Components;
 }

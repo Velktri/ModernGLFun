@@ -2,8 +2,8 @@
 #include "System/World.h"
 #include "System/Manager.h"
 #include "Models/Asset.h"
-#include "Components/Mesh.h"
-#include "Components/Curve.h"
+#include "ModelData/Mesh.h"
+#include "ModelData/Curve.h"
 #include "System/Timer.h"
 #include <Windows.h>
 #include <vector>
@@ -24,8 +24,11 @@ Layout::Layout(SDL_Window* InWindow, ImVec2 InWindowDimensions, std::string path
 Layout::~Layout() {
 }
 
-void Layout::SetManager(Manager* m) {
-	MyManager = m;
+void Layout::SetManager(Manager* InManager) {
+	if (!MyManager)
+	{
+		MyManager = InManager;
+	}
 }
 
 bool Layout::RenderLayout(GLuint TextureColorBuffer) {
