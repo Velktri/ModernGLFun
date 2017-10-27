@@ -1,8 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "../HelperTypes.h"
 #include <vector>
 
 class Asset;
@@ -17,21 +15,17 @@ enum ShaderType {
 	MESH = 5
 };
 
-struct Vertex {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexCoords;
-};
 
-class Entity {
+class Element {
 public:
-	Entity();
-	~Entity();
+	Element();
+	~Element();
 
-	void Draw(class Shader* shader, class Camera* WorldCamera);
+	void Render(class Shader* shader, class Camera* WorldCamera);
 	std::string GetName();
 	Asset* GetParentAsset();
 	int GetType();
+	std::vector<Element*> GetComponents();
 
 protected:
 	void Init();
@@ -43,4 +37,5 @@ protected:
 	int type;
 	std::string Name;
 	Asset* ParentAsset;
+	std::vector<Element*> Components;
 };

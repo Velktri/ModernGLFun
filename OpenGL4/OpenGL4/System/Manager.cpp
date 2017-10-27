@@ -1,17 +1,16 @@
 #include "Manager.h"
+#include "Camera.h"
 #include "Models/Asset.h"
 #include "Models/Shader.h"
-#include "Models/Mesh.h"
-#include "Camera.h"
-#include "Models/Entity.h"
 #include "Models/Texture.h"
+#include "Components/Mesh.h"
+#include "Components/Element.h"
 #include "Lights/Light.h"
 
 Manager::Manager() {
 	BuildShaders();
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
-	BuildLights();
 	bIsWireFrame = false;
 }
 
@@ -42,7 +41,7 @@ Manager::~Manager() {
 	}
 }
 
-std::vector<Entity*> Manager::GetMeshList() {
+std::vector<Element*> Manager::GetMeshList() {
 	return MeshList;
 }
 
@@ -137,8 +136,8 @@ void Manager::BuildShaders() {
 
 void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader) {
 	for each (Asset* mod in AssetMap[Shader]) {
-		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
-		mod->Draw(Shader, WorldCamera);
+		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
+		mod->Render(Shader, WorldCamera);
 	}
 }
 
@@ -148,22 +147,22 @@ void Manager::SetSystemShader(Camera* WorldCamera) {
 	glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
 }
 
-void Manager::BuildAsset(std::string path) {
-	Asset* a = new Asset(path);
-
-	char label[128];
-	sprintf_s(label, "Object_%d", AssetList.size());
-	a->Name = label;
-	a->AssetID = AssetList.size();
-	AssetMap[DefaultShader].push_back(a);
-	AssetList.push_back(a);
-	if (MeshList.size() == 0) {
-		MeshList = a->GetMeshes();
-	} else {
-		std::vector<Entity*> temp = a->GetMeshes();
-		MeshList.insert(std::end(MeshList), std::begin(temp), std::end(temp));
-	}
-}
+//void Manager::BuildAsset(std::string path) {
+//	Asset* a = new Asset(path);
+//
+//	char label[128];
+//	sprintf_s(label, "Object_%d", AssetList.size());
+//	a->Name = label;
+//	a->GetAssetID() = AssetList.size();
+//	AssetMap[DefaultShader].push_back(a);
+//	AssetList.push_back(a);
+//	if (MeshList.size() == 0) {
+//		MeshList = a->GetComponents();
+//	} else {
+//		std::vector<Element*> temp = a->GetComponents();
+//		MeshList.insert(std::end(MeshList), std::begin(temp), std::end(temp));
+//	}
+//}
 
 void Manager::BuildAsset() {
 	Asset* a = new Asset();
@@ -200,7 +199,7 @@ void Manager::Draw(Shader* shader) {
 void Manager::CheckForSelection(int InID) {
 	bool bIsFound = false;
 	for each (Asset* a in AssetList) {
-		if (a->AssetID == InID) {
+		if (a->GetAssetID() == InID) {
 			SelectedAsset = a;
 			bIsFound = true;
 		}

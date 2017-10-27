@@ -1,9 +1,10 @@
 #include "Grid.h"
 
-Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
+Grid::Grid(int RowRadius, int ColumnRadius, float spacing)
+{
 	type = GRID;
-
-	for (int i = -1 * RowRadius; i <= RowRadius; i++) {
+	for (int i = -1 * RowRadius; i <= RowRadius; i++)
+	{
 		float GridDistance = i * spacing;
 		float startPoint = (-1 * ColumnRadius) * spacing;
 		float endPoint = (ColumnRadius) * spacing;
@@ -15,7 +16,8 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 		vertices.push_back(end);
 	}
 
-	for (int i = -1 * ColumnRadius; i <= ColumnRadius; i++) {
+	for (int i = -1 * ColumnRadius; i <= ColumnRadius; i++)
+	{
 		float GridDistance = i * spacing;
 		float startPoint = (-1 * RowRadius) * spacing;
 		float endPoint = (RowRadius) * spacing;
@@ -31,6 +33,7 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing) {
 }
 
 
-Grid::~Grid() {
+Grid::~Grid()
+{
 
 }

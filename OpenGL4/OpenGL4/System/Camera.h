@@ -21,7 +21,7 @@ public:
 	void PanCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
-	void Refocus(Asset* InAsset);
+	void Refocus(Asset* InSelection);
 
 	glm::vec3 GetPosition();
 	glm::vec3 GetFrontCameraDirection();
@@ -38,9 +38,9 @@ private:
 	glm::vec3 FocusPoint;
 
 	/* Camera Local Attributes */
-	glm::vec3 LocalFront;
-	glm::vec3 LocalUp;
-	glm::vec3 LocalRight;
+	glm::vec3 ForwardVector;
+	glm::vec3 UpVector;
+	glm::vec3 RightVector;
 
 	/* Camera options */
 	GLfloat PanSpeed;

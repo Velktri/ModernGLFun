@@ -1,19 +1,22 @@
 #include "Engine.h"
-#include "World.h"
-#include "UI/Layout.h"
-#include "Input.h"
-#include "FrameBuffer.h"
-#include "Manager.h"
+#include "UI\Layout.h"
+#include "System\World.h"
+#include "System\Timer.h"
+#include "System\Input.h"
+#include "System\FrameBuffer.h"
+#include "System\Manager.h"
 #include "Lights\Light.h"
-#include "Timer.h"
 
-bool Engine::Init() {
+//@TODO: Add an config file system for easy tweaks
+bool Engine::Init()
+{
 	WIDTH = 1920;
 	HEIGHT = 1080;
 	bIsRunning = true;
 
 	/* SDL Init */
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
 		printf("Error: %s\n", SDL_GetError());
 		return false;
 	}
@@ -26,13 +29,15 @@ bool Engine::Init() {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	MainWindow = SDL_CreateWindow("GL_Render", 200, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-	if (!MainWindow) {
+	if (!MainWindow)
+	{
 		printf("Error: %s\n", SDL_GetError());
 		return false;
 	}
 
 	context = SDL_GL_CreateContext(MainWindow);
-	if (!context) {
+	if (!context)
+	{
 		printf("Error: %s\n", SDL_GetError());
 		return false;
 	}
@@ -59,16 +64,17 @@ bool Engine::Init() {
 	return true;
 }
 
-void Engine::Run() {
+void Engine::Run()
+{
 	MyWorld->GetTimer()->Start();
-	while (bIsRunning) {
+	while (bIsRunning)
+	{
 		MyWorld->GetTimer()->Update();
-		MyWorld->GetLights()[0]->Translate(sin(MyWorld->GetTimer()->GetTime()) / 20.0f, 0, cos(MyWorld->GetTimer()->GetTime()) / 20.0f);
-
 		MyInput->UpdateInput();
 		bIsRunning = MyInput->ExecuteInput(UILayout->GetSceneHovering());
 
-		if (MyInput->bColorPick) {
+		if (MyInput->bColorPick)
+		{
 			glm::vec2 coords = MyInput->StartSelectionCoods;
 			coords.y -= (HEIGHT - UILayout->GetSceneDimensions().y);
 			MyManager->CheckForSelection(PickerFrames->RenderColorPick(MyWorld, coords));
@@ -82,7 +88,8 @@ void Engine::Run() {
 	}
 }
 
-void Engine::CleanUp() {
+void Engine::CleanUp()
+{
 	MyWorld->~World();
 	MyManager->~Manager();
 	SceneFrames->~FrameBuffer();

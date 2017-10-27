@@ -1,7 +1,7 @@
 #pragma once
-#include "Entity.h"
+#include "Element.h"
 
-class Grid : public Entity {
+class Grid : public Element {
 public:
 	Grid(int RowRadius, int ColumnRadius, float spacing);
 	~Grid();

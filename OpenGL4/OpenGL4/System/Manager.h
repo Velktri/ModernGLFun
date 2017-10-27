@@ -7,14 +7,14 @@ class Asset;
 class Light;
 class Camera;
 class Texture;
-class Entity;
+class Element;
 
 class Manager {
 public:
 	Manager();
 	~Manager();
 
-	std::vector<Entity*> GetMeshList();
+	std::vector<Element*> GetMeshList();
 	Shader* GetSceneShader();
 	Shader* GetAssetShader();
 	Shader* GetLightShader();
@@ -32,7 +32,7 @@ public:
 
 	void DrawAssets(Camera* WorldCamera, Shader* AssetShader);
 	void SetSystemShader(Camera* WorldCamera);
-	void BuildAsset(std::string path);
+	//void BuildAsset(std::string path);
 	void BuildAsset();
 	std::vector<Asset*> GetAssets();
 
@@ -72,6 +72,6 @@ private:
 	void BuildLights();
 
 	/* Meshes */
-	std::vector<Entity*> MeshList;
+	std::vector<Element*> MeshList;
 };
 

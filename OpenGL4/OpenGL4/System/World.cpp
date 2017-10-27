@@ -1,12 +1,13 @@
 #include "World.h"
 #include "Camera.h"
 #include "Manager.h"
-#include "Models\Grid.h"
-#include "Models\Line.h"
+#include "Components\Grid.h"
+#include "Components\Line.h"
+#include "Components\Curve.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
-#include "Models\Curve.h"
 #include "Lights\Light.h"
+#include "Components\Gizmo.h"
 #include "Timer.h"
 
 World::World(GLuint width, GLuint height) {
@@ -14,6 +15,7 @@ World::World(GLuint width, GLuint height) {
 	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.01f, 1000.0f));
 
 	Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
+	SelectionGizmo = new Gizmo();
 	SystemElements.push_back(Scene);
 
 	WorldClock = new Timer();
@@ -24,6 +26,7 @@ World::World(GLuint width, GLuint height) {
 
 World::~World() {
 	Scene->~Grid();
+	SelectionGizmo->~Gizmo();
 }
 
 Camera* World::GetCamera() {
@@ -49,38 +52,18 @@ void World::RenderColorWorld() {
 	glUniformMatrix4fv(shader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(glm::scale(WorldCamera->GetProjection(), glm::vec3(1, -1, 1))));
 
 	for each (Asset* mod in MyManager->GetAssets()) {
-		int r = (mod->AssetID & 0x000000FF) >> 0;
-		int g = (mod->AssetID & 0x0000FF00) >> 8;
-		int b = (mod->AssetID & 0x00FF0000) >> 16;
-		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->orientation));
+		int r = (mod->GetAssetID() & 0x000000FF) >> 0;
+		int g = (mod->GetAssetID() & 0x0000FF00) >> 8;
+		int b = (mod->GetAssetID() & 0x00FF0000) >> 16;
+		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
 		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
-		mod->Draw(shader, WorldCamera);
+		mod->Render(shader, WorldCamera);
 	}
 }
-//
-//void World::StartClock() {
-//	WorldClock->Start();
-//}
-//
-//void World::StopClock() {
-//	WorldClock->Stop();
-//}
-//
-//void World::UpdateClock() {
-//	WorldClock->Update();
-//}
 
 void World::SetManager(Manager* m) {
 	MyManager = m;
 }
-//
-//GLfloat World::GetDeltaTime() {
-//	return WorldClock->GetDeltaTime();
-//}
-//
-//GLfloat World::GetTime() {
-//	return WorldClock->GetTime();
-//}
 
 Timer* World::GetTimer() {
 	return WorldClock;
@@ -119,8 +102,8 @@ Asset* World::CastRaytrace(glm::vec2 DeviceCoords) {
 
 void World::RenderSystemEntities() {
 	MyManager->SetSystemShader(WorldCamera);
-	for each (Entity* e in SystemElements) {
-		e->Draw(MyManager->GetSceneShader(), WorldCamera);
+	for each (Element* e in SystemElements) {
+		e->Render(MyManager->GetSceneShader(), WorldCamera);
 	}
 }
 

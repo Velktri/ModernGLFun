@@ -1,7 +1,7 @@
 #pragma once
-#include "Entity.h"
+#include "Element.h"
 
-class Line : public Entity {
+class Line : public Element {
 public:
 	Line(glm::vec3 Start, glm::vec3 End);
 	~Line();

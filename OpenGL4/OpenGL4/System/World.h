@@ -10,8 +10,9 @@ class Grid;
 class Manager;
 class Light;
 class Asset;
-class Entity;
+class Element;
 class Timer;
+class Gizmo;
 
 class World {
 public:
@@ -36,6 +37,7 @@ public:
 private:
 	Camera* WorldCamera;
 	Grid* Scene;
+	Gizmo* SelectionGizmo;
 	Manager* MyManager;
 
 	int GRIDRADIUS_X = 10;
@@ -47,6 +49,6 @@ private:
 
 	Timer* WorldClock;
 
-	std::vector<Entity*> SystemElements;
+	std::vector<Element*> SystemElements;
 };
 

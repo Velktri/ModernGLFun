@@ -1,17 +1,12 @@
 #include "Gizmo.h"
 
-
-
-Gizmo::Gizmo() {
+Gizmo::Gizmo()
+{
 	type = GIZMO;
-
-
-
-
-
 	Init();
 }
 
+Gizmo::~Gizmo()
+{
 
-Gizmo::~Gizmo() {
 }

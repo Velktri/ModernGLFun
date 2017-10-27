@@ -1,5 +1,5 @@
 #include "Mesh.h"
-#include "Asset.h"
+#include "../Models/Asset.h"
 
 Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, Asset* InAsset) {
 	vertices = InVertices;

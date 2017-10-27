@@ -1,7 +1,7 @@
 #pragma once
-#include "Entity.h"
+#include "Element.h"
 
-class Curve : public Entity {
+class Curve : public Element {
 public:
 	Curve();
 	~Curve();

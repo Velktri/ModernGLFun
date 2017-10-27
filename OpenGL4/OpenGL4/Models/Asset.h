@@ -12,7 +12,7 @@
 #include <postprocess.h>
 
 class Mesh;
-class Entity;
+class Element;
 class Texture;
 class Shader;
 class Camera;
@@ -20,37 +20,26 @@ class Camera;
 class Asset {
 public:
 	Asset();
-	Asset(std::string path);
 	~Asset();
-	void Draw(Shader* shader, Camera* WorldCamera);
-
-	Entity* GetMesh();
-	void SetMesh(Entity* InMesh);
-	Texture* GetTexture();
-
-	std::string Name;
-	glm::mat4 orientation;
-
-
+	void Render(Shader* shader, Camera* WorldCamera);
+	void AddComponent(Element* InMesh);
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
+
+
+	std::string Name;
+
+	/** Getters */
 	glm::vec3 GetOrigin();
-	std::vector<Entity*> GetMeshes();
-	int AssetID;
+	std::vector<Element*> GetComponents();
+	GLuint GetAssetID();
+	glm::mat4 GetWorldSpace();
 
 private:
-	std::vector<Entity*> meshes;
-	std::string directory;
-	std::vector<Texture> textures_loaded;
+	std::vector<Element*> Components;
 	glm::vec3 OriginPoint;
-	Entity* StaticMesh;
-	Texture* TextureMap;
-
-
-	void loadModel(std::string path);
-	void processNode(aiNode* node, const aiScene* scene);
-	Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	glm::mat4 WorldSpaceOrientation;
+	GLuint AssetID;
 };
 
