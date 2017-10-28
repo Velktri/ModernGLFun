@@ -2,9 +2,11 @@
 #include <GL/glew.h>
 #include <SDL.h>
 
-class Engine {
+class Engine
+{
 public:
-	static Engine& getInstance() {
+	static Engine& getInstance()
+	{
 		static Engine instance;
 		return instance;
 	}
@@ -33,4 +35,3 @@ private:
 	GLuint HEIGHT;
 	bool bIsRunning;
 };
-
