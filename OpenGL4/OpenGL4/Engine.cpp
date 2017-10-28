@@ -47,7 +47,7 @@ bool Engine::Init()
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 
-	UILayout = new Layout(MainWindow, ImVec2(WIDTH, HEIGHT));
+	UILayout = new Layout(MainWindow);
 	MyManager = new Manager();
 	MyWorld = new World(UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y);
 	MyInput = new Input(MyWorld);

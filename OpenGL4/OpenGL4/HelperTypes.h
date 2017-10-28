@@ -9,3 +9,12 @@ struct Vertex
 	glm::vec3 Normal;
 	glm::vec2 TexCoords;
 };
+
+
+enum RegionTypes
+{
+	None = 0,
+	Scene = 1,
+	Outliner = 2,
+	Test = 3
+};
