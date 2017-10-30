@@ -18,12 +18,13 @@ public:
 	Layout(SDL_Window* InWindow, std::string path = "");
 	~Layout();
 
-	bool RenderLayout(GLuint TextureColorBuffer);
+	bool RenderLayout(GLuint InTextureColorBuffer);
 	ImVec2 GetSceneDimensions();
 	void SetWorld(World* InWorld);
 	void SetManager(Manager* InManager);
 
 	bool GetSceneHovering();
+	GLuint GetTextureColorBuffer();
 
 private:
 	SDL_Window* Window;
@@ -36,6 +37,7 @@ private:
 	Manager* MyManager;
 	float DefaultSpacing;
 	std::vector<std::vector<Region*>> ChildWindowGrid;
+	GLuint TextureColorBuffer;
 
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
@@ -46,7 +48,6 @@ private:
 
 	bool MainMenu(ImVec2* MenuSize);
 	void AssetEditor();
-	void SceneWindow(GLuint TextureColorBuffer);
 
 	bool MasterWindow();
 	void RenderRegions();
@@ -64,7 +65,7 @@ private:
 class Region
 {
 public:
-	Region(ImVec2 InSize, ImVec2 InPosition);
+	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout);
 	~Region();
 
 	bool Render();
@@ -72,7 +73,7 @@ public:
 
 	int RegionID;
 
-
+	Layout* GetOwningLayout();
 	ImVec2 GetSize();
 private:
 	ImVec2 Size;
@@ -81,5 +82,14 @@ private:
 	std::vector<RegionTypes> TypeList;
 
 	void TestRegion();
+	void StatsRegion();
+	void SceneRegion();
+	void OutlinerRegion();
+
+	bool bIsRegionHovered;
+	Layout* OwningLayout;
+
+	/* Switch between Editors Panel Types */
+	void PanelSwitcher();
 };
 
