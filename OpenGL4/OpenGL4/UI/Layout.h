@@ -65,7 +65,7 @@ private:
 class Region
 {
 public:
-	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout);
+	Region(ImVec2 InSize, ImVec2 InPosition, RegionTypes InType, Layout* InLayout);
 	~Region();
 
 	bool Render();
