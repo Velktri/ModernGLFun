@@ -17,8 +17,7 @@ Layout::Layout(SDL_Window* InWindow, std::string path)
 	UpdateWindowSize();
 
 	bIsHoveringScene = false;
-	SceneSizeModifier = ImVec2(0.78f, 0.78f);
-	SceneDimensions = ImVec2(WindowDimensions.x * SceneSizeModifier.x, WindowDimensions.y * SceneSizeModifier.y);
+	bQuitLayout = false;
 
 	ImGui_ImplSdlGL3_Init(Window);
 	SetDefaultStyle(path);
@@ -34,27 +33,63 @@ Layout::~Layout()
 // @TODO: Clean up; design system for easy saving and creating custom layouts
 void Layout::GenerateDefaultLayout()
 {
+	float menuSize = 25;
+	RegionData RegionList[6];
+	RegionList[0] = RegionData(RegionTypes::MainMenu,	ImVec2(WindowDimensions.x, menuSize),		ImVec2(0, 0), false);
+	float Height = WindowDimensions.y - menuSize;
 
-	RegionTypes TypeList[] = { RegionTypes::Test, RegionTypes::Scene, RegionTypes::Outliner, RegionTypes::Scene, RegionTypes::Stats };
-	int Col = 3;
-	int Row = 2;
-	ImVec2 RegionDim = ImVec2(WindowDimensions.x / Col, WindowDimensions.y / Row);
-	int k = 0;
-	for (int i = 0; i < Row; i++)
-	{
-		ChildWindowGrid.push_back(std::vector<Region*>());
-		for (int j = 0; j < Col; j++)
-		{
-			if (k != 5)
-			{
-				ChildWindowGrid[i].push_back(new Region(RegionDim, ImVec2(RegionDim.x * i, RegionDim.y * j), TypeList[k], this));
-				ChildWindowGrid[i][j]->RegionID = k;
-				k++;
-			}
-		}
-	}
+	RegionList[1] = RegionData(RegionTypes::Test,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2(0, menuSize));
+	RegionList[2] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2(WindowDimensions.x / 3, menuSize));
+	RegionList[3] = RegionData(RegionTypes::Outliner,	ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2( 2 * (WindowDimensions.x / 3), menuSize));
 
-	ResizeRegions();
+
+	RegionList[4] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2(0, (Height / 2) + menuSize));
+	RegionList[5] = RegionData(RegionTypes::Stats,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2(WindowDimensions.x / 2, (Height / 2) + menuSize));
+
+
+	ChildWindowGrid.push_back(std::vector<Region*>());
+	ChildWindowGrid[0].push_back(new Region(RegionList[0].Size, RegionList[0].Position, RegionList[0].Type, this));
+	ChildWindowGrid[0][0]->RegionID = 0;
+
+	ChildWindowGrid.push_back(std::vector<Region*>());
+	ChildWindowGrid[1].push_back(new Region(RegionList[1].Size, RegionList[1].Position, RegionList[1].Type, this));
+	ChildWindowGrid[1].push_back(new Region(RegionList[2].Size, RegionList[2].Position, RegionList[2].Type, this));
+	ChildWindowGrid[1].push_back(new Region(RegionList[3].Size, RegionList[3].Position, RegionList[3].Type, this));
+	ChildWindowGrid[1][0]->RegionID = 1;
+	ChildWindowGrid[1][1]->RegionID = 2;
+	ChildWindowGrid[1][2]->RegionID = 3;
+
+	ChildWindowGrid.push_back(std::vector<Region*>());
+	ChildWindowGrid[2].push_back(new Region(RegionList[4].Size, RegionList[4].Position, RegionList[4].Type, this));
+	ChildWindowGrid[2].push_back(new Region(RegionList[5].Size, RegionList[5].Position, RegionList[5].Type, this));
+	ChildWindowGrid[2][0]->RegionID = 4;
+	ChildWindowGrid[2][1]->RegionID = 5;
+
+
+
+	//float MenuHeight = 30;
+	//RegionTypes TypeList[] = { RegionTypes::MainMenu, RegionTypes::Test, RegionTypes::Scene, RegionTypes::Outliner, RegionTypes::Scene, RegionTypes::Stats };
+	//ChildWindowGrid.push_back(std::vector<Region*>());
+	//ChildWindowGrid[0].push_back(new Region(ImVec2(WindowDimensions.x, MenuHeight), ImVec2(0, 0), TypeList[0], this));
+	//int Col = 3;
+	//int Row = 2;
+	//ImVec2 RegionDim = ImVec2(WindowDimensions.x / Col, (WindowDimensions.y - MenuHeight) / Row);
+	//int k = 0;
+	//for (int i = 1; i < Row; i++)
+	//{
+	//	ChildWindowGrid.push_back(std::vector<Region*>());
+	//	for (int j = 0; j < Col; j++)
+	//	{
+	//		if (k != 5)
+	//		{
+	//			ChildWindowGrid[i].push_back(new Region(RegionDim, ImVec2(RegionDim.x * i, (RegionDim.y * j) + MenuHeight), TypeList[k], this));
+	//			ChildWindowGrid[i][j]->RegionID = k;
+	//			k++;
+	//		}
+	//	}
+	//}
+
+	//ResizeRegions();
 }
 
 bool Layout::RenderLayout(GLuint InTextureColorBuffer)
@@ -64,7 +99,7 @@ bool Layout::RenderLayout(GLuint InTextureColorBuffer)
 	UpdateWindowSize();
 	ImGui_ImplSdlGL3_NewFrame(Window);
 
-	bool bIsRunning = MasterWindow();
+	bool bIsRunning = !MasterWindow();
 	ImGui::Render();
 	return bIsRunning;
 }
@@ -78,10 +113,10 @@ void Layout::SetManager(Manager* InManager)
 	}
 }
 
-ImVec2 Layout::GetSceneDimensions() {  return SceneDimensions;  }
-void Layout::SetWorld(World* InWorld) {  world = InWorld;  }
+void Layout::SetWorld(World* InWorld) {  MyWorld = InWorld;  }
 bool Layout::GetSceneHovering() {  return bIsHoveringScene;  }
 GLuint Layout::GetTextureColorBuffer() {  return TextureColorBuffer;  }
+void Layout::SetQuit(bool InQuit) { bQuitLayout = InQuit; }
 void Layout::SetDefaultStyle(std::string path) { ImGui::StyleColorsDark(); }
 
 void Layout::ImportAsset()
@@ -130,35 +165,8 @@ void Layout::CreatePrimative(std::string name)
 	}
 	else if (name.compare("Curve") == 0)
 	{
-		world->CreateCurve();
+		MyWorld->CreateCurve();
 	}
-}
-
-
-bool Layout::MainMenu(ImVec2* MenuSize = &ImVec2())
-{
-	bool check = true;
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Quit", NULL)) { check = false; }
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) { printf("Pressed Undo!\n"); }
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) { printf("Pressed Cut!\n"); }
-			if (ImGui::MenuItem("Copy", "CTRL+C")) { printf("Pressed Copy!\n"); }
-			if (ImGui::MenuItem("Paste", "CTRL+V")) { printf("Pressed Paste!\n"); }
-			ImGui::EndMenu();
-		}
-		*MenuSize = ImGui::GetWindowSize();
-		ImGui::EndMainMenuBar();
-	}
-	return check;
 }
 
 void Layout::AssetEditor()
@@ -262,14 +270,11 @@ bool Layout::MasterWindow()
 	//ImGuiIO& io = ImGui::GetIO();
 	//io.MouseDrawCursor = true;
 
-	ImVec2 MenuSize;
-	bool bIsRunning = MainMenu(&MenuSize);
-	ImVec2 MasterWindowSize = WindowDimensions;
-	MasterWindowSize.y -= MenuSize.y;
-
-	ImGui::SetNextWindowSize(MasterWindowSize, ImGuiCond_Always);
-	ImGui::SetNextWindowPos(ImVec2(0, MenuSize.y), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(WindowDimensions, ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 3.0f));
 	ImGui::Begin("MasterLayout", false, ImGuiWindowFlags_NoMove |
 										 ImGuiWindowFlags_NoCollapse |
 										 ImGuiWindowFlags_NoResize |
@@ -279,8 +284,8 @@ bool Layout::MasterWindow()
 		
 		RenderRegions();
 	ImGui::End();
-	ImGui::PopStyleVar(1);
-	return bIsRunning;
+	ImGui::PopStyleVar(3);
+	return bQuitLayout;
 }
 
 /*
@@ -311,8 +316,6 @@ ImGui::Begin("Splitter test");
 
 ImGui::End();
 */
-
-
 
 void Layout::RenderRegions()
 {
@@ -398,6 +401,7 @@ Region::Region(ImVec2 InSize, ImVec2 InPosition, RegionTypes InType, Layout* InL
 	bIsRegionHovered = false;
 
 	TypeList.push_back(RegionTypes::None);
+	TypeList.push_back(RegionTypes::MainMenu);
 	TypeList.push_back(RegionTypes::Scene);
 	TypeList.push_back(RegionTypes::Outliner);
 	TypeList.push_back(RegionTypes::Test);
@@ -415,7 +419,8 @@ bool Region::Render()
 	ImGui::SetNextWindowPos(Position, ImGuiCond_Always);
 	char buf[256];
 	sprintf_s(buf, "Region: %d", RegionID);
-	ImGui::BeginChild(buf, Size, false, ImGuiWindowFlags_NoScrollbar);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::BeginChild(buf, Size, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders);
 		// @TODO: add GUI based on which region it is;
 		switch (Type)
 		{
@@ -431,12 +436,16 @@ bool Region::Render()
 			case Stats:
 				StatsRegion();
 				break;
+			case MainMenu:
+				MainMenuRegion();
+				break;
 			default:
 				PanelSwitcher();
 				break;
 		}
 
 	ImGui::EndChild();
+	ImGui::PopStyleVar();
 	return true;
 }
 
@@ -508,7 +517,7 @@ void Region::TestRegion()
 		{
 			ImGui::Checkbox("No menu", &no_menu); ImGui::SameLine();
 			ImGui::Checkbox("No border", &no_border); ImGui::SameLine();
-			ImGui::Checkbox("No scrollbar", &no_scrollbar); ImGui::SameLine();		
+			ImGui::Checkbox("No scrollbar", &no_scrollbar);	
 
 			if (ImGui::TreeNode("Style"))
 			{
@@ -2093,25 +2102,24 @@ void Region::TestRegion()
 				ImGui::TreePop();
 			}
 		}
-
 	ImGui::EndChild();
 }
 
 void Region::StatsRegion()
 {
 	/* @TODO: Add Stats like FPS, Memory, etc. */
-	PanelSwitcher();
+	BeginRegionChild("Outliner", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
+		ImGui::BeginMenuBar();
+			PanelSwitcher();
+		ImGui::EndMenuBar();
+	EndRegionChild();
 }
 
 void Region::SceneRegion()
 {
-	char buf[256];
-	sprintf_s(buf, "Scene_%d", RegionID);
-
-	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::BeginChild(buf, Size, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
+	BeginRegionChild("Scene", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 		ImGui::Spacing();
+	
 		ImGui::BeginMenuBar();
 			PanelSwitcher();
 			ImGui::Indent(15.0f);
@@ -2135,8 +2143,7 @@ void Region::SceneRegion()
 		ImGui::EndGroup();
 
 		if (ImGui::IsItemHovered()) { bIsRegionHovered = true; };
-	ImGui::EndChild();
-	//ImGui::PopStyleVar(2);
+	EndRegionChild();
 
 	glViewport(0, 0, Size.x, Size.y);
 }
@@ -2144,14 +2151,46 @@ void Region::SceneRegion()
 void Region::OutlinerRegion()
 {
 	/* @TODO: Add Scene hierarchy here. */
-	PanelSwitcher();
+	BeginRegionChild("Outliner", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
+		ImGui::BeginMenuBar();
+			PanelSwitcher();
+		ImGui::EndMenuBar();
+	EndRegionChild();
+}
+
+void Region::MainMenuRegion()
+{
+	BeginRegionChild("MenuBar", ImGuiWindowFlags_NoScrollbar);
+		PanelSwitcher(); ImGui::SameLine();
+		
+		if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
+		if (ImGui::BeginPopup("File"))
+		{
+			if (ImGui::Selectable("Quit")) { OwningLayout->SetQuit(true); }
+			ImGui::EndPopup();
+			
+		}
+
+		if (ImGui::Button("Edit")) { ImGui::OpenPopup("Edit"); }
+		if (ImGui::BeginPopup("Edit"))
+		{
+			if (ImGui::Selectable("Undo")) { printf("Pressed Undo!\n"); }
+			if (ImGui::Selectable("Redo", false, ImGuiSelectableFlags_Disabled)) { /* Disabled item */ }
+			ImGui::Separator();
+			if (ImGui::Selectable("Cut")) { printf("Pressed Cut!\n"); }
+			if (ImGui::Selectable("Copy")) { printf("Pressed Copy!\n"); }
+			if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
+			ImGui::EndPopup();
+		}
+	EndRegionChild();
 }
 
 void Region::PanelSwitcher()
 {
 	/* TEMP */
-	const char* names[] = { "None", "Scene", "Outliner", "Test", "Stats" };
+	const char* names[] = { "None", "MainMenu", "Scene", "Outliner", "Test", "Stats" };
 	/**     */
+	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(17, 189, 2, 255));
 	if (ImGui::Button(names[Type])) { ImGui::OpenPopup("TypeList"); }
 	if (ImGui::BeginPopup("TypeList"))
 	{
@@ -2166,4 +2205,21 @@ void Region::PanelSwitcher()
 		}
 		ImGui::EndPopup();
 	}
+	ImGui::PopStyleColor();
+}
+
+void Region::BeginRegionChild(char* RegionName, ImGuiWindowFlags flags)
+{
+	std::string name = std::string(RegionName) + '_' + std::to_string(RegionID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 6.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+	ImGui::BeginChild(name.c_str(), Size, true, flags);
+}
+
+void Region::EndRegionChild()
+{
+	ImGui::EndChild();
+	ImGui::PopStyleVar(3);
 }

@@ -10,12 +10,12 @@ struct Vertex
 	glm::vec2 TexCoords;
 };
 
-
 enum RegionTypes
 {
 	None = 0,
-	Scene = 1,
-	Outliner = 2,
-	Test = 3,
-	Stats = 4
+	MainMenu = 1,
+	Scene = 2,
+	Outliner = 3,
+	Test = 4,
+	Stats = 5
 };

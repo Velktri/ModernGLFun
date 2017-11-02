@@ -13,6 +13,23 @@ class Manager;
 class Region;
 
 
+struct RegionData
+{
+	RegionTypes Type;
+	ImVec2 Size;
+	ImVec2 Position;
+	bool bIsElastic;
+
+	RegionData(RegionTypes InType = RegionTypes::None, ImVec2 InSize = ImVec2(0, 0), ImVec2 InPosition = ImVec2(0, 0), bool InElastic = true)
+	{
+		Type = InType;
+		Size = InSize;
+		Position = InPosition;
+		bIsElastic = InElastic;
+	}
+};
+
+
 class Layout {
 public:
 	Layout(SDL_Window* InWindow, std::string path = "");
@@ -25,19 +42,18 @@ public:
 
 	bool GetSceneHovering();
 	GLuint GetTextureColorBuffer();
+	void SetQuit(bool InQuit);
 
 private:
 	SDL_Window* Window;
-	World* world;
+	World* MyWorld;
 	ImVec2 WindowDimensions;
-	ImVec2 SceneDimensions;
-	ImVec2 SceneSizeModifier;
-	ImVec2 WindowPos;
 	bool bIsHoveringScene;
 	Manager* MyManager;
 	float DefaultSpacing;
 	std::vector<std::vector<Region*>> ChildWindowGrid;
 	GLuint TextureColorBuffer;
+	bool bQuitLayout;
 
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
@@ -46,7 +62,6 @@ private:
 	/** Creates all the regions when the Layout is created. */
 	void GenerateDefaultLayout();
 
-	bool MainMenu(ImVec2* MenuSize);
 	void AssetEditor();
 
 	bool MasterWindow();
@@ -85,11 +100,15 @@ private:
 	void StatsRegion();
 	void SceneRegion();
 	void OutlinerRegion();
+	void MainMenuRegion();
 
 	bool bIsRegionHovered;
 	Layout* OwningLayout;
 
 	/* Switch between Editors Panel Types */
 	void PanelSwitcher();
+
+	void BeginRegionChild(char* RegionName, ImGuiWindowFlags flags);
+	void EndRegionChild();
 };
 
