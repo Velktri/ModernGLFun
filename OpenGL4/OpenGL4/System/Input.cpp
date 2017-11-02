@@ -6,22 +6,27 @@
 #include "Manager.h"
 #include "UI/Layout.h"
 
-Input::Input(World* InWorld) {
+Input::Input(World* InWorld, Manager* InManager)
+{
 	world = InWorld;
+	MyManager = InManager;
 	bLeftIsPressed = false;
-	bColorPick = false;
+	bSelectionRequest = false;
 }
 
-Input::~Input() {
+Input::~Input()
+{
 }
 
-void Input::UpdateInput() {
+void Input::UpdateInput()
+{
 	keyState = SDL_GetKeyboardState(NULL);
 	mouseState = SDL_GetMouseState(&xState, &yState);
 	relativeMouseState = SDL_GetRelativeMouseState(&xRelState, &yRelState);
 }
 
-bool Input::ExecuteInput(Region* ActiveRegion) {
+bool Input::ExecuteInput(Region* ActiveRegion)
+{
 	bool SceneHovering = false;
 
 	if (ActiveRegion && ActiveRegion->GetType() == RegionTypes::Scene) // @TODO: rewrite for multiple scenes
@@ -29,20 +34,26 @@ bool Input::ExecuteInput(Region* ActiveRegion) {
 		SceneHovering = true;
 	}
 
-	while (SDL_PollEvent(&windowEvent)) {
-		if (windowEvent.type == SDL_MOUSEWHEEL && SceneHovering) {
+	while (SDL_PollEvent(&windowEvent))
+	{
+		if (windowEvent.type == SDL_MOUSEWHEEL && SceneHovering)
+		{
 			world->GetCamera()->ZoomCamera(windowEvent.wheel.y, world->GetTimer()->GetDeltaTime());
 		}
 
-		if (windowEvent.type == SDL_QUIT) {
+		if (windowEvent.type == SDL_QUIT)
+		{
 			return false;
 		}
 	}
 
 	SDL_PumpEvents();
-	if (keyState[SDL_SCANCODE_LALT] || keyState[SDL_SCANCODE_RALT]) {
+	if (keyState[SDL_SCANCODE_LALT] || keyState[SDL_SCANCODE_RALT])
+	{
 		if (mouseState && SceneHovering) { ProcessMouseEvents(); }
-	} else {
+	}
+	else
+	{
 		if (SceneHovering) { QuerySelection(); }
 	}
 
@@ -52,38 +63,56 @@ bool Input::ExecuteInput(Region* ActiveRegion) {
 	return true;
 }
 
-void Input::ProcessMouseEvents() {
-	if (mouseState & SDL_BUTTON_LMASK) {
+void Input::ProcessMouseEvents()
+{
+	if (mouseState & SDL_BUTTON_LMASK)
+	{
 		world->GetCamera()->OrbitCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
-	} else if (mouseState & SDL_BUTTON_RMASK) {
+	}
+	else if (mouseState & SDL_BUTTON_RMASK)
+	{
 		world->GetCamera()->PanCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
 	}
 }
 
-void Input::ProcessKeyEvents() {
-	if (keyState[SDL_SCANCODE_F]) {
+void Input::ProcessKeyEvents()
+{
+	if (keyState[SDL_SCANCODE_F])
+	{
 		world->GetCamera()->Refocus(MyManager->GetSelectedAsset());
 	}
 }
 
-void Input::QuerySelection() {
-	if (mouseState & SDL_BUTTON_LMASK) {
-		if (bLeftIsPressed == false) {
+void Input::QuerySelection()
+{
+	if (mouseState & SDL_BUTTON_LMASK)
+	{
+		if (bLeftIsPressed == false)
+		{
 			StartSelectionCoods = glm::vec2(xState, yState);
 			bLeftIsPressed = true;
 		}
 		EndSelectionCoods = glm::vec2(xState, yState);
-	} else if (bLeftIsPressed == true) {
+	}
+	else if (bLeftIsPressed == true)
+	{
 		bLeftIsPressed = false;
 		SelectAssets(StartSelectionCoods, EndSelectionCoods);
 	}
 }
 
-void Input::SelectAssets(glm::vec2 Start, glm::vec2 End) {
+void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
+{
 	world->CastRaytrace(Start);
-	bColorPick = true;
+	bSelectionRequest = true;
 }
 
-void Input::SetManger(Manager* m) {
-	MyManager = m;
+bool Input::PollSelectionRequest() 
+{
+	if (bSelectionRequest)
+	{
+		bSelectionRequest = false;
+		return true;
+	}
+	return false;
 }

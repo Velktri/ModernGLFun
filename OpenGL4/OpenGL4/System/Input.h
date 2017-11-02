@@ -11,13 +11,12 @@ class Region;
 
 class Input {
 public:
-	Input(World* InWorld);
+	Input(World* InWorld, Manager* InManager);
 	~Input();
 	void UpdateInput();
 	bool ExecuteInput(Region* ActiveRegion);
-	void SetManger(Manager* m);
 	glm::vec2 StartSelectionCoods;
-	bool bColorPick;
+	bool PollSelectionRequest();
 
 private:
 	SDL_Event windowEvent;
@@ -34,6 +33,7 @@ private:
 	int yRelState;
 
 	bool bLeftIsPressed;
+	bool bSelectionRequest;
 	glm::vec2 EndSelectionCoods;
 
 	void ProcessMouseEvents();

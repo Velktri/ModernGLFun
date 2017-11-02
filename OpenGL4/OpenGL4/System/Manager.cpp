@@ -157,6 +157,7 @@ void Manager::Draw(Shader* shader)
 
 void Manager::CheckForSelection(int InID)
 {
+	printf("%d", InID);
 	bool bIsFound = false;
 	for each (Asset* a in AssetList)
 	{

@@ -42,7 +42,7 @@ void FrameBuffer::RenderWorldFrame(World* world)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords)
+int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords) // @TODO: expand to use box select in future.
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -56,7 +56,7 @@ int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	unsigned char data[4];
-	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);

@@ -16,7 +16,7 @@ class Gizmo;
 
 class World {
 public:
-	World(GLuint width, GLuint height);
+	World(GLuint width, GLuint height, Manager* InManager);
 	~World();
 
 	void CreateCurve();
@@ -31,7 +31,6 @@ public:
 	Timer* GetTimer();
 	Camera* GetCamera();
 	std::vector<Light*> GetLights();
-	void SetManager(Manager* InManager);
 
 private:
 	Camera* WorldCamera;

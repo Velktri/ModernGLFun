@@ -12,7 +12,6 @@ bool Engine::Init()
 {
 	WIDTH = 1920;
 	HEIGHT = 1080;
-	bIsRunning = true;
 
 	/* SDL Init */
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -47,19 +46,10 @@ bool Engine::Init()
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 
-	UILayout = new Layout(MainWindow);
 	MyManager = new Manager();
-	MyWorld = new World(WIDTH, HEIGHT/*  @TODO: Create world rendering based on the scene Size. */);
-	MyInput = new Input(MyWorld);
-
-	UILayout->SetManager(MyManager);
-	UILayout->SetWorld(MyWorld);
-
-	MyWorld->SetManager(MyManager);
-	MyInput->SetManger(MyManager);
-
-	// TODO: change picker frame to be with a scene frame; add ability to swap them in the region.
-	PickerFrames = new FrameBuffer(WIDTH, HEIGHT);
+	MyWorld = new World(WIDTH, HEIGHT/*  @TODO: Create world rendering based on the scene Size. */, MyManager);
+	MyInput = new Input(MyWorld, MyManager);
+	UILayout = new Layout(MainWindow, MyManager, MyWorld, MyInput);
 
 	return true;
 }
@@ -67,21 +57,13 @@ bool Engine::Init()
 void Engine::Run()
 {
 	MyWorld->GetTimer()->Start();
-	while (bIsRunning)
+	while (true)
 	{
 		MyWorld->GetTimer()->Update();
 		MyInput->UpdateInput();
-		bIsRunning = MyInput->ExecuteInput(UILayout->GetHoveredRegion());
 
-		//if (MyInput->bColorPick)
-		//{
-		//	glm::vec2 coords = MyInput->StartSelectionCoods;
-		//	coords.y -= (HEIGHT - UILayout->GetSceneDimensions().y);
-		//	MyManager->CheckForSelection(PickerFrames->RenderColorPick(MyWorld, coords));
-		//	MyInput->bColorPick = false;
-		//}
-
-		bIsRunning &= UILayout->RenderLayout();
+		if (!MyInput->ExecuteInput(UILayout->GetHoveredRegion())) { break; }
+		if (!UILayout->RenderLayout()) { break; }
 
 		SDL_GL_SwapWindow(MainWindow);
 	}

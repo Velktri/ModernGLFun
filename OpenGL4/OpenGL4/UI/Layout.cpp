@@ -2,6 +2,7 @@
 #include "System/FrameBuffer.h"
 #include "System/World.h"
 #include "System/Manager.h"
+#include "System/Input.h"
 #include "Models/Asset.h"
 #include "ModelData/Mesh.h"
 #include "ModelData/Curve.h"
@@ -12,9 +13,12 @@
 #include "imgui_internal.h"
 
 
-Layout::Layout(SDL_Window* InWindow, std::string path)
+Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path)
 {
 	Window = InWindow;
+	MyManager = InManager;
+	MyWorld = InWorld;
+	MyInput = InInput;
 	UpdateWindowSize();
 
 	HoveredRegion = NULL;
@@ -110,20 +114,12 @@ bool Layout::RenderLayout()
 	return bIsRunning;
 }
 
-
-void Layout::SetManager(Manager* InManager)
-{
-	if (!MyManager)
-	{
-		MyManager = InManager;
-	}
-}
-
 World* Layout::GetWorld() { return MyWorld; }
-void Layout::SetWorld(World* InWorld) {  MyWorld = InWorld;  }
+Input* Layout::GetInput() { return MyInput; }
+Manager* Layout::GetManager() { return MyManager; }
 Region* Layout::GetHoveredRegion() {  return HoveredRegion;  }
 void Layout::SetHoveredRegion(Region* InRegion) { HoveredRegion = InRegion; }
-void Layout::SetQuit(bool InQuit) { bQuitLayout = InQuit; }
+void Layout::ShutDown() { bQuitLayout = true; }
 void Layout::SetDefaultStyle(std::string path) { ImGui::StyleColorsDark(); }
 
 void Layout::ImportAsset()
@@ -406,6 +402,7 @@ Region::Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes I
 	OwningLayout = InLayout;
 	Type = InType;
 	bIsRegionHovered = false;
+	RenderFrame = 0;
 
 	TypeList.push_back(RegionTypes::None);
 	TypeList.push_back(RegionTypes::MainMenu);
@@ -418,6 +415,7 @@ Region::Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes I
 Region::~Region()
 {
 	if (SceneFrame) { SceneFrame->~FrameBuffer(); }
+	if (PickerFrame) { PickerFrame->~FrameBuffer(); }
 }
 
 bool Region::Render()
@@ -2117,19 +2115,22 @@ void Region::SceneRegion()
 {
 	BeginRegionChild("Scene", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 		ImGui::Spacing();
-	
+		
 		ImGui::BeginMenuBar();
 			PanelSwitcher();
 			ImGui::Indent(15.0f);
 
-			ImGui::SameLine();		 if (ImGui::Button("Import"))		{ /*ImportAsset();*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Empty Asset"))	{ /*CreatePrimative("Empty");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ /*CreatePrimative("Cube");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ /*CreatePrimative("Plane");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ /*CreatePrimative("Sphere");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ /*CreatePrimative("Cylinder");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ /*CreatePrimative("SmoothTest");*/ };
-			ImGui::SameLine();		 if (ImGui::Button("Curve"))		{ /*CreatePrimative("Curve");*/ };
+			ImGui::SameLine();		 if (ImGui::Button("SceneFrame"))	{ RenderFrame = SceneFrame->GetFrameTexture(); };
+			ImGui::SameLine();		 if (ImGui::Button("PickerFrame"))	{ RenderFrame = PickerFrame->GetFrameTexture(); };
+
+			//ImGui::SameLine();		 if (ImGui::Button("Import"))		{ /*ImportAsset();*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Empty Asset"))	{ /*CreatePrimative("Empty");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ /*CreatePrimative("Cube");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ /*CreatePrimative("Plane");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ /*CreatePrimative("Sphere");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ /*CreatePrimative("Cylinder");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ /*CreatePrimative("SmoothTest");*/ };
+			//ImGui::SameLine();		 if (ImGui::Button("Curve"))		{ /*CreatePrimative("Curve");*/ };
 
 			float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 		ImGui::EndMenuBar();
@@ -2138,21 +2139,35 @@ void Region::SceneRegion()
 		SceneSize.y -= MenuSize;
 		ImGui::BeginGroup();
 
-			if (!SceneFrame)
+			if (!SceneFrame || !PickerFrame)
 			{ 
-				SceneFrame = new FrameBuffer(Size.x, Size.y); 
+				if (!SceneFrame)
+				{ 
+					SceneFrame = new FrameBuffer(SceneSize.x, SceneSize.y);
+					RenderFrame = SceneFrame->GetFrameTexture();
+				}
+
+				if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame still needs to be tested when an asset is spawned.
 			}
 			else
 			{
-				glViewport(0, 0, Size.x, Size.y);
+				glViewport(0, 0, SceneSize.x, SceneSize.y);
+
+				if (OwningLayout->GetInput() && OwningLayout->GetInput()->PollSelectionRequest())
+				{
+					glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
+					coords.x -= Position.x;
+					coords.y -= Position.y;
+
+					OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), coords));
+				}
+
 				SceneFrame->RenderWorldFrame(OwningLayout->GetWorld());
 			}
 
-			ImGui::Image((GLuint*) SceneFrame->GetFrameTexture(), SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+			ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		ImGui::EndGroup();
 	EndRegionChild();
-
-
 }
 
 void Region::OutlinerRegion()
@@ -2173,7 +2188,7 @@ void Region::MainMenuRegion()
 		if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
 		if (ImGui::BeginPopup("File"))
 		{
-			if (ImGui::Selectable("Quit")) { OwningLayout->SetQuit(true); }
+			if (ImGui::Selectable("Quit")) { OwningLayout->ShutDown(); }
 			ImGui::EndPopup();
 			
 		}

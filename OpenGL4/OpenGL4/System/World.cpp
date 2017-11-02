@@ -10,8 +10,9 @@
 #include "Lights\Light.h"
 #include "ModelData\Gizmo.h"
 
-World::World(GLuint width, GLuint height)
+World::World(GLuint width, GLuint height, Manager* InManager)
 {
+	MyManager = InManager;
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
 	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.01f, 1000.0f));
 
@@ -59,14 +60,6 @@ void World::RenderColorWorld()
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
 		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 		mod->Render(shader, WorldCamera);
-	}
-}
-
-void World::SetManager(Manager* InManager)
-{
-	if (!MyManager)
-	{
-		MyManager = InManager;
 	}
 }
 

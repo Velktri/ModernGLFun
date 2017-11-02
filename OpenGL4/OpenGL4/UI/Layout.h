@@ -12,6 +12,7 @@ class World;
 class Manager;
 class Region;
 class FrameBuffer;
+class Input;
 
 
 struct RegionData
@@ -33,17 +34,17 @@ struct RegionData
 
 class Layout {
 public:
-	Layout(SDL_Window* InWindow, std::string path = "");
+	Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path = "");
 	~Layout();
 
 	bool RenderLayout();
-	void SetWorld(World* InWorld);
-	void SetManager(Manager* InManager);
-	World* GetWorld();
 
+	World* GetWorld();
+	Input* GetInput();
+	Manager* GetManager();
 	Region* GetHoveredRegion();
 	void SetHoveredRegion(Region* InRegion);
-	void SetQuit(bool InQuit);
+	void ShutDown();
 
 private:
 	SDL_Window* Window;
@@ -51,6 +52,7 @@ private:
 	ImVec2 WindowDimensions;
 	Region* HoveredRegion;
 	Manager* MyManager;
+	Input* MyInput;
 	float DefaultSpacing;
 	std::vector<std::vector<Region*>> ChildWindowGrid;
 	bool bQuitLayout;
@@ -97,22 +99,25 @@ private:
 	ImVec2 Position;
 	RegionTypes Type;
 	std::vector<RegionTypes> TypeList;
+	Layout* OwningLayout;
+	bool bIsRegionHovered;
 
+	FrameBuffer* SceneFrame;
+	FrameBuffer* PickerFrame;
+	GLuint RenderFrame;
+
+	/* Region Types */
 	void TestRegion();
 	void StatsRegion();
 	void SceneRegion();
 	void OutlinerRegion();
 	void MainMenuRegion();
 
-	bool bIsRegionHovered;
-	Layout* OwningLayout;
 
+	/** Helpers */
 	/* Switch between Editors Panel Types */
 	void PanelSwitcher();
-
 	void BeginRegionChild(char* RegionName, ImGuiWindowFlags flags);
 	void EndRegionChild();
-
-	FrameBuffer* SceneFrame;
 };
 
