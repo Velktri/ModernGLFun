@@ -25,13 +25,14 @@ void Input::UpdateInput()
 	relativeMouseState = SDL_GetRelativeMouseState(&xRelState, &yRelState);
 }
 
-bool Input::ExecuteInput(Region* ActiveRegion)
+bool Input::ExecuteInput(Region* InActiveRegion)
 {
 	bool SceneHovering = false;
 
-	if (ActiveRegion && ActiveRegion->GetType() == RegionTypes::Scene) // @TODO: rewrite for multiple scenes
+	if (InActiveRegion && InActiveRegion->GetType() == RegionTypes::Scene) // @TODO: rewrite for multiple scenes
 	{
 		SceneHovering = true;
+		ActiveSceneRegion = InActiveRegion;
 	}
 
 	while (SDL_PollEvent(&windowEvent))
@@ -103,7 +104,8 @@ void Input::QuerySelection()
 
 void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
 {
-	world->CastRaytrace(Start);
+	world->CastRaytrace(glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
+						glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
 	bSelectionRequest = true;
 }
 

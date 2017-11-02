@@ -92,11 +92,16 @@ public:
 
 	Layout* GetOwningLayout();
 	ImVec2 GetSize();
+	ImVec2 GetSceneSize();
+	ImVec2 GetPosition();
+	ImVec2 GetScenePosition();
 	RegionTypes GetType();
 
 private:
 	ImVec2 Size;
+	ImVec2 SceneSize;
 	ImVec2 Position;
+	ImVec2 ScenePosition;
 	RegionTypes Type;
 	std::vector<RegionTypes> TypeList;
 	Layout* OwningLayout;

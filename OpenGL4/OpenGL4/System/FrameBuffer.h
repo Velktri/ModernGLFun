@@ -11,8 +11,8 @@ public:
 	FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y);
 	~FrameBuffer();
 
-	void RenderWorldFrame(World* world); 
-	int RenderColorPick(World* world, glm::vec2 pickerCoords);
+	void RenderWorldFrame(World* world, glm::vec2 FrameSize); 
+	int RenderColorPick(World* world, glm::vec2 FrameSize, glm::vec2 pickerCoords);
 	GLuint GetFrameTexture();
 
 

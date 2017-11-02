@@ -29,26 +29,26 @@ FrameBuffer::~FrameBuffer()
 	glDeleteFramebuffers(1, &Framebuffer);
 }
 
-void FrameBuffer::RenderWorldFrame(World* world)
+void FrameBuffer::RenderWorldFrame(World* InWorld, glm::vec2 FrameSize)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	world->RenderWorld();
+	InWorld->RenderWorld(FrameSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords) // @TODO: expand to use box select in future.
+int FrameBuffer::RenderColorPick(World* InWorld, glm::vec2 FrameSize, glm::vec2 pickerCoords) // @TODO: expand to use box select in future.
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	world->RenderColorWorld();
+	InWorld->RenderColorWorld(FrameSize);
 
 	glFlush();
 	glFinish();

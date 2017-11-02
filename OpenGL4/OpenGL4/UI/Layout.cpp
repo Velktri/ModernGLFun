@@ -381,7 +381,7 @@ void Layout::HSpliter(const char* Name, float* X, float* Y)
 
 
 
-
+// @TODO: Give proper styling to dropdown menus.
 static void ShowHelpMarker(const char* desc)
 {
 	ImGui::TextDisabled("(?)");
@@ -2122,6 +2122,7 @@ void Region::SceneRegion()
 
 			ImGui::SameLine();		 if (ImGui::Button("SceneFrame"))	{ RenderFrame = SceneFrame->GetFrameTexture(); };
 			ImGui::SameLine();		 if (ImGui::Button("PickerFrame"))	{ RenderFrame = PickerFrame->GetFrameTexture(); };
+			ImGui::SameLine();		 if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetWorld()->ClearLines(); };
 
 			//ImGui::SameLine();		 if (ImGui::Button("Import"))		{ /*ImportAsset();*/ };
 			//ImGui::SameLine();		 if (ImGui::Button("Empty Asset"))	{ /*CreatePrimative("Empty");*/ };
@@ -2135,8 +2136,11 @@ void Region::SceneRegion()
 			float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 		ImGui::EndMenuBar();
 
-		ImVec2 SceneSize = Size;
+		SceneSize = Size;
+		ScenePosition = Position;
 		SceneSize.y -= MenuSize;
+		ScenePosition.y += MenuSize;
+
 		ImGui::BeginGroup();
 
 			if (!SceneFrame || !PickerFrame)
@@ -2159,10 +2163,10 @@ void Region::SceneRegion()
 					coords.x -= Position.x;
 					coords.y -= Position.y;
 
-					OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), coords));
+					OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y), coords));
 				}
 
-				SceneFrame->RenderWorldFrame(OwningLayout->GetWorld());
+				SceneFrame->RenderWorldFrame(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y));
 			}
 
 			ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
@@ -2254,5 +2258,8 @@ void Region::ReSize(ImVec2 InSize, ImVec2 InPosition)
 
 Layout* Region::GetOwningLayout() { return OwningLayout; }
 ImVec2 Region::GetSize() { return Size; }
+ImVec2 Region::GetSceneSize() { return SceneSize; }
+ImVec2 Region::GetPosition() { return Position; }
+ImVec2 Region::GetScenePosition() { return ScenePosition; }
 RegionTypes Region::GetType() { return Type; }
 

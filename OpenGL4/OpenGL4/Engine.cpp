@@ -47,7 +47,7 @@ bool Engine::Init()
 	glEnable(GL_DEPTH_TEST);
 
 	MyManager = new Manager();
-	MyWorld = new World(WIDTH, HEIGHT/*  @TODO: Create world rendering based on the scene Size. */, MyManager);
+	MyWorld = new World(MyManager);
 	MyInput = new Input(MyWorld, MyManager);
 	UILayout = new Layout(MainWindow, MyManager, MyWorld, MyInput);
 

@@ -16,17 +16,17 @@ class Gizmo;
 
 class World {
 public:
-	World(GLuint width, GLuint height, Manager* InManager);
+	World(Manager* InManager);
 	~World();
 
 	void CreateCurve();
-	Asset* CastRaytrace(glm::vec2 DeviceCoords);
+	Asset* CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize);
 
-	void RenderWorld();
-	void RenderColorWorld();
+	void RenderWorld(glm::vec2 FrameSize);
+	void RenderColorWorld(glm::vec2 FrameSize);
 	void RenderSystemEntities();
 	void RenderUserEntities();
-
+	void ClearLines();
 
 	Timer* GetTimer();
 	Camera* GetCamera();
@@ -37,15 +37,12 @@ private:
 	Grid* Scene;
 	Gizmo* SelectionGizmo;
 	Manager* MyManager;
+	Timer* WorldClock;
 
 	int GRIDRADIUS_X = 10;
 	int GRIDRADIUS_Y = 10;
 	float GRIDSPACING = 1.0;
 
-	GLuint SceneWidth;
-	GLuint SceneHeight;
-
-	Timer* WorldClock;
 
 	std::vector<Element*> SystemElements;
 };

@@ -14,7 +14,7 @@ public:
 	Input(World* InWorld, Manager* InManager);
 	~Input();
 	void UpdateInput();
-	bool ExecuteInput(Region* ActiveRegion);
+	bool ExecuteInput(Region* InActiveRegion);
 	glm::vec2 StartSelectionCoods;
 	bool PollSelectionRequest();
 
@@ -25,6 +25,7 @@ private:
 	Uint32 relativeMouseState;
 	World* world;
 	Manager* MyManager;
+	Region* ActiveSceneRegion;
 
 	int xState;
 	int yState;

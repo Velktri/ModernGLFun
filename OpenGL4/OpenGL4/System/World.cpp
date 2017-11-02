@@ -10,11 +10,10 @@
 #include "Lights\Light.h"
 #include "ModelData\Gizmo.h"
 
-World::World(GLuint width, GLuint height, Manager* InManager)
+World::World(Manager* InManager)
 {
 	MyManager = InManager;
 	WorldCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
-	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.01f, 1000.0f));
 
 	Scene = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
 	SelectionGizmo = new Gizmo();
@@ -22,9 +21,6 @@ World::World(GLuint width, GLuint height, Manager* InManager)
 	SystemElements.push_back(SelectionGizmo);
 
 	WorldClock = new Timer();
-
-	SceneWidth = width;
-	SceneHeight = height;
 }
 
 World::~World()
@@ -37,14 +33,16 @@ World::~World()
 	WorldClock->~Timer();
 }
 
-void World::RenderWorld()
+void World::RenderWorld(glm::vec2 FrameSize)
 {
+	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) FrameSize.x / (GLfloat) FrameSize.y, 0.01f, 1000.0f));
 	RenderSystemEntities();
 	RenderUserEntities();
 }
 
-void World::RenderColorWorld()
+void World::RenderColorWorld(glm::vec2 FrameSize)
 {
+	WorldCamera->SetProjection(glm::perspective(45.0f, (GLfloat) FrameSize.x / (GLfloat) FrameSize.y, 0.01f, 1000.0f));
 	MyManager->SetPickerShader();
 	Shader* shader = MyManager->GetCurrentShader();
 	shader->Use();
@@ -68,14 +66,15 @@ void World::CreateCurve()
 	SystemElements.push_back(new Curve());
 }
 
-/* @TODO: Fix ray trace */
-Asset* World::CastRaytrace(glm::vec2 DeviceCoords)
+/* @TODO: Ray Trace is aiming slightly lower than it should. 
+		  The borders between regions are throwing the positions off by a couple of pixels
+*/
+Asset* World::CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize)
 {
-	glm::vec2 ScreenSize = glm::vec2(SceneWidth, SceneHeight);
-	DeviceCoords.y -= 237.0f;
+	printf("%f, %f\n", DeviceCoords.x, DeviceCoords.y);
 
-	float x = (2.0f * DeviceCoords.x) / ScreenSize.x - 1.0f;
-	float y = 1.0f - (2.0f * DeviceCoords.y) / ScreenSize.y;
+	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
+	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
 	float z = 1.0f;
 	glm::vec3 ray_nds = glm::vec3(x, y, z);
 
@@ -121,6 +120,17 @@ void World::RenderUserEntities()
 	MyManager->Draw(MyManager->GetLightShader());
 }
 
+
+void World::ClearLines()
+{
+	for each (Element* e in SystemElements)
+	{
+		if (e->GetType() == ShaderType::LINE)
+		{
+			e->~Element();
+		}
+	}
+}
 
 Camera* World::GetCamera() { return WorldCamera; }
 std::vector<Light*> World::GetLights() { return MyManager->GetLights(); }
