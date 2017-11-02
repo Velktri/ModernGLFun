@@ -2,7 +2,8 @@
 #include "World.h"
 #include <iostream>
 
-FrameBuffer::FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y) {
+FrameBuffer::FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y)
+{
 	FrameSize_X = InFrameSize_X;
 	FrameSize_Y = InFrameSize_Y;
 
@@ -23,12 +24,13 @@ FrameBuffer::FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-
-FrameBuffer::~FrameBuffer() {
+FrameBuffer::~FrameBuffer()
+{
 	glDeleteFramebuffers(1, &Framebuffer);
 }
 
-void FrameBuffer::RenderWorldFrame(World* world) {
+void FrameBuffer::RenderWorldFrame(World* world)
+{
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -40,7 +42,8 @@ void FrameBuffer::RenderWorldFrame(World* world) {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords) {
+int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords)
+{
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -61,27 +64,31 @@ int FrameBuffer::RenderColorPick(World* world, glm::vec2 pickerCoords) {
 	return (data[0] + data[1] * 256 + data[2] * 256 * 256);
 }
 
-GLuint FrameBuffer::GetFrameTexture() {
-	return FrameTexture;
-}
-
-
 GLuint FrameBuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil) {
 	// What enum to use?
 	GLenum attachment_type;
 	if (!depth && !stencil)
+	{ 		
 		attachment_type = GL_RGB;
+	}
 	else if (depth && !stencil)
+	{
 		attachment_type = GL_DEPTH_COMPONENT;
+	}
 	else if (!depth && stencil)
+	{
 		attachment_type = GL_STENCIL_INDEX;
+	}
 
 	GLuint textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	if (!depth && !stencil) {
+	if (!depth && !stencil)
+	{
 		glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, FrameSize_X, FrameSize_Y, 0, attachment_type, GL_UNSIGNED_BYTE, NULL);
-	} else {
+	}
+	else
+	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, FrameSize_X, FrameSize_Y, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -90,3 +97,5 @@ GLuint FrameBuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil
 
 	return textureID;
 }
+
+GLuint FrameBuffer::GetFrameTexture() { return FrameTexture; }

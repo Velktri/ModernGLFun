@@ -49,7 +49,7 @@ bool Engine::Init()
 
 	UILayout = new Layout(MainWindow);
 	MyManager = new Manager();
-	MyWorld = new World(1920, 1080/*UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y*/);
+	MyWorld = new World(WIDTH, HEIGHT/*  @TODO: Create world rendering based on the scene Size. */);
 	MyInput = new Input(MyWorld);
 
 	UILayout->SetManager(MyManager);
@@ -58,8 +58,8 @@ bool Engine::Init()
 	MyWorld->SetManager(MyManager);
 	MyInput->SetManger(MyManager);
 
-	SceneFrames = new FrameBuffer(1920, 1080/*UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y*/);
-	PickerFrames = new FrameBuffer(1920, 1080/*UILayout->GetSceneDimensions().x, UILayout->GetSceneDimensions().y*/);
+	// TODO: change picker frame to be with a scene frame; add ability to swap them in the region.
+	PickerFrames = new FrameBuffer(WIDTH, HEIGHT);
 
 	return true;
 }
@@ -71,7 +71,7 @@ void Engine::Run()
 	{
 		MyWorld->GetTimer()->Update();
 		MyInput->UpdateInput();
-		bIsRunning = MyInput->ExecuteInput(UILayout->GetSceneHovering());
+		bIsRunning = MyInput->ExecuteInput(UILayout->GetHoveredRegion());
 
 		//if (MyInput->bColorPick)
 		//{
@@ -81,8 +81,7 @@ void Engine::Run()
 		//	MyInput->bColorPick = false;
 		//}
 
-		SceneFrames->RenderWorldFrame(MyWorld);
-		bIsRunning &= UILayout->RenderLayout(SceneFrames->GetFrameTexture());
+		bIsRunning &= UILayout->RenderLayout();
 
 		SDL_GL_SwapWindow(MainWindow);
 	}
@@ -92,7 +91,6 @@ void Engine::CleanUp()
 {
 	MyWorld->~World();
 	MyManager->~Manager();
-	SceneFrames->~FrameBuffer();
 	UILayout->~Layout();
 	MyInput->~Input();
 	SDL_GL_DeleteContext(context);

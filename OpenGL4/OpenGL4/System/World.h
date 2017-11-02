@@ -19,20 +19,19 @@ public:
 	World(GLuint width, GLuint height);
 	~World();
 
-	Camera* GetCamera();
-	std::vector<Light*> GetLights();
-	void SetManager(Manager* InManager);
+	void CreateCurve();
+	Asset* CastRaytrace(glm::vec2 DeviceCoords);
 
 	void RenderWorld();
 	void RenderColorWorld();
 	void RenderSystemEntities();
 	void RenderUserEntities();
 
+
 	Timer* GetTimer();
-
-	void CreateCurve();
-	Asset* CastRaytrace(glm::vec2 DeviceCoords);
-
+	Camera* GetCamera();
+	std::vector<Light*> GetLights();
+	void SetManager(Manager* InManager);
 
 private:
 	Camera* WorldCamera;

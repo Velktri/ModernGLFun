@@ -11,6 +11,7 @@
 class World;
 class Manager;
 class Region;
+class FrameBuffer;
 
 
 struct RegionData
@@ -35,24 +36,23 @@ public:
 	Layout(SDL_Window* InWindow, std::string path = "");
 	~Layout();
 
-	bool RenderLayout(GLuint InTextureColorBuffer);
-	ImVec2 GetSceneDimensions();
+	bool RenderLayout();
 	void SetWorld(World* InWorld);
 	void SetManager(Manager* InManager);
+	World* GetWorld();
 
-	bool GetSceneHovering();
-	GLuint GetTextureColorBuffer();
+	Region* GetHoveredRegion();
+	void SetHoveredRegion(Region* InRegion);
 	void SetQuit(bool InQuit);
 
 private:
 	SDL_Window* Window;
 	World* MyWorld;
 	ImVec2 WindowDimensions;
-	bool bIsHoveringScene;
+	Region* HoveredRegion;
 	Manager* MyManager;
 	float DefaultSpacing;
 	std::vector<std::vector<Region*>> ChildWindowGrid;
-	GLuint TextureColorBuffer;
 	bool bQuitLayout;
 
 	void SetDefaultStyle(std::string path);
@@ -80,7 +80,7 @@ private:
 class Region
 {
 public:
-	Region(ImVec2 InSize, ImVec2 InPosition, RegionTypes InType, Layout* InLayout);
+	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes InType = RegionTypes::None);
 	~Region();
 
 	bool Render();
@@ -90,6 +90,8 @@ public:
 
 	Layout* GetOwningLayout();
 	ImVec2 GetSize();
+	RegionTypes GetType();
+
 private:
 	ImVec2 Size;
 	ImVec2 Position;
@@ -110,5 +112,7 @@ private:
 
 	void BeginRegionChild(char* RegionName, ImGuiWindowFlags flags);
 	void EndRegionChild();
+
+	FrameBuffer* SceneFrame;
 };
 

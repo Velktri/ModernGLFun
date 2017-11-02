@@ -1,4 +1,5 @@
 #include "Layout.h"
+#include "System/FrameBuffer.h"
 #include "System/World.h"
 #include "System/Manager.h"
 #include "Models/Asset.h"
@@ -16,7 +17,7 @@ Layout::Layout(SDL_Window* InWindow, std::string path)
 	Window = InWindow;
 	UpdateWindowSize();
 
-	bIsHoveringScene = false;
+	HoveredRegion = NULL;
 	bQuitLayout = false;
 
 	ImGui_ImplSdlGL3_Init(Window);
@@ -28,6 +29,13 @@ Layout::Layout(SDL_Window* InWindow, std::string path)
 
 Layout::~Layout()
 {
+	for (int i = 0; i < ChildWindowGrid.size(); i++)
+	{
+		for (Region* r : ChildWindowGrid[i])
+		{
+			r->~Region();
+		}
+	}
 }
 
 // @TODO: Clean up; design system for easy saving and creating custom layouts
@@ -48,20 +56,20 @@ void Layout::GenerateDefaultLayout()
 
 
 	ChildWindowGrid.push_back(std::vector<Region*>());
-	ChildWindowGrid[0].push_back(new Region(RegionList[0].Size, RegionList[0].Position, RegionList[0].Type, this));
+	ChildWindowGrid[0].push_back(new Region(RegionList[0].Size, RegionList[0].Position, this, RegionList[0].Type));
 	ChildWindowGrid[0][0]->RegionID = 0;
 
 	ChildWindowGrid.push_back(std::vector<Region*>());
-	ChildWindowGrid[1].push_back(new Region(RegionList[1].Size, RegionList[1].Position, RegionList[1].Type, this));
-	ChildWindowGrid[1].push_back(new Region(RegionList[2].Size, RegionList[2].Position, RegionList[2].Type, this));
-	ChildWindowGrid[1].push_back(new Region(RegionList[3].Size, RegionList[3].Position, RegionList[3].Type, this));
+	ChildWindowGrid[1].push_back(new Region(RegionList[1].Size, RegionList[1].Position, this, RegionList[1].Type));
+	ChildWindowGrid[1].push_back(new Region(RegionList[2].Size, RegionList[2].Position, this, RegionList[2].Type));
+	ChildWindowGrid[1].push_back(new Region(RegionList[3].Size, RegionList[3].Position, this, RegionList[3].Type));
 	ChildWindowGrid[1][0]->RegionID = 1;
 	ChildWindowGrid[1][1]->RegionID = 2;
 	ChildWindowGrid[1][2]->RegionID = 3;
 
 	ChildWindowGrid.push_back(std::vector<Region*>());
-	ChildWindowGrid[2].push_back(new Region(RegionList[4].Size, RegionList[4].Position, RegionList[4].Type, this));
-	ChildWindowGrid[2].push_back(new Region(RegionList[5].Size, RegionList[5].Position, RegionList[5].Type, this));
+	ChildWindowGrid[2].push_back(new Region(RegionList[4].Size, RegionList[4].Position, this, RegionList[4].Type));
+	ChildWindowGrid[2].push_back(new Region(RegionList[5].Size, RegionList[5].Position, this, RegionList[5].Type));
 	ChildWindowGrid[2][0]->RegionID = 4;
 	ChildWindowGrid[2][1]->RegionID = 5;
 
@@ -92,10 +100,8 @@ void Layout::GenerateDefaultLayout()
 	//ResizeRegions();
 }
 
-bool Layout::RenderLayout(GLuint InTextureColorBuffer)
+bool Layout::RenderLayout()
 {
-	bIsHoveringScene = false;
-	TextureColorBuffer = InTextureColorBuffer;
 	UpdateWindowSize();
 	ImGui_ImplSdlGL3_NewFrame(Window);
 
@@ -113,9 +119,10 @@ void Layout::SetManager(Manager* InManager)
 	}
 }
 
+World* Layout::GetWorld() { return MyWorld; }
 void Layout::SetWorld(World* InWorld) {  MyWorld = InWorld;  }
-bool Layout::GetSceneHovering() {  return bIsHoveringScene;  }
-GLuint Layout::GetTextureColorBuffer() {  return TextureColorBuffer;  }
+Region* Layout::GetHoveredRegion() {  return HoveredRegion;  }
+void Layout::SetHoveredRegion(Region* InRegion) { HoveredRegion = InRegion; }
 void Layout::SetQuit(bool InQuit) { bQuitLayout = InQuit; }
 void Layout::SetDefaultStyle(std::string path) { ImGui::StyleColorsDark(); }
 
@@ -392,7 +399,7 @@ static void ShowHelpMarker(const char* desc)
 	}
 }
 
-Region::Region(ImVec2 InSize, ImVec2 InPosition, RegionTypes InType, Layout* InLayout)
+Region::Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes InType)
 {
 	Position = InPosition;
 	Size = InSize;
@@ -410,7 +417,7 @@ Region::Region(ImVec2 InSize, ImVec2 InPosition, RegionTypes InType, Layout* InL
 
 Region::~Region()
 {
-
+	if (SceneFrame) { SceneFrame->~FrameBuffer(); }
 }
 
 bool Region::Render()
@@ -418,10 +425,10 @@ bool Region::Render()
 	ImGui::SetNextWindowSize(Size, ImGuiCond_Always);
 	ImGui::SetNextWindowPos(Position, ImGuiCond_Always);
 	char buf[256];
-	sprintf_s(buf, "Region: %d", RegionID);
+	sprintf_s(buf, "Region_%d", RegionID);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGui::BeginChild(buf, Size, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders);
-		// @TODO: add GUI based on which region it is;
+		if (ImGui::IsItemHovered()) { OwningLayout->SetHoveredRegion(this); };
 		switch (Type)
 		{
 			case Scene:
@@ -448,15 +455,6 @@ bool Region::Render()
 	ImGui::PopStyleVar();
 	return true;
 }
-
-void Region::ReSize(ImVec2 InSize, ImVec2 InPosition) 
-{
-	Size = InSize;
-	Position = InPosition;
-}
-
-Layout* Region::GetOwningLayout() {  return OwningLayout;  }
-ImVec2 Region::GetSize() {  return Size;  }
 
 void Region::TestRegion()
 {
@@ -2136,16 +2134,25 @@ void Region::SceneRegion()
 			float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 		ImGui::EndMenuBar();
 
+		ImVec2 SceneSize = Size;
+		SceneSize.y -= MenuSize;
 		ImGui::BeginGroup();
-			ImVec2 SceneSize = Size;
-			SceneSize.y -= MenuSize;
-			ImGui::Image((GLuint*) OwningLayout->GetTextureColorBuffer(), SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
-		ImGui::EndGroup();
 
-		if (ImGui::IsItemHovered()) { bIsRegionHovered = true; };
+			if (!SceneFrame)
+			{ 
+				SceneFrame = new FrameBuffer(Size.x, Size.y); 
+			}
+			else
+			{
+				glViewport(0, 0, Size.x, Size.y);
+				SceneFrame->RenderWorldFrame(OwningLayout->GetWorld());
+			}
+
+			ImGui::Image((GLuint*) SceneFrame->GetFrameTexture(), SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+		ImGui::EndGroup();
 	EndRegionChild();
 
-	glViewport(0, 0, Size.x, Size.y);
+
 }
 
 void Region::OutlinerRegion()
@@ -2223,3 +2230,14 @@ void Region::EndRegionChild()
 	ImGui::EndChild();
 	ImGui::PopStyleVar(3);
 }
+
+void Region::ReSize(ImVec2 InSize, ImVec2 InPosition)
+{
+	Size = InSize;
+	Position = InPosition;
+}
+
+Layout* Region::GetOwningLayout() { return OwningLayout; }
+ImVec2 Region::GetSize() { return Size; }
+RegionTypes Region::GetType() { return Type; }
+

@@ -25,7 +25,7 @@ private:
 	class Layout* UILayout;
 	class Input* MyInput;
 	class Manager* MyManager;
-	class FrameBuffer* SceneFrames;
+	//class FrameBuffer* SceneFrames;
 	class FrameBuffer* PickerFrames;
 
 	SDL_Window* MainWindow;

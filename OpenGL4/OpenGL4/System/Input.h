@@ -7,13 +7,14 @@
 
 class World;
 class Manager;
+class Region;
 
 class Input {
 public:
 	Input(World* InWorld);
 	~Input();
 	void UpdateInput();
-	bool ExecuteInput(bool SceneHovering);
+	bool ExecuteInput(Region* ActiveRegion);
 	void SetManger(Manager* m);
 	glm::vec2 StartSelectionCoods;
 	bool bColorPick;

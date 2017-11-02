@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Timer.h"
 #include "Manager.h"
+#include "UI/Layout.h"
 
 Input::Input(World* InWorld) {
 	world = InWorld;
@@ -20,7 +21,14 @@ void Input::UpdateInput() {
 	relativeMouseState = SDL_GetRelativeMouseState(&xRelState, &yRelState);
 }
 
-bool Input::ExecuteInput(bool SceneHovering) {
+bool Input::ExecuteInput(Region* ActiveRegion) {
+	bool SceneHovering = false;
+
+	if (ActiveRegion && ActiveRegion->GetType() == RegionTypes::Scene) // @TODO: rewrite for multiple scenes
+	{
+		SceneHovering = true;
+	}
+
 	while (SDL_PollEvent(&windowEvent)) {
 		if (windowEvent.type == SDL_MOUSEWHEEL && SceneHovering) {
 			world->GetCamera()->ZoomCamera(windowEvent.wheel.y, world->GetTimer()->GetDeltaTime());
