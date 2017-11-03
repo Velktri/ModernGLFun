@@ -19,3 +19,13 @@ enum RegionTypes
 	Test = 4,
 	Stats = 5
 };
+
+enum Primatives
+{
+	Cube = 0,	
+	Plane = 1,
+	Sphere = 2,
+	Cylinder = 3,
+	Curve = 4,
+	Smooth = 5 // @TODO: temp, change later when working with normals.
+};

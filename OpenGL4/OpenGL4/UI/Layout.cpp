@@ -27,7 +27,7 @@ Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* 
 	ImGui_ImplSdlGL3_Init(Window);
 	SetDefaultStyle(path);
 
-	DefaultSpacing = 4.0f;
+	RegionSpacing = ImVec2(0,0/*1.0f, 1.0f*/);
 	GenerateDefaultLayout();
 }
 
@@ -45,18 +45,20 @@ Layout::~Layout()
 // @TODO: Clean up; design system for easy saving and creating custom layouts
 void Layout::GenerateDefaultLayout()
 {
+	// @TODO: account for border spacing (Region Spacing).
+
 	float menuSize = 25;
 	RegionData RegionList[6];
-	RegionList[0] = RegionData(RegionTypes::MainMenu,	ImVec2(WindowDimensions.x, menuSize),		ImVec2(0, 0), false);
+	RegionList[0] = RegionData(RegionTypes::MainMenu,	/*WindowDimensions*/ImVec2(WindowDimensions.x, menuSize),		ImVec2(0, 0), false);
 	float Height = WindowDimensions.y - menuSize;
 
-	RegionList[1] = RegionData(RegionTypes::Test,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2(0, menuSize));
-	RegionList[2] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2(WindowDimensions.x / 3, menuSize));
-	RegionList[3] = RegionData(RegionTypes::Outliner,	ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2( 2 * (WindowDimensions.x / 3), menuSize));
+	RegionList[1] = RegionData(RegionTypes::Test,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2(0 + RegionSpacing.x, menuSize));
+	RegionList[2] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2((WindowDimensions.x / 3) + RegionSpacing.x, menuSize + RegionSpacing.y));
+	RegionList[3] = RegionData(RegionTypes::Outliner,	ImVec2(WindowDimensions.x / 3, Height / 2), ImVec2( (2 * (WindowDimensions.x / 3)) + RegionSpacing.x, menuSize + (2 * RegionSpacing.y)));
 
 
-	RegionList[4] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2(0, (Height / 2) + menuSize));
-	RegionList[5] = RegionData(RegionTypes::Stats,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2(WindowDimensions.x / 2, (Height / 2) + menuSize));
+	RegionList[4] = RegionData(RegionTypes::Scene,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2(0 + (2 * RegionSpacing.x), (Height / 2) + menuSize));
+	RegionList[5] = RegionData(RegionTypes::Stats,		ImVec2(WindowDimensions.x / 2, Height / 2), ImVec2((WindowDimensions.x / 2) + (2 * RegionSpacing.x), (Height / 2) + menuSize + RegionSpacing.y));
 
 
 	ChildWindowGrid.push_back(std::vector<Region*>());
@@ -148,28 +150,6 @@ void Layout::ImportAsset()
 	//} else {
 	//	printf("Current UI has no Access to World*");
 	//}
-}
-
-void Layout::CreatePrimative(std::string name)
-{
-	if (name.compare("Empty") == 0)
-	{
-		MyManager->BuildAsset();
-		//} else if (name.compare("Cube") == 0) {
-		//	MyManager->BuildAsset("assets/Models/Primitives/cube.obj");
-		//} else if (name.compare("Plane") == 0) {
-		//	MyManager->BuildAsset("assets/Models/Primitives/plane.obj");
-		//} else if (name.compare("Sphere") == 0) {
-		//	MyManager->BuildAsset("assets/Models/Primitives/Sphere.obj");
-		//} else if (name.compare("Cylinder") == 0) {
-		//	MyManager->BuildAsset("assets/Models/Primitives/cylinder.obj");
-		//} else if (name.compare("SmoothTest") == 0) {
-		//	MyManager->BuildAsset("assets/Models/Primitives/smoothSphere.obj");
-	}
-	else if (name.compare("Curve") == 0)
-	{
-		MyWorld->CreateCurve();
-	}
 }
 
 void Layout::AssetEditor()
@@ -277,7 +257,7 @@ bool Layout::MasterWindow()
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 3.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, RegionSpacing);
 	ImGui::Begin("MasterLayout", false, ImGuiWindowFlags_NoMove |
 										 ImGuiWindowFlags_NoCollapse |
 										 ImGuiWindowFlags_NoResize |
@@ -362,7 +342,7 @@ void Layout::ResizeRegions()
 void Layout::VSpliter(const char* Name, float* X, float* Y)
 {
 	ImGui::SameLine();
-	ImGui::InvisibleButton(Name, ImVec2(DefaultSpacing, *Y));
+	ImGui::InvisibleButton(Name, ImVec2(RegionSpacing.x, *Y));
 	if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeEW); }
 	if (ImGui::IsItemActive()) { *X += ImGui::GetIO().MouseDelta.x; }
 	ImGui::SameLine();
@@ -370,7 +350,7 @@ void Layout::VSpliter(const char* Name, float* X, float* Y)
 
 void Layout::HSpliter(const char* Name, float* X, float* Y)
 {
-	ImGui::InvisibleButton(Name, ImVec2(*X, DefaultSpacing));
+	ImGui::InvisibleButton(Name, ImVec2(*X, RegionSpacing.y));
 	if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeNS); }
 	if (ImGui::IsItemActive()) { *Y += ImGui::GetIO().MouseDelta.y; }
 }
@@ -2108,6 +2088,53 @@ void Region::StatsRegion()
 		ImGui::BeginMenuBar();
 			PanelSwitcher();
 		ImGui::EndMenuBar();
+
+		// right
+		ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 200, 0));
+			ImGui::BeginChild("OutlinerChild4", ImVec2(Size.x / 2, Size.y), true);
+		
+			ImGui::EndChild();
+		ImGui::PopStyleColor();
+
+		ImGui::SameLine();
+
+
+
+		// left
+		ImGui::BeginChild("OutlinerChild1", ImVec2(Size.x / 2, Size.y), true);
+
+			//top
+			ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(0, 200, 0));
+			ImGui::BeginChild("OutlinerChildLeft2", ImVec2(Size.x / 2, Size.y / 2), true);
+
+				// top
+				ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(0, 0, 200));
+				ImGui::BeginChild("OutlinerChild3", ImVec2(Size.x / 2, Size.y / 4), true);
+
+					//right
+					ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(0, 200, 200));
+					ImGui::BeginChild("OutlinerChild5", ImVec2(Size.x / 4, Size.y / 4), true);
+
+					ImGui::EndChild();
+					ImGui::PopStyleColor();
+
+				ImGui::EndChild();
+				ImGui::PopStyleColor();
+
+
+			ImGui::EndChild();
+			ImGui::PopStyleColor();
+
+
+			//bottom
+			ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 0, 0));
+			ImGui::BeginChild("OutlinerChildRight2", ImVec2(Size.x, Size.y / 2), true);
+
+
+			ImGui::EndChild();
+			ImGui::PopStyleColor();
+
+		ImGui::EndChild();
 	EndRegionChild();
 }
 
@@ -2122,16 +2149,15 @@ void Region::SceneRegion()
 
 			ImGui::SameLine();		 if (ImGui::Button("SceneFrame"))	{ RenderFrame = SceneFrame->GetFrameTexture(); };
 			ImGui::SameLine();		 if (ImGui::Button("PickerFrame"))	{ RenderFrame = PickerFrame->GetFrameTexture(); };
-			ImGui::SameLine();		 if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetWorld()->ClearLines(); };
 
-			//ImGui::SameLine();		 if (ImGui::Button("Import"))		{ /*ImportAsset();*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Empty Asset"))	{ /*CreatePrimative("Empty");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ /*CreatePrimative("Cube");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ /*CreatePrimative("Plane");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ /*CreatePrimative("Sphere");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ /*CreatePrimative("Cylinder");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ /*CreatePrimative("SmoothTest");*/ };
-			//ImGui::SameLine();		 if (ImGui::Button("Curve"))		{ /*CreatePrimative("Curve");*/ };
+			ImGui::SameLine();		 if (ImGui::Button("Cube"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
+			ImGui::SameLine();		 if (ImGui::Button("Plane"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
+			ImGui::SameLine();		 if (ImGui::Button("Sphere"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
+			ImGui::SameLine();		 if (ImGui::Button("Cylinder"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
+			ImGui::SameLine();		 if (ImGui::Button("SmoothTest"))	{ OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
+			ImGui::SameLine();		 if (ImGui::Button("Curve"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Curve); };
+
+			ImGui::SameLine();		 if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetWorld()->ClearLines(); };
 
 			float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 		ImGui::EndMenuBar();
@@ -2151,7 +2177,7 @@ void Region::SceneRegion()
 					RenderFrame = SceneFrame->GetFrameTexture();
 				}
 
-				if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame still needs to be tested when an asset is spawned.
+				if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame spawned upside down, need further real time testing
 			}
 			else
 			{
@@ -2169,6 +2195,7 @@ void Region::SceneRegion()
 				SceneFrame->RenderWorldFrame(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y));
 			}
 
+			// @TODO: fix error where frames don't render when multiple scenes are open.
 			ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		ImGui::EndGroup();
 	EndRegionChild();
@@ -2188,6 +2215,7 @@ void Region::MainMenuRegion()
 {
 	BeginRegionChild("MenuBar", ImGuiWindowFlags_NoScrollbar);
 		PanelSwitcher(); ImGui::SameLine();
+		WindowSpliter(); ImGui::SameLine();
 		
 		if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
 		if (ImGui::BeginPopup("File"))
@@ -2234,6 +2262,14 @@ void Region::PanelSwitcher()
 	ImGui::PopStyleColor();
 }
 
+void Region::WindowSpliter()
+{
+	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(148, 18, 2, 255));
+	ImGui::SameLine();		 if (ImGui::Button("Split Horizontally"))	{ SplitRegion(false); };
+	ImGui::SameLine();		 if (ImGui::Button("Split Vertically"))		{ SplitRegion(true); };
+	ImGui::PopStyleColor();
+}
+
 void Region::BeginRegionChild(char* RegionName, ImGuiWindowFlags flags)
 {
 	std::string name = std::string(RegionName) + '_' + std::to_string(RegionID);
@@ -2248,6 +2284,11 @@ void Region::EndRegionChild()
 {
 	ImGui::EndChild();
 	ImGui::PopStyleVar(3);
+}
+
+void Region::SplitRegion(bool bVertical)
+{
+
 }
 
 void Region::ReSize(ImVec2 InSize, ImVec2 InPosition)

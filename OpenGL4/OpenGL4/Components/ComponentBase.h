@@ -3,11 +3,13 @@
 #include <string>
 
 class Asset;
+class Shader;
+class Camera;
 
 class ComponentBase
 {
 public:
-	ComponentBase();
+	ComponentBase(Asset* InParent);
 	~ComponentBase();
 
 	void AddComponent(ComponentBase* InComponent);
@@ -15,8 +17,8 @@ public:
 	/** GETTERS - SETTERS */
 	std::string GetName();
 	Asset* GetParentAsset();
-	void SetParentAsset(Asset* InParent);
 	std::vector<ComponentBase*> GetComponents();
+	virtual void Render(Shader* shader, Camera* WorldCamera);
 
 protected:
 	std::string Name;

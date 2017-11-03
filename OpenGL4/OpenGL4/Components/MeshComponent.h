@@ -6,10 +6,14 @@ class Mesh;
 class MeshComponent : public ComponentBase
 {
 public:
-	MeshComponent();
+	MeshComponent(Asset* InParent, std::string path = "");
 	~MeshComponent();
+
+	virtual void Render(Shader* shader, Camera* WorldCamera) override;
 
 private:
 	Mesh* MeshData;
+
+	void InitAndSet(std::string path);
 };
 

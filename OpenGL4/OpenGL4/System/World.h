@@ -19,7 +19,7 @@ public:
 	World(Manager* InManager);
 	~World();
 
-	void CreateCurve();
+	//void CreateCurve();
 	Asset* CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize);
 
 	void RenderWorld(glm::vec2 FrameSize);

@@ -53,13 +53,12 @@ private:
 	Region* HoveredRegion;
 	Manager* MyManager;
 	Input* MyInput;
-	float DefaultSpacing;
+	ImVec2 RegionSpacing;
 	std::vector<std::vector<Region*>> ChildWindowGrid;
 	bool bQuitLayout;
 
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
-	void CreatePrimative(std::string name);
 
 	/** Creates all the regions when the Layout is created. */
 	void GenerateDefaultLayout();
@@ -105,7 +104,7 @@ private:
 	RegionTypes Type;
 	std::vector<RegionTypes> TypeList;
 	Layout* OwningLayout;
-	bool bIsRegionHovered;
+	bool bIsRegionHovered; //@TODO set up a filter for only if scene section is hovered but not UI.
 
 	FrameBuffer* SceneFrame;
 	FrameBuffer* PickerFrame;
@@ -122,7 +121,13 @@ private:
 	/** Helpers */
 	/* Switch between Editors Panel Types */
 	void PanelSwitcher();
+
+	/* Splits a region into two child regions either horizontally or vertically. */
+	void WindowSpliter();
+
 	void BeginRegionChild(char* RegionName, ImGuiWindowFlags flags);
 	void EndRegionChild();
+
+	void SplitRegion(bool bVertical);
 };
 

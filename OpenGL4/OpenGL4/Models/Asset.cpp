@@ -2,25 +2,28 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "System/Manager.h"
 #include "Components/ComponentBase.h"
 #include "System/Camera.h"
 #include <iostream>
 
 
-Asset::Asset()
+Asset::Asset(GLuint InAssetID, Manager* InManager)
 {
+	AssetID = InAssetID;
+	MyManager = InManager;
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	Root = new ComponentBase();
+	Root = new ComponentBase(this);
 }
 
 Asset::~Asset()
 {
-
+	Root->~ComponentBase();
 }
 
 void Asset::Render(Shader* shader, Camera* WorldCamera)
 {
-	//Root->Render(shader, WorldCamera);
+	Root->Render(shader, WorldCamera);
 }
 
 void Asset::TranslateAsset(float x, float y, float z)
@@ -47,3 +50,4 @@ glm::vec3 Asset::GetOrigin() { return OriginPoint; }
 GLuint Asset::GetAssetID() { return AssetID; }
 glm::mat4 Asset::GetWorldSpace() { return WorldSpaceOrientation; }
 ComponentBase* Asset::GetRoot() { return Root; }
+Manager* Asset::GetManager() { return MyManager; }

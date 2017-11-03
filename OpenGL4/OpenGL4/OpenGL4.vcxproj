@@ -70,13 +70,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin\win64\</OutDir>
+    <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64\Debug;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\win64\Debug</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin\win64\</OutDir>
+    <LibraryPath>$(SolutionDir)thirdparty\assimp-3.3.1\bin\win64\Release;$(SolutionDir)thirdparty\glew-2.0.0\lib\Release\x64;$(SolutionDir)thirdparty\SDL2-2.0.4\lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\win64\Release</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)OpenGL4;$(SolutionDir)thirdparty\imgui\include;$(SolutionDir)thirdparty\assimp-3.3.1\include;$(SolutionDir)thirdparty\glm;$(SolutionDir)thirdparty\glew-2.0.0\include;$(SolutionDir)thirdparty\SDL2-2.0.4\include;$(IncludePath)</IncludePath>
@@ -109,7 +109,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc140-mt-Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -140,7 +140,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc140-mt-Release.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

@@ -16,14 +16,16 @@ class ComponentBase;
 class Texture;
 class Shader;
 class Camera;
+class Manager;
 
 /** 
-	An empty asset with no components.
-	Base class for all Assets.
+An empty asset with no components.
+Base class for all Assets.
 */
-class Asset {
+class Asset 
+{
 public:
-	Asset();
+	Asset(GLuint InAssetID, Manager* InManager);
 	~Asset();
 	void Render(Shader* shader, Camera* WorldCamera);
 	void TranslateAsset(float x, float y, float z);
@@ -38,11 +40,13 @@ public:
 	GLuint GetAssetID();
 	glm::mat4 GetWorldSpace();
 	ComponentBase* GetRoot();
+	Manager* GetManager();
 
 private:
 	glm::vec3 OriginPoint;
 	glm::mat4 WorldSpaceOrientation;
 	GLuint AssetID;
 	ComponentBase* Root;
+	Manager* MyManager;
 };
 

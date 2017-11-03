@@ -1,11 +1,17 @@
 #include "Manager.h"
 #include "Camera.h"
-#include "Models/Asset.h"
+#include "Models/MeshAsset.h"
 #include "Models/Shader.h"
 #include "ModelData/Texture.h"
 #include "ModelData/Mesh.h"
 #include "ModelData/Element.h"
 #include "Lights/Light.h"
+#include <iostream>
+
+/* Assimp */
+#include <Importer.hpp>
+#include <scene.h>
+#include <postprocess.h>
 
 Manager::Manager()
 {
@@ -30,21 +36,6 @@ Manager::~Manager()
 
 	/* Lights */
 	for each (Light* l in LightsList)  {  l->~Light();  }
-}
-
-void Manager::SetCurrentShader(Shader* s)
-{
-	CurrentShader = s;
-}
-
-void Manager::SetSelectedAsset(Asset* InAsset)
-{
-	SelectedAsset = InAsset;
-}
-
-void Manager::SetPickerShader()
-{
-	CurrentShader = PickerShader;
 }
 
 void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader)
@@ -111,32 +102,59 @@ void Manager::SetSystemShader(Camera* WorldCamera)
 	glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
 }
 
-//void Manager::BuildAsset(std::string path) {
-//	Asset* a = new Asset(path);
-//
-//	char label[128];
-//	sprintf_s(label, "Object_%d", AssetList.size());
-//	a->Name = label;
-//	a->GetAssetID() = AssetList.size();
-//	AssetMap[DefaultShader].push_back(a);
-//	AssetList.push_back(a);
-//	if (MeshList.size() == 0) {
-//		MeshList = a->GetComponents();
-//	} else {
-//		std::vector<Element*> temp = a->GetComponents();
-//		MeshList.insert(std::end(MeshList), std::begin(temp), std::end(temp));
-//	}
-//}
-
-void Manager::BuildAsset()
+void Manager::BuildAsset(std::string path)
 {
-	Asset* a = new Asset();
+	Asset* SpawnedAsset = NULL;
+	if (path == "")
+	{
+		SpawnedAsset = new Asset(AssetList.size(), this);
+		SpawnedAsset->Name = std::string("Asset_" + AssetList.size());
+	}
+	else
+	{
+		SpawnedAsset = new MeshAsset(AssetList.size(), this, path);
+		SpawnedAsset->Name = std::string("MeshAsset_" + AssetList.size());
+	}
 
-	char label[128];
-	sprintf_s(label, "Object_%d", AssetList.size());
-	a->Name = label;
-	AssetMap[DefaultShader].push_back(a);
-	AssetList.push_back(a);
+	AddAssetToPool(SpawnedAsset);
+}
+
+void Manager::BuildPrimative(Primatives InType)
+{
+	Asset* SpawnedAsset = NULL;
+	switch (InType)
+	{
+		case Cube:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cube.obj");
+			SpawnedAsset->Name = std::string("Cube_" + AssetList.size());
+			break;
+		case Plane:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
+			SpawnedAsset->Name = std::string("Plane_" + AssetList.size());
+			break;
+		case Sphere:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/Sphere.obj");
+			SpawnedAsset->Name = std::string("Sphere_" + AssetList.size());
+			break;
+		case Cylinder:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cylinder.obj");
+			SpawnedAsset->Name = std::string("Cylinder_" + AssetList.size());
+			break;
+		case Curve:
+			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
+			//SpawnedAsset->Name = std::string("Plane_" + AssetList.size());
+			break;
+		case Smooth:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/smoothSphere.obj");
+			SpawnedAsset->Name = std::string("SmoothSphere_" + AssetList.size()); // @TODO: change along with enum in future.
+			break;
+		default:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this);
+			SpawnedAsset->Name = std::string("Cube_" + AssetList.size());
+			break;
+	}
+
+	AddAssetToPool(SpawnedAsset);
 }
 
 void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader)
@@ -173,6 +191,17 @@ void Manager::CheckForSelection(int InID)
 	}
 }
 
+void Manager::AddAssetToPool(Asset* InAsset)
+{
+	if (InAsset)
+	{
+		AssetMap[DefaultShader].push_back(InAsset);
+		AssetList.push_back(InAsset);
+	}
+}
+
+
+
 void Manager::BuildTexture(std::string path)
 {
 	TextureList.push_back(new Texture(path));
@@ -195,3 +224,79 @@ std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
 Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
 std::vector<Asset*> Manager::GetAssets() { return AssetList; }
 std::vector<Light*> Manager::GetLights() { return LightsList; }
+void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
+void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
+void Manager::SetPickerShader() { CurrentShader = PickerShader; }
+
+Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
+{
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::vector<Texture> textures;
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		return NULL;
+	}
+	std::string directory = path.substr(0, path.find_last_of('\\'));
+	aiNode* node = scene->mRootNode;
+	aiMesh* mesh = scene->mMeshes[0];
+
+	for (GLuint i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex vertex;
+		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+
+		if (mesh->mTextureCoords[0])
+		{
+			vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		}
+		else
+		{
+			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		}
+		vertices.push_back(vertex);
+	}
+
+	for (GLuint i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+
+		for (GLuint j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	//if (mesh->mMaterialIndex >= 0)
+	//{
+	//	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+	//	std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+	//	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+	//	std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+	//	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	//}
+
+	Mesh* NewMesh = new Mesh(vertices, indices);
+	if (NewMesh) { MeshPool.emplace(path, NewMesh); }
+	return NewMesh;
+}
+
+//std::vector<Texture> Asset::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+//{
+//	std::vector<Texture> textures;
+//	for (GLuint i = 0; i < mat->GetTextureCount(type); i++)
+//	{
+//		aiString str;
+//		mat->GetTexture(type, i, &str);
+//		Texture tex = Texture(directory + '\\' + str.C_Str());
+//		tex.SetType(typeName);
+//		textures.push_back(tex);
+//	}
+//	return textures;
+//}

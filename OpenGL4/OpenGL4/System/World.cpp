@@ -61,10 +61,11 @@ void World::RenderColorWorld(glm::vec2 FrameSize)
 	}
 }
 
-void World::CreateCurve()
-{
-	SystemElements.push_back(new Curve());
-}
+// @TODO: rebuild for assets
+//void World::CreateCurve()  
+//{
+//	SystemElements.push_back(new Curve());
+//}
 
 /* @TODO: Ray Trace is aiming slightly lower than it should. 
 		  The borders between regions are throwing the positions off by a couple of pixels
