@@ -35,10 +35,9 @@ Layout::~Layout()
 	LayoutRoot->~TreeNode();
 }
 
-// @TODO: Clean up; design system for easy saving and creating custom layouts
+// @TODO: Design system for easy saving and creating custom layouts
 void Layout::GenerateDefaultLayout()
 {
-	// @TODO: account for border spacing (SplitSpacing).
 	RegionData RegionList = RegionData(RegionTypes::Stats,	WindowDimensions, ImVec2(0, 0), false);
 	LayoutRoot = new TreeNode(RegionList, this);
 }
@@ -213,7 +212,7 @@ void Layout::RenderRegions()
 
 	if (ResizingNode.Node)
 	{
-		Splitter* split = dynamic_cast<Splitter*>(ResizingNode.Node->Contents);
+		Splitter* split = dynamic_cast<Splitter*>(ResizingNode.Node->GetContents());
 		if (split)
 		{
 			split->ResizeRegions(ResizingNode.ResizeAmount);
@@ -253,7 +252,7 @@ ImVec2 Layout::RefreshContainerSizes(TreeNode* InNode)
 	ImVec2 RightSize = RefreshContainerSizes(InNode->RightNode);
 	ImVec2 LeftSize = RefreshContainerSizes(InNode->LeftNode);
 
-	Splitter* split = dynamic_cast<Splitter*>(InNode->Contents);
+	Splitter* split = dynamic_cast<Splitter*>(InNode->GetContents());
 	bool bIsVertical = true;
 	if (split) { bIsVertical = split->GetOrientation(); }
 
@@ -305,7 +304,7 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode)
 	TypeList.push_back(RegionTypes::Test);
 	TypeList.push_back(RegionTypes::Stats);
 
-	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_ShowBorders;
 }
 
 Region::~Region()
@@ -373,7 +372,7 @@ void Container::StatsRegion()
 
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 200, 0));
 	std::string newName = "Stats_" + std::to_string(OwningNode->GetNodeID());
-	ImGui::BeginChild(newName.c_str(), OwningNode->GetRegionSize(), true);
+	ImGui::BeginChild(newName.c_str(), OwningNode->GetRegionSize(), true, ImGuiWindowFlags_NoScrollbar);
 
 		ImGui::TextColored(ImVec4(0.7f, 0.0f, 0.7f, 1.0f), "NODE: %d", OwningNode->GetNodeID());
 		ImGui::TextColored(ImVec4(0.7f, 0.0f, 0.7f, 1.0f), "NODE SIZE: %f, %f", OwningNode->GetRegionSize().x, OwningNode->GetRegionSize().y);
@@ -2209,7 +2208,7 @@ void Container::SplitRegion(bool bVertical)
 
 	ImVec2 TempSize = OwningNode->GetRegionSize();
 	ImVec2 ChildSize = (bVertical) ? ImVec2(TempSize.x / 2 - 2, TempSize.y) : ImVec2(TempSize.x, TempSize.y / 2 - 2);  // @TODO: integrate in border spacing. hardcoded as "- 2"
-	RegionTypes OwnerType = dynamic_cast<Container*>(OwningNode->Contents)->GetType();
+	RegionTypes OwnerType = dynamic_cast<Container*>(OwningNode->GetContents())->GetType();
 
 	RegionData LeftData = RegionData(OwnerType, ChildSize, OwningNode->GetRegionPosition(), false);
 	OwningNode->LeftNode = new TreeNode(LeftData, OwningLayout);
@@ -2241,7 +2240,7 @@ int Region::GetRegionID() { return OwningNode->GetNodeID(); }
 Splitter::Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation) : Region(InLayout, InOwningNode)
 {
 	bIsVertical = InOrientation;
-	ContainerStyleFlags = 0;
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar;
 	SplitterSize = InSize;
 }
 
@@ -2251,7 +2250,7 @@ bool Splitter::Render()
 
 	std::string id = "splitter_" + std::to_string(GetRegionID());
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(255, 255, 255));
-	ImGui::BeginChild(id.c_str(), SplitterSize, false);
+	ImGui::BeginChild(id.c_str(), SplitterSize, false, ContainerStyleFlags);
 	(bIsVertical) ? VerticalSplit() : HorizontalSplit();
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
@@ -2317,7 +2316,7 @@ void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool Left
 
 	if (LeftSideTraversal)
 	{
-		if (dynamic_cast<Splitter*>(InNode->Contents)->bIsVertical != OwnerIsVertical)
+		if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
 		{
 			ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
 			InNode->ResizeNode(Resized);
@@ -2328,7 +2327,7 @@ void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool Left
 	}
 	else
 	{
-		if (dynamic_cast<Splitter*>(InNode->Contents)->bIsVertical != OwnerIsVertical)
+		if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
 		{
 			ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
 			InNode->ResizeNode(Resized);
@@ -2440,13 +2439,8 @@ void TreeNode::ResizeNode(ImVec2 InAmount)
 	}
 }
 
-//ImVec2 TreeNode::SetNodeSize(ImVec2 InSize)
-//{ 
-//	Data.Size = InSize;
-//	return Data.Size;
-//}
-
 int TreeNode::GetNodeID() { return NodeID; }
+Region* TreeNode::GetContents() { return Contents; }
 Layout* TreeNode::GetOwningLayout() { return OwningLayout; }
 ImVec2 TreeNode::GetRegionSize() { return Data.Size; }
 ImVec2 TreeNode::GetRegionPosition() { return Data.Position; }

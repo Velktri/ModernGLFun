@@ -59,13 +59,12 @@ public:
 	void BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientation);
 
 	int GetNodeID();
+	Region* GetContents();
 	Layout* GetOwningLayout();
 	ImVec2 GetRegionSize();
 	ImVec2 GetRegionPosition();
 	void ResizeNode(ImVec2 InAmount);
-	//ImVec2 SetNodeSize(ImVec2 InSize);
 
-	Region* Contents;
 	TreeNode* RightNode;
 	TreeNode* LeftNode;
 
@@ -79,6 +78,7 @@ private:
 	int NodeID;
 	RegionData Data;
 	Layout* OwningLayout;
+	Region* Contents;
 };
 
 
