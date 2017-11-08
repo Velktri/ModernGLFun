@@ -219,6 +219,7 @@ void Layout::RenderRegions()
 		}
 
 		RefreshContainerSizes(LayoutRoot);
+		printf("\n");
 
 		ResizingNode.Node = NULL;
 		ResizingNode.ResizeAmount = ImVec2();
@@ -256,9 +257,9 @@ ImVec2 Layout::RefreshContainerSizes(TreeNode* InNode)
 	bool bIsVertical = true;
 	if (split) { bIsVertical = split->GetOrientation(); }
 
-	ImVec2 ResizeAmount = (bIsVertical) ? ImVec2(RightSize.x + LeftSize.x + SplitSpacing, 0) : ImVec2(0, RightSize.y + LeftSize.y + SplitSpacing);
-	InNode->ResizeNode(ResizeAmount);
-	
+	ImVec2 ResizeAmount = (bIsVertical) ? ImVec2(RightSize.x + LeftSize.x + SplitSpacing, InNode->GetRegionSize().y) : ImVec2(InNode->GetRegionSize().x, RightSize.y + LeftSize.y + SplitSpacing);
+	InNode->NewSize(ResizeAmount);
+
 	return InNode->GetRegionSize();
 }
 
@@ -2429,6 +2430,19 @@ Region* TreeNode::CreateContents()
 
 void TreeNode::ResizeNode(ImVec2 InAmount)
 {
+	//if (Data.Type == RegionTypes::Spacer)
+	//{
+	//	Splitter* split = dynamic_cast<Splitter*>(Contents);
+	//	if (split) { split->ResizeSplitter(InAmount); }
+	//	Data.Size = InAmount;
+	//}
+	//else
+	//{
+	//	Data.Size.x += InAmount.x;
+	//	Data.Size.y += InAmount.y;
+	//}
+
+
 	Data.Size.x += InAmount.x;
 	Data.Size.y += InAmount.y;
 
@@ -2437,6 +2451,7 @@ void TreeNode::ResizeNode(ImVec2 InAmount)
 		Splitter* split = dynamic_cast<Splitter*>(Contents);
 		if (split) { split->ResizeSplitter(InAmount); }
 	}
+
 }
 
 int TreeNode::GetNodeID() { return NodeID; }
@@ -2445,3 +2460,4 @@ Layout* TreeNode::GetOwningLayout() { return OwningLayout; }
 ImVec2 TreeNode::GetRegionSize() { return Data.Size; }
 ImVec2 TreeNode::GetRegionPosition() { return Data.Position; }
 bool TreeNode::IsLeaf() { return (RightNode || LeftNode) ? false : true; }
+void TreeNode::NewSize(ImVec2 InAmount) { Data.Size = InAmount; }

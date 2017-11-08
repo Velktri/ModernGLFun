@@ -64,10 +64,11 @@ public:
 	ImVec2 GetRegionSize();
 	ImVec2 GetRegionPosition();
 	void ResizeNode(ImVec2 InAmount);
+	void NewSize(ImVec2 InAmount);
+
 
 	TreeNode* RightNode;
 	TreeNode* LeftNode;
-
 
 private:
 	/** Helpers */
