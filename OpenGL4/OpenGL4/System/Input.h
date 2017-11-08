@@ -16,7 +16,7 @@ public:
 	void UpdateInput();
 	bool ExecuteInput(Region* InActiveRegion);
 	glm::vec2 StartSelectionCoods;
-	bool PollSelectionRequest();
+	bool PollSelectionRequest(int* InActiveRegion);
 
 private:
 	SDL_Event windowEvent;

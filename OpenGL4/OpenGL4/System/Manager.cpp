@@ -122,35 +122,36 @@ void Manager::BuildAsset(std::string path)
 void Manager::BuildPrimative(Primatives InType)
 {
 	Asset* SpawnedAsset = NULL;
+	std::string AssetNum = std::to_string(AssetList.size());
 	switch (InType)
 	{
 		case Cube:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cube.obj");
-			SpawnedAsset->Name = std::string("Cube_" + AssetList.size());
+			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
 			break;
 		case Plane:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
-			SpawnedAsset->Name = std::string("Plane_" + AssetList.size());
+			SpawnedAsset->Name = std::string("Plane_" + AssetNum);
 			break;
 		case Sphere:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/Sphere.obj");
-			SpawnedAsset->Name = std::string("Sphere_" + AssetList.size());
+			SpawnedAsset->Name = std::string("Sphere_" + AssetNum);
 			break;
 		case Cylinder:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cylinder.obj");
-			SpawnedAsset->Name = std::string("Cylinder_" + AssetList.size());
+			SpawnedAsset->Name = std::string("Cylinder_" + AssetNum);
 			break;
 		case Curve:
 			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
-			//SpawnedAsset->Name = std::string("Plane_" + AssetList.size());
+			//SpawnedAsset->Name = std::string("Plane_" + AssetNum);
 			break;
 		case Smooth:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/smoothSphere.obj");
-			SpawnedAsset->Name = std::string("SmoothSphere_" + AssetList.size()); // @TODO: change along with enum in future.
+			SpawnedAsset->Name = std::string("SmoothSphere_" + AssetNum); // @TODO: change along with enum in future.
 			break;
 		default:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this);
-			SpawnedAsset->Name = std::string("Cube_" + AssetList.size());
+			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
 			break;
 	}
 
@@ -173,6 +174,7 @@ void Manager::Draw(Shader* shader)
 	}
 }
 
+// @TODO: rewrite
 void Manager::CheckForSelection(int InID)
 {
 	bool bIsFound = false;
@@ -188,6 +190,16 @@ void Manager::CheckForSelection(int InID)
 	if (!bIsFound)
 	{
 		SelectedAsset = NULL;
+	}
+
+
+	if (SelectedAsset)
+	{
+		printf("%s\n", SelectedAsset->Name.c_str());
+	}
+	else
+	{
+		printf("Null Selection.\n");
 	}
 }
 
@@ -212,7 +224,6 @@ void Manager::BuildLights()
 	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
 }
 
-
 std::vector<Element*> Manager::GetMeshList() { return MeshList; }
 Shader* Manager::GetSceneShader() { return SceneShader; }
 Shader* Manager::GetAssetShader() { return AssetShader; }
@@ -225,8 +236,8 @@ Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
 std::vector<Asset*> Manager::GetAssets() { return AssetList; }
 std::vector<Light*> Manager::GetLights() { return LightsList; }
 void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
-void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
 void Manager::SetPickerShader() { CurrentShader = PickerShader; }
+void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
 
 Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
 {

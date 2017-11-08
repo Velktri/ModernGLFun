@@ -13,10 +13,15 @@ class Manager;
 class Region;
 class FrameBuffer;
 class Input;
+class TreeNode;
 
 
 struct RegionData
 {
+	/*
+		@TODO: Consider Min and Max size.
+	*/
+
 	RegionTypes Type;
 	ImVec2 Size;
 	ImVec2 Position;
@@ -31,20 +36,67 @@ struct RegionData
 	}
 };
 
+struct ResizingData
+{
+	TreeNode* Node;
+	ImVec2 ResizeAmount;
 
-class Layout {
+	ResizingData(TreeNode* InNode = NULL, ImVec2 InAmount = ImVec2())
+	{
+		Node = InNode;
+		ResizeAmount = InAmount;
+	}
+};
+
+class TreeNode
+{
+public:
+	TreeNode(int InNodeID, ImVec2 InRegionSize, Region* InRegion = NULL, TreeNode* InRight = NULL, TreeNode* InLeft = NULL);
+	~TreeNode();
+
+	bool IsLeaf();
+	void Render();
+
+	int GetNodeID();
+	ImVec2 GetRegionSize();
+	void ResizeNode(ImVec2 InAmount);
+
+	Region* Contents;
+	TreeNode* RightNode;
+	TreeNode* LeftNode;
+
+
+private:
+	/** Helpers */
+	void BeginRegionChild(int InRegionID, ImVec2 InSize, ImGuiWindowFlags flags);
+	void EndRegionChild();
+
+	int NodeID;
+	ImVec2 RegionSize;
+};
+
+
+class Layout
+{
 public:
 	Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path = "");
 	~Layout();
 
 	bool RenderLayout();
+	void ShutDown();
 
 	World* GetWorld();
 	Input* GetInput();
 	Manager* GetManager();
 	Region* GetHoveredRegion();
 	void SetHoveredRegion(Region* InRegion);
-	void ShutDown();
+	bool IsSceneClicked();
+	int GetPolledRegion();
+	ResizingData ResizingNode;
+	int RegionCount;
+
+
+	float SplitSpacing;
 
 private:
 	SDL_Window* Window;
@@ -53,9 +105,11 @@ private:
 	Region* HoveredRegion;
 	Manager* MyManager;
 	Input* MyInput;
-	ImVec2 RegionSpacing;
-	std::vector<std::vector<Region*>> ChildWindowGrid;
+	TreeNode* LayoutRoot;
+
 	bool bQuitLayout;
+	int PolledRegion;
+	bool bSceneClicked;
 
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
@@ -73,42 +127,59 @@ private:
 
 	/** Update every region's size and position. */
 	void ResizeRegions();
-
-	void HSpliter(const char* Name, float* X, float* Y);
-	void VSpliter(const char* Name, float* X, float* Y);
 };
 
 class Region
 {
 public:
-	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes InType = RegionTypes::None);
+	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout);
 	~Region();
 
-	bool Render();
+	virtual bool Render();
 	void ReSize(ImVec2 InSize, ImVec2 InPosition);
+	void ResizeByValue(ImVec2 InAmount);
 
 	int RegionID;
+	TreeNode* OwningNode;
 
 	Layout* GetOwningLayout();
 	ImVec2 GetSize();
 	ImVec2 GetSceneSize();
 	ImVec2 GetPosition();
 	ImVec2 GetScenePosition();
-	RegionTypes GetType();
+	ImGuiWindowFlags GetStyleFlags();
 
-private:
+	bool IsSceneHovered();
+
+protected:
 	ImVec2 Size;
 	ImVec2 SceneSize;
 	ImVec2 Position;
 	ImVec2 ScenePosition;
-	RegionTypes Type;
+
+
 	std::vector<RegionTypes> TypeList;
 	Layout* OwningLayout;
-	bool bIsRegionHovered; //@TODO set up a filter for only if scene section is hovered but not UI.
+	bool bIsSceneHovered;
 
 	FrameBuffer* SceneFrame;
 	FrameBuffer* PickerFrame;
 	GLuint RenderFrame;
+
+	ImGuiWindowFlags ContainerStyleFlags; //@TODO: implement
+};
+
+class Container : public Region
+{
+public:
+	Container(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes InType = RegionTypes::None);
+
+	virtual bool Render() override;
+
+	RegionTypes GetType();
+
+private:
+	RegionTypes Type;
 
 	/* Region Types */
 	void TestRegion();
@@ -117,17 +188,26 @@ private:
 	void OutlinerRegion();
 	void MainMenuRegion();
 
-
-	/** Helpers */
 	/* Switch between Editors Panel Types */
 	void PanelSwitcher();
 
 	/* Splits a region into two child regions either horizontally or vertically. */
 	void WindowSpliter();
-
-	void BeginRegionChild(char* RegionName, ImGuiWindowFlags flags);
-	void EndRegionChild();
-
 	void SplitRegion(bool bVertical);
 };
 
+class Splitter : public Region
+{
+public:
+	Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, bool InOrientation);
+
+	virtual bool Render() override;
+	void ResizeRegions(ImVec2 ResizeDelta);
+
+private:
+	bool bIsVertical;
+
+	void HorizontalSplit();
+	void VerticalSplit();
+	void ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool LeftSideTraversal, float InResizeDelta);
+};

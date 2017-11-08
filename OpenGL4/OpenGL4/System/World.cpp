@@ -72,7 +72,7 @@ void World::RenderColorWorld(glm::vec2 FrameSize)
 */
 Asset* World::CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize)
 {
-	printf("%f, %f\n", DeviceCoords.x, DeviceCoords.y);
+	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
 
 	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
 	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;

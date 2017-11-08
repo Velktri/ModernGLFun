@@ -28,11 +28,15 @@ void Input::UpdateInput()
 bool Input::ExecuteInput(Region* InActiveRegion)
 {
 	bool SceneHovering = false;
-
-	if (InActiveRegion && InActiveRegion->GetType() == RegionTypes::Scene) // @TODO: rewrite for multiple scenes
+	if (InActiveRegion) // @TODO: rewrite for multiple scenes
 	{
-		SceneHovering = true;
-		ActiveSceneRegion = InActiveRegion;
+		//printf("%d", InActiveRegion->RegionID);
+		Container* ActiveContainer = dynamic_cast<Container*>(InActiveRegion);
+		if (ActiveContainer && ActiveContainer->GetType() == RegionTypes::Scene)
+		{
+			SceneHovering = InActiveRegion->IsSceneHovered();
+			ActiveSceneRegion = InActiveRegion;
+		}
 	}
 
 	while (SDL_PollEvent(&windowEvent))
@@ -57,6 +61,7 @@ bool Input::ExecuteInput(Region* InActiveRegion)
 	{
 		if (SceneHovering) { QuerySelection(); }
 	}
+
 
 	StartSelectionCoods = glm::vec2(xState, yState);
 
@@ -109,11 +114,12 @@ void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
 	bSelectionRequest = true;
 }
 
-bool Input::PollSelectionRequest() 
+bool Input::PollSelectionRequest(int* InActiveRegion) 
 {
 	if (bSelectionRequest)
 	{
 		bSelectionRequest = false;
+		*InActiveRegion = ActiveSceneRegion->RegionID;
 		return true;
 	}
 	return false;

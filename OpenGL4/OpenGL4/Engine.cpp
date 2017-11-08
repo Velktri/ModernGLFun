@@ -7,7 +7,7 @@
 #include "System\Manager.h"
 #include "Lights\Light.h"
 
-//@TODO: Add an config file system for easy tweaks
+// @TODO: Add an config file system for easy tweaks
 bool Engine::Init()
 {
 	WIDTH = 1920;
