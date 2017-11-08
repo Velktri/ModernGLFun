@@ -119,7 +119,7 @@ bool Input::PollSelectionRequest(int* InActiveRegion)
 	if (bSelectionRequest)
 	{
 		bSelectionRequest = false;
-		*InActiveRegion = ActiveSceneRegion->RegionID;
+		*InActiveRegion = ActiveSceneRegion->GetRegionID();
 		return true;
 	}
 	return false;

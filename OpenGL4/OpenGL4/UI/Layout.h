@@ -14,7 +14,7 @@ class Region;
 class FrameBuffer;
 class Input;
 class TreeNode;
-
+class Layout;
 
 struct RegionData
 {
@@ -51,14 +51,17 @@ struct ResizingData
 class TreeNode
 {
 public:
-	TreeNode(int InNodeID, ImVec2 InRegionSize, Region* InRegion = NULL, TreeNode* InRight = NULL, TreeNode* InLeft = NULL);
+	TreeNode(int InNodeID, RegionData InData, Layout* InOwningLayout);
 	~TreeNode();
 
 	bool IsLeaf();
 	void Render();
+	void BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientation);
 
 	int GetNodeID();
+	Layout* GetOwningLayout();
 	ImVec2 GetRegionSize();
+	ImVec2 GetRegionPosition();
 	void ResizeNode(ImVec2 InAmount);
 
 	Region* Contents;
@@ -70,9 +73,11 @@ private:
 	/** Helpers */
 	void BeginRegionChild(int InRegionID, ImVec2 InSize, ImGuiWindowFlags flags);
 	void EndRegionChild();
+	Region* CreateContents();
 
 	int NodeID;
-	ImVec2 RegionSize;
+	RegionData Data;
+	Layout* OwningLayout;
 };
 
 
@@ -92,10 +97,9 @@ public:
 	void SetHoveredRegion(Region* InRegion);
 	bool IsSceneClicked();
 	int GetPolledRegion();
+
 	ResizingData ResizingNode;
 	int RegionCount;
-
-
 	float SplitSpacing;
 
 private:
@@ -132,34 +136,27 @@ private:
 class Region
 {
 public:
-	Region(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout);
+	Region(Layout* InLayout, TreeNode* InOwningNode);
 	~Region();
 
 	virtual bool Render();
-	void ReSize(ImVec2 InSize, ImVec2 InPosition);
-	void ResizeByValue(ImVec2 InAmount);
-
-	int RegionID;
-	TreeNode* OwningNode;
 
 	Layout* GetOwningLayout();
-	ImVec2 GetSize();
 	ImVec2 GetSceneSize();
-	ImVec2 GetPosition();
 	ImVec2 GetScenePosition();
 	ImGuiWindowFlags GetStyleFlags();
+	int GetRegionID();
 
 	bool IsSceneHovered();
 
 protected:
-	ImVec2 Size;
 	ImVec2 SceneSize;
-	ImVec2 Position;
 	ImVec2 ScenePosition;
 
 
 	std::vector<RegionTypes> TypeList;
 	Layout* OwningLayout;
+	TreeNode* OwningNode;
 	bool bIsSceneHovered;
 
 	FrameBuffer* SceneFrame;
@@ -172,7 +169,7 @@ protected:
 class Container : public Region
 {
 public:
-	Container(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, RegionTypes InType = RegionTypes::None);
+	Container(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType = RegionTypes::None);
 
 	virtual bool Render() override;
 
@@ -199,13 +196,14 @@ private:
 class Splitter : public Region
 {
 public:
-	Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, bool InOrientation);
+	Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation);
 
 	virtual bool Render() override;
 	void ResizeRegions(ImVec2 ResizeDelta);
 
 private:
 	bool bIsVertical;
+	ImVec2 SpacerSize;
 
 	void HorizontalSplit();
 	void VerticalSplit();

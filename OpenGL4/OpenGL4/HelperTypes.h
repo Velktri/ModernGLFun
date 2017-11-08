@@ -17,7 +17,8 @@ enum RegionTypes
 	Scene = 2,
 	Outliner = 3,
 	Test = 4,
-	Stats = 5
+	Stats = 5,
+	Spacer = 6
 };
 
 enum Primatives
