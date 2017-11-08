@@ -41,29 +41,6 @@ void Layout::GenerateDefaultLayout()
 	RegionData RegionList = RegionData(RegionTypes::Stats,	WindowDimensions, ImVec2(0, 0), false);
 	LayoutRoot = new TreeNode(0, RegionList, this);
 	RegionCount = 1;
-
-
-	//LayoutRoot->RightNode = new TreeNode(1, ImVec2(WindowDimensions.x/* / 2*/, WindowDimensions.y / 2 - 2), LayoutRoot->Contents);
-	//LayoutRoot->RightNode->Contents->ResizeByValue(/*ImVec2(-1 * RegionList[0].Size.x / 2, 0)*/ImVec2(0, (-1 * RegionList[0].Size.y / 2) - 2));
-	//LayoutRoot->RightNode->Contents->RegionID = 1;
-
-	//LayoutRoot->LeftNode = new TreeNode(2, ImVec2(WindowDimensions.x/* / 2*/, WindowDimensions.y / 2 - 2), new Container(ImVec2(RegionList[0].Size.x/* / 2*/, RegionList[0].Size.y / 2 - 2), RegionList[0].Position, this, RegionTypes::MainMenu));
-	//LayoutRoot->LeftNode->Contents->RegionID = 2;
-
-	//std::vector<Region*> empty;
-	//LayoutRoot->Contents = new Splitter(ImVec2(WindowDimensions.x, SplitSpacing/*ImVec2(SplitSpacing, WindowDimensions.y*/), RegionList[0].Position, this, empty, empty, false);
-
-
-
-
-	//LayoutRoot->RightNode->RightNode = new TreeNode(3, ImVec2(WindowDimensions.x / 2 - 2, WindowDimensions.y / 2 - 2), LayoutRoot->RightNode->Contents);
-	//LayoutRoot->RightNode->RightNode->Contents->ResizeByValue(ImVec2(-1 * WindowDimensions.x / 2 - 2, 0));
-	//LayoutRoot->RightNode->RightNode->Contents->RegionID = 3;
-
-	//LayoutRoot->RightNode->LeftNode = new TreeNode(4, ImVec2(WindowDimensions.x / 2 - 2, WindowDimensions.y / 2 - 2), new Container(ImVec2(WindowDimensions.x / 2 - 2, WindowDimensions.y / 2 - 2), RegionList[0].Position, this, RegionTypes::Scene));
-	//LayoutRoot->RightNode->LeftNode->Contents->RegionID = 4;
-
-	//LayoutRoot->RightNode->Contents = new Splitter(ImVec2(SplitSpacing, WindowDimensions.y / 2 - 2), RegionList[0].Position, this, empty, empty, true);
 }
 
 bool Layout::RenderLayout()
@@ -2245,7 +2222,7 @@ Splitter::Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode*
 {
 	bIsVertical = InOrientation;
 	ContainerStyleFlags = 0;
-	SpacerSize = InSize;
+	SplitterSize = InSize;
 }
 
 bool Splitter::Render()
@@ -2254,7 +2231,7 @@ bool Splitter::Render()
 
 	std::string id = "splitter_" + std::to_string(GetRegionID());
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(255, 255, 255));
-	ImGui::BeginChild(id.c_str(), SpacerSize, false);
+	ImGui::BeginChild(id.c_str(), SplitterSize, false);
 	(bIsVertical) ? VerticalSplit() : HorizontalSplit();
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
@@ -2268,7 +2245,7 @@ void Splitter::VerticalSplit()
 {
 	float Movement = 0.0f;
 	std::string Name = "Vsplit_" + std::to_string(GetRegionID());
-	ImGui::InvisibleButton(Name.c_str(), SpacerSize);
+	ImGui::InvisibleButton(Name.c_str(), SplitterSize);
 	//if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeEW); }
 	if (ImGui::IsItemActive())
 	{ 
@@ -2280,7 +2257,7 @@ void Splitter::VerticalSplit()
 void Splitter::HorizontalSplit()
 {
 	std::string Name = "Hsplit_" + std::to_string(GetRegionID());
-	ImGui::InvisibleButton(Name.c_str(), SpacerSize);
+	ImGui::InvisibleButton(Name.c_str(), SplitterSize);
 	//if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeNS); }
 	if (ImGui::IsItemActive()) 
 	{ 
@@ -2295,6 +2272,18 @@ void Splitter::ResizeRegions(ImVec2 ResizeDelta)
 	float Amount = (OwnerIsVertical) ? ResizeDelta.x : ResizeDelta. y;
 	ResizeRecursion(OwningNode->LeftNode, OwnerIsVertical, true, Amount);
 	ResizeRecursion(OwningNode->RightNode, OwnerIsVertical, false, -1 * Amount);
+}
+
+void Splitter::ResizeSplitter(ImVec2 InAmount)
+{
+	if (bIsVertical)
+	{
+		SplitterSize.y += InAmount.y;
+	}
+	else
+	{
+		SplitterSize.x += InAmount.x;
+	}
 }
 
 void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool LeftSideTraversal, float InResizeDelta)
@@ -2329,6 +2318,7 @@ void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool Left
 		ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
 	}
 }
+
 
 TreeNode::TreeNode(int InNodeID, RegionData InData, Layout* InOwningLayout)
 {
@@ -2382,6 +2372,7 @@ void TreeNode::BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientatio
 {
 	Contents->~Region();
 	Contents = new Splitter(InSize, InPosition, OwningLayout, this, InOrientation);
+	Data.Type = RegionTypes::Spacer;
 }
 
 void TreeNode::BeginRegionChild(int InRegionID, ImVec2 InSize, ImGuiWindowFlags flags)
@@ -2407,12 +2398,20 @@ Region* TreeNode::CreateContents()
 	{
 		return new Container(OwningLayout, this, Data.Type);
 	}
+
+	return NULL;
 }
 
 void TreeNode::ResizeNode(ImVec2 InAmount)
 {
 	Data.Size.x += InAmount.x;
 	Data.Size.y += InAmount.y;
+
+	if (Data.Type == RegionTypes::Spacer)
+	{
+		Splitter* split = dynamic_cast<Splitter*>(Contents);
+		if (split) { split->ResizeSplitter(InAmount); }
+	}
 }
 
 int TreeNode::GetNodeID() { return NodeID; }

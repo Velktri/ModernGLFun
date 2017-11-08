@@ -200,10 +200,11 @@ public:
 
 	virtual bool Render() override;
 	void ResizeRegions(ImVec2 ResizeDelta);
+	void ResizeSplitter(ImVec2 InAmount);
 
 private:
 	bool bIsVertical;
-	ImVec2 SpacerSize;
+	ImVec2 SplitterSize;
 
 	void HorizontalSplit();
 	void VerticalSplit();
