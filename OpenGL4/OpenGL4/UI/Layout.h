@@ -51,7 +51,7 @@ struct ResizingData
 class TreeNode
 {
 public:
-	TreeNode(int InNodeID, RegionData InData, Layout* InOwningLayout);
+	TreeNode(RegionData InData, Layout* InOwningLayout);
 	~TreeNode();
 
 	bool IsLeaf();
@@ -63,6 +63,7 @@ public:
 	ImVec2 GetRegionSize();
 	ImVec2 GetRegionPosition();
 	void ResizeNode(ImVec2 InAmount);
+	//ImVec2 SetNodeSize(ImVec2 InSize);
 
 	Region* Contents;
 	TreeNode* RightNode;
@@ -99,8 +100,9 @@ public:
 	int GetPolledRegion();
 
 	ResizingData ResizingNode;
-	int RegionCount;
+
 	float SplitSpacing;
+	int AddAndGetRegionCount();
 
 private:
 	SDL_Window* Window;
@@ -114,6 +116,7 @@ private:
 	bool bQuitLayout;
 	int PolledRegion;
 	bool bSceneClicked;
+	int RegionCount;
 
 	void SetDefaultStyle(std::string path);
 	void ImportAsset();
@@ -131,6 +134,8 @@ private:
 
 	/** Update every region's size and position. */
 	void ResizeRegions();
+
+	ImVec2 RefreshContainerSizes(TreeNode* InNode);
 };
 
 class Region
@@ -201,6 +206,8 @@ public:
 	virtual bool Render() override;
 	void ResizeRegions(ImVec2 ResizeDelta);
 	void ResizeSplitter(ImVec2 InAmount);
+
+	bool GetOrientation();
 
 private:
 	bool bIsVertical;

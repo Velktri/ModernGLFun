@@ -22,6 +22,7 @@ Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* 
 	ResizingNode = ResizingData();
 	HoveredRegion = NULL;
 	bQuitLayout = false;
+	RegionCount = 0;
 
 	UpdateWindowSize();
 	ImGui_ImplSdlGL3_Init(Window);
@@ -39,8 +40,7 @@ void Layout::GenerateDefaultLayout()
 {
 	// @TODO: account for border spacing (SplitSpacing).
 	RegionData RegionList = RegionData(RegionTypes::Stats,	WindowDimensions, ImVec2(0, 0), false);
-	LayoutRoot = new TreeNode(0, RegionList, this);
-	RegionCount = 1;
+	LayoutRoot = new TreeNode(RegionList, this);
 }
 
 bool Layout::RenderLayout()
@@ -52,15 +52,6 @@ bool Layout::RenderLayout()
 	ImGui::Render();
 	return bIsRunning;
 }
-
-World* Layout::GetWorld() { return MyWorld; }
-Input* Layout::GetInput() { return MyInput; }
-Manager* Layout::GetManager() { return MyManager; }
-Region* Layout::GetHoveredRegion() {  return HoveredRegion;  }
-void Layout::SetHoveredRegion(Region* InRegion) { HoveredRegion = InRegion; }
-bool Layout::IsSceneClicked() { return bSceneClicked; }
-int Layout::GetPolledRegion() { return PolledRegion; }
-void Layout::ShutDown() { bQuitLayout = true; }
 
 void Layout::SetDefaultStyle(std::string path)
 { 
@@ -228,6 +219,8 @@ void Layout::RenderRegions()
 			split->ResizeRegions(ResizingNode.ResizeAmount);
 		}
 
+		RefreshContainerSizes(LayoutRoot);
+
 		ResizingNode.Node = NULL;
 		ResizingNode.ResizeAmount = ImVec2();
 	}
@@ -249,6 +242,36 @@ void Layout::ResizeRegions()
 {
 	// @TODO: try getting the growth/shrink by % and changing regions by that amount,
 }
+
+ImVec2 Layout::RefreshContainerSizes(TreeNode* InNode)
+{
+	if (InNode->RightNode == NULL && InNode->LeftNode == NULL)
+	{
+		return InNode->GetRegionSize();
+	}
+
+	ImVec2 RightSize = RefreshContainerSizes(InNode->RightNode);
+	ImVec2 LeftSize = RefreshContainerSizes(InNode->LeftNode);
+
+	Splitter* split = dynamic_cast<Splitter*>(InNode->Contents);
+	bool bIsVertical = true;
+	if (split) { bIsVertical = split->GetOrientation(); }
+
+	ImVec2 ResizeAmount = (bIsVertical) ? ImVec2(RightSize.x + LeftSize.x + SplitSpacing, 0) : ImVec2(0, RightSize.y + LeftSize.y + SplitSpacing);
+	InNode->ResizeNode(ResizeAmount);
+	
+	return InNode->GetRegionSize();
+}
+
+World* Layout::GetWorld() { return MyWorld; }
+Input* Layout::GetInput() { return MyInput; }
+Manager* Layout::GetManager() { return MyManager; }
+Region* Layout::GetHoveredRegion() { return HoveredRegion; }
+void Layout::SetHoveredRegion(Region* InRegion) { HoveredRegion = InRegion; }
+bool Layout::IsSceneClicked() { return bSceneClicked; }
+int Layout::GetPolledRegion() { return PolledRegion; }
+int Layout::AddAndGetRegionCount() { return RegionCount++; }
+void Layout::ShutDown() { bQuitLayout = true; }
 
 
 
@@ -2189,21 +2212,18 @@ void Container::SplitRegion(bool bVertical)
 	RegionTypes OwnerType = dynamic_cast<Container*>(OwningNode->Contents)->GetType();
 
 	RegionData LeftData = RegionData(OwnerType, ChildSize, OwningNode->GetRegionPosition(), false);
-	OwningNode->LeftNode = new TreeNode(OwningLayout->RegionCount + 1, LeftData, OwningLayout);
+	OwningNode->LeftNode = new TreeNode(LeftData, OwningLayout);
 
 
 	ImVec2 ChildPosition = (bVertical) ? ImVec2(ChildSize.x + OwningNode->GetRegionPosition().x + 4, OwningNode->GetRegionPosition().y) : ImVec2(OwningNode->GetRegionPosition().x, ChildSize.y + OwningNode->GetRegionPosition().y + 4);
 	RegionData RightData = RegionData(OwnerType, ChildSize, ChildPosition, false);
-	OwningNode->RightNode = new TreeNode(OwningLayout->RegionCount + 2, RightData, OwningLayout);
-
+	OwningNode->RightNode = new TreeNode(RightData, OwningLayout);
 
 
 	ImVec2 SpacerSize = (bVertical) ? ImVec2(OwningLayout->SplitSpacing, OwningNode->GetRegionSize().y) : ImVec2(OwningNode->GetRegionSize().x, OwningLayout->SplitSpacing);
 	ImVec2 SplitterPosition = (bVertical) ? ImVec2(ChildSize.x + OwningNode->GetRegionPosition().x, OwningNode->GetRegionPosition().y) : ImVec2(OwningNode->GetRegionPosition().x, ChildSize.y + OwningNode->GetRegionPosition().y);
 	OwningNode->BuildSplitter(SpacerSize, SplitterPosition, bVertical);
 
-
-	OwningLayout->RegionCount += 2;
 }
 
 
@@ -2319,11 +2339,17 @@ void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool Left
 	}
 }
 
+bool Splitter::GetOrientation() { return bIsVertical; }
 
-TreeNode::TreeNode(int InNodeID, RegionData InData, Layout* InOwningLayout)
+
+
+
+
+
+TreeNode::TreeNode(RegionData InData, Layout* InOwningLayout)
 {
-	NodeID = InNodeID;
 	OwningLayout = InOwningLayout;
+	NodeID = OwningLayout->AddAndGetRegionCount();
 	Data = InData;
 
 	Contents = CreateContents();
@@ -2413,6 +2439,12 @@ void TreeNode::ResizeNode(ImVec2 InAmount)
 		if (split) { split->ResizeSplitter(InAmount); }
 	}
 }
+
+//ImVec2 TreeNode::SetNodeSize(ImVec2 InSize)
+//{ 
+//	Data.Size = InSize;
+//	return Data.Size;
+//}
 
 int TreeNode::GetNodeID() { return NodeID; }
 Layout* TreeNode::GetOwningLayout() { return OwningLayout; }
