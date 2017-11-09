@@ -176,6 +176,7 @@
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\System\World.cpp" />
     <ClCompile Include="Source\UI\Layout.cpp" />
+    <ClCompile Include="Source\UI\Region.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Components\ComponentBase.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\System\World.h" />
     <ClInclude Include="Source\UI\Layout.h" />
+    <ClInclude Include="Source\UI\Region.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\imgui.ini" />

@@ -18,7 +18,8 @@ enum RegionTypes
 	Outliner = 3,
 	Test = 4,
 	Stats = 5,
-	Spacer = 6
+	Spacer = 6,
+	AssetEditor = 7
 };
 
 enum Primatives
