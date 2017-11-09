@@ -15,181 +15,184 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source\Components\ComponentBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lights\Light.cpp">
+    <ClCompile Include="Source\Components\MeshComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lights\PointLight.cpp">
+    <ClCompile Include="Source\Lights\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lights\SpotLight.cpp">
+    <ClCompile Include="Source\Lights\PointLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lights\SunLight.cpp">
+    <ClCompile Include="Source\Lights\SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\lodepng.cpp">
+    <ClCompile Include="Source\Lights\SunLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\pathtools.cpp">
+    <ClCompile Include="Source\ModelData\Curve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models\Asset.cpp">
+    <ClCompile Include="Source\ModelData\Element.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models\Shader.cpp">
+    <ClCompile Include="Source\ModelData\Gizmo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\imgui_draw.cpp">
+    <ClCompile Include="Source\ModelData\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\imgui.cpp">
+    <ClCompile Include="Source\ModelData\Line.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\imgui_demo.cpp">
+    <ClCompile Include="Source\ModelData\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shared\imgui_impl_sdl_gl3.cpp">
+    <ClCompile Include="Source\ModelData\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI\Layout.cpp">
+    <ClCompile Include="Source\Models\Asset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
+    <ClCompile Include="Source\Models\MeshAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\Manager.cpp">
+    <ClCompile Include="Source\Models\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\Camera.cpp">
+    <ClCompile Include="Source\UI\Layout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\World.cpp">
+    <ClCompile Include="Source\System\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\Input.cpp">
+    <ClCompile Include="Source\System\FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\Timer.cpp">
+    <ClCompile Include="Source\System\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="System\FrameBuffer.cpp">
+    <ClCompile Include="Source\System\Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Models\MeshAsset.cpp">
+    <ClCompile Include="Source\System\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Mesh.cpp">
+    <ClCompile Include="Source\System\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Line.cpp">
+    <ClCompile Include="Source\Shared\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Grid.cpp">
+    <ClCompile Include="Source\Shared\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Gizmo.cpp">
+    <ClCompile Include="Source\Shared\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Element.cpp">
+    <ClCompile Include="Source\Shared\imgui_impl_sdl_gl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Curve.cpp">
+    <ClCompile Include="Source\Shared\lodepng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\MeshComponent.cpp">
+    <ClCompile Include="Source\Shared\pathtools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\ComponentBase.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ModelData\Texture.cpp">
+    <ClCompile Include="Source\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Lights\Light.h">
+    <ClInclude Include="Source\Components\ComponentBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lights\PointLight.h">
+    <ClInclude Include="Source\Components\MeshComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lights\SpotLight.h">
+    <ClInclude Include="Source\Lights\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lights\SunLight.h">
+    <ClInclude Include="Source\Lights\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shared\lodepng.h">
+    <ClInclude Include="Source\Lights\SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shared\pathtools.h">
+    <ClInclude Include="Source\Lights\SunLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Asset.h">
+    <ClInclude Include="Source\ModelData\Curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Shader.h">
+    <ClInclude Include="Source\ModelData\Element.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Layout.h">
+    <ClInclude Include="Source\ModelData\Gizmo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h">
+    <ClInclude Include="Source\ModelData\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HelperTypes.h">
+    <ClInclude Include="Source\ModelData\Line.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\Manager.h">
+    <ClInclude Include="Source\ModelData\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\Camera.h">
+    <ClInclude Include="Source\ModelData\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\World.h">
+    <ClInclude Include="Source\Models\Asset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\Input.h">
+    <ClInclude Include="Source\Models\MeshAsset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\Timer.h">
+    <ClInclude Include="Source\Models\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\FrameBuffer.h">
+    <ClInclude Include="Source\UI\Layout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\MeshAsset.h">
+    <ClInclude Include="Source\System\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Mesh.h">
+    <ClInclude Include="Source\System\FrameBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Line.h">
+    <ClInclude Include="Source\System\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Grid.h">
+    <ClInclude Include="Source\System\Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Gizmo.h">
+    <ClInclude Include="Source\System\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Element.h">
+    <ClInclude Include="Source\System\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Curve.h">
+    <ClInclude Include="Source\Shared\lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\MeshComponent.h">
+    <ClInclude Include="Source\Shared\pathtools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\ComponentBase.h">
+    <ClInclude Include="Source\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData\Texture.h">
+    <ClInclude Include="Source\HelperTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\imgui.ini" />
   </ItemGroup>
 </Project>
