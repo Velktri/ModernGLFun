@@ -18,8 +18,8 @@ enum RegionTypes
 	Outliner,
 	Test,
 	Stats,
-	Spacer,
-	AssetEditor
+	AssetEditor,
+	Spacer
 };
 
 enum Primatives

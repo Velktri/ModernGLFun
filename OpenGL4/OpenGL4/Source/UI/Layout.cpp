@@ -32,8 +32,6 @@ Layout::~Layout()
 	if (LayoutRoot) { LayoutRoot->~TreeNode(); }
 }
 
-
-// @TODO: Design system for easy saving and creating custom layouts
 void Layout::LoadDefaultLayout()
 {
 	LayoutRoot = GenerateLayout("Preferences/Default/SavedLayout.lo"); // @TODO: change this to a setting in a config file.

@@ -207,5 +207,6 @@
   <ItemGroup>
     <None Include="Source\imgui.ini" />
     <None Include="Preferences\Default\DefaultLayout.lo" />
+    <None Include="Preferences\Default\SavedLayout.lo" />
   </ItemGroup>
 </Project>

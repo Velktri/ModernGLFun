@@ -63,7 +63,7 @@ RegionTypes Region::GetType() { return Type; }
 
 Container::Container(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType) : Region(InLayout, InOwningNode, InType)
 {
-	
+	ContainerStyleFlags = ImGuiWindowFlags_MenuBar;
 }
 
 bool Container::Render()
@@ -99,12 +99,12 @@ bool Container::Render()
 void Container::StatsRegion()
 {
 	/* @TODO: Add Stats like FPS, Memory, etc. */
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 
-	//BeginRegionChild("Stats", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 0.0f));
 	ImGui::BeginMenuBar();
-	PanelSwitcher();
-	WindowSpliter();
+		PanelSwitcher();
+		WindowSpliter();
 	ImGui::EndMenuBar();
 
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 200, 0));
@@ -121,7 +121,7 @@ void Container::StatsRegion()
 
 void Container::SceneRegion()
 {
-	//BeginRegionChild("Scene", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 	ImGui::Spacing();
 
 	ImGui::BeginMenuBar();
@@ -179,81 +179,54 @@ void Container::SceneRegion()
 	bIsSceneHovered = false;
 	if (ImGui::IsItemHovered()) { bIsSceneHovered = true; }
 	ImGui::EndGroup();
-	//EndRegionChild();
 }
 
 void Container::OutlinerRegion()
 {
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 	/* @TODO: Add Scene hierarchy here. */
-	//BeginRegionChild("Outliner", ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar);
 	ImGui::BeginMenuBar();
-	PanelSwitcher();
+		PanelSwitcher();
 	ImGui::EndMenuBar();
-	//EndRegionChild();
-
-
-
-	//ImGui::Begin("Splitter test");
-
-	////static float w = 200.0f;
-	////static float h = 300.0f;
-
-	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-	//ImGui::BeginChild("child1", Size, true);
-	//ImGui::EndChild();
-
-	//ImGui::SameLine();
-	//ImGui::InvisibleButton("vsplitter", ImVec2(1.0f, Size.y));
-	//if (ImGui::IsItemActive())
-	//Size.x += ImGui::GetIO().MouseDelta.x;
-	//ImGui::SameLine();
-
-	//ImGui::BeginChild("child2", ImVec2(0, Size.y), true);
-	//ImGui::EndChild();
-
-	//ImGui::InvisibleButton("hsplitter", ImVec2(-1, 1.0f));
-	//if (ImGui::IsItemActive())
-	//Size.y += ImGui::GetIO().MouseDelta.y;
-
-	//ImGui::BeginChild("child3", ImVec2(0,0), true);
-	//ImGui::EndChild();
-	//ImGui::PopStyleVar();
-
-	//ImGui::End();
-	//
-
 }
 
 void Container::MainMenuRegion()
 {
-	//BeginRegionChild("MenuBar", ImGuiWindowFlags_NoScrollbar);
-	PanelSwitcher(); ImGui::SameLine();
-	if (ImGui::Button("Save Layout")) { OwningLayout->SaveLayout(); } ImGui::SameLine();
+	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
+	ImGui::BeginMenuBar();
+		PanelSwitcher(); ImGui::SameLine();
+		if (ImGui::Button("Save Layout")) { OwningLayout->SaveLayout(); } ImGui::SameLine();
 
-	if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
-	if (ImGui::BeginPopup("File"))
-	{
-		if (ImGui::Selectable("Quit")) { OwningLayout->ShutDown(); }
-		ImGui::EndPopup();
+		if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
+		if (ImGui::BeginPopup("File"))
+		{
+			if (ImGui::Selectable("Quit")) { OwningLayout->ShutDown(); }
+			ImGui::EndPopup();
 
-	}
+		}
 
-	if (ImGui::Button("Edit")) { ImGui::OpenPopup("Edit"); }
-	if (ImGui::BeginPopup("Edit"))
-	{
-		if (ImGui::Selectable("Undo")) { printf("Pressed Undo!\n"); }
-		if (ImGui::Selectable("Redo", false, ImGuiSelectableFlags_Disabled)) { /* Disabled item */ }
-		ImGui::Separator();
-		if (ImGui::Selectable("Cut")) { printf("Pressed Cut!\n"); }
-		if (ImGui::Selectable("Copy")) { printf("Pressed Copy!\n"); }
-		if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
-		ImGui::EndPopup();
-	}
-	//EndRegionChild();
+		if (ImGui::Button("Edit")) { ImGui::OpenPopup("Edit"); }
+		if (ImGui::BeginPopup("Edit"))
+		{
+			if (ImGui::Selectable("Undo")) { printf("Pressed Undo!\n"); }
+			if (ImGui::Selectable("Redo", false, ImGuiSelectableFlags_Disabled)) { /* Disabled item */ }
+			ImGui::Separator();
+			if (ImGui::Selectable("Cut")) { printf("Pressed Cut!\n"); }
+			if (ImGui::Selectable("Copy")) { printf("Pressed Copy!\n"); }
+			if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
+			ImGui::EndPopup();
+		}
+	ImGui::EndMenuBar();
 }
 
 void Container::AssetEditorRegion()
-{ /*
+{
+	ContainerStyleFlags = ImGuiWindowFlags_MenuBar;
+	ImGui::BeginMenuBar();
+		PanelSwitcher();
+	ImGui::EndMenuBar();
+	
+	/*
   ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(WindowDimensions.x - 420, 20), ImGuiSetCond_FirstUseEver);
   ImGui::Begin("Asset editor", false);
@@ -350,6 +323,8 @@ void Container::AssetEditorRegion()
 
 void Container::TestRegion()
 {
+	ContainerStyleFlags = 0;
+
 	static bool show_app_style_editor = false;
 	static bool show_app_metrics = false;
 	static bool show_app_about = false;
