@@ -197,8 +197,10 @@
     <ClInclude Include="Source\Models\Asset.h" />
     <ClInclude Include="Source\Models\MeshAsset.h" />
     <ClInclude Include="Source\Models\Shader.h" />
+    <ClInclude Include="Source\Shared\GeoTree.h" />
     <ClInclude Include="Source\Shared\lodepng.h" />
     <ClInclude Include="Source\Shared\pathtools.h" />
+    <ClInclude Include="Source\Shared\GeoString.h" />
     <ClInclude Include="Source\System\Camera.h" />
     <ClInclude Include="Source\System\FrameBuffer.h" />
     <ClInclude Include="Source\System\Input.h" />
@@ -209,6 +211,7 @@
     <ClInclude Include="Source\UI\Region.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Preferences\Default\DefaultLayout.lo" />
     <None Include="Source\imgui.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

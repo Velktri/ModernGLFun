@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <string>
+#include <vector>
 #include "HelperTypes.h"
 
 #include <imgui.h>
@@ -107,6 +108,9 @@ public:
 	float SplitSpacing;
 	int AddAndGetRegionCount();
 
+	TreeNode* GenerateLayout(char* FilePath);
+	void SaveLayout();
+
 private:
 	SDL_Window* Window;
 	World* MyWorld;
@@ -115,6 +119,8 @@ private:
 	Manager* MyManager;
 	Input* MyInput;
 	TreeNode* LayoutRoot;
+
+	// @TODO: Add name/ID for multiple Layout instances.
 
 	bool bQuitLayout;
 	int PolledRegion;
@@ -137,4 +143,6 @@ private:
 	void ResizeRegions();
 
 	ImVec2 RefreshContainerSizes(TreeNode* InNode);
+
+	TreeNode* BuildNode(std::string NodeString);
 };

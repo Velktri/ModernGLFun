@@ -12,22 +12,22 @@ struct Vertex
 
 enum RegionTypes
 {
-	None = 0,
-	MainMenu = 1,
-	Scene = 2,
-	Outliner = 3,
-	Test = 4,
-	Stats = 5,
-	Spacer = 6,
-	AssetEditor = 7
+	None,
+	MainMenu,
+	Scene,
+	Outliner,
+	Test,
+	Stats,
+	Spacer,
+	AssetEditor
 };
 
 enum Primatives
 {
-	Cube = 0,	
-	Plane = 1,
-	Sphere = 2,
-	Cylinder = 3,
-	Curve = 4,
-	Smooth = 5 // @TODO: temp, change later when working with normals.
+	Cube,	
+	Plane,
+	Sphere,
+	Cylinder,
+	Curve,
+	Smooth // @TODO: temp, change later when working with normals.
 };

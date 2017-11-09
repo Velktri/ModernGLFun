@@ -20,10 +20,11 @@ static void ShowHelpMarker(const char* desc)
 	}
 }
 
-Region::Region(Layout* InLayout, TreeNode* InOwningNode)
+Region::Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType)
 {
 	OwningNode = InOwningNode;
 	OwningLayout = InLayout;
+	Type = InType;
 	bIsSceneHovered = false;
 	RenderFrame = 0;
 
@@ -33,7 +34,9 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode)
 	TypeList.push_back(RegionTypes::Outliner);
 	TypeList.push_back(RegionTypes::Test);
 	TypeList.push_back(RegionTypes::Stats);
-	TypeList.push_back(RegionTypes::AssetEditor);
+	TypeList.push_back(RegionTypes::AssetEditor); // @TODO: use 	int i = (RegionTypes) type;   and    RegionTypes type = RegionTypes(i);
+
+
 
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_ShowBorders;
 }
@@ -50,6 +53,7 @@ ImVec2 Region::GetSceneSize() { return SceneSize; }
 ImVec2 Region::GetScenePosition() { return ScenePosition; }
 ImGuiWindowFlags Region::GetStyleFlags() { return ContainerStyleFlags; }
 bool Region::IsSceneHovered() { return bIsSceneHovered; }
+RegionTypes Region::GetType() { return Type; }
 
 
 
@@ -57,10 +61,9 @@ bool Region::IsSceneHovered() { return bIsSceneHovered; }
 
 
 
-
-Container::Container(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType) : Region(InLayout, InOwningNode)
+Container::Container(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType) : Region(InLayout, InOwningNode, InType)
 {
-	Type = InType;
+	
 }
 
 bool Container::Render()
@@ -225,6 +228,7 @@ void Container::MainMenuRegion()
 {
 	//BeginRegionChild("MenuBar", ImGuiWindowFlags_NoScrollbar);
 	PanelSwitcher(); ImGui::SameLine();
+	if (ImGui::Button("Save Layout")) { OwningLayout->SaveLayout(); } ImGui::SameLine();
 
 	if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
 	if (ImGui::BeginPopup("File"))
@@ -2042,8 +2046,6 @@ void Container::SplitRegion(bool bVertical)
 	OwningNode->BuildSplitter(SpacerSize, SplitterPosition, bVertical);
 }
 
-
-RegionTypes Container::GetType() { return Type; }
 int Region::GetRegionID() { return OwningNode->GetNodeID(); }
 
 
@@ -2059,6 +2061,8 @@ Splitter::Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode*
 	bIsVertical = InOrientation;
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar;
 	SplitterSize = InSize;
+	SplitterPosition = InPosition;
+	Type = RegionTypes::Spacer;
 }
 
 bool Splitter::Render()
@@ -2124,35 +2128,40 @@ void Splitter::ResizeSplitter(ImVec2 InAmount)
 
 void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool LeftSideTraversal, float InResizeDelta)
 {
-	if (InNode->IsLeaf())
+	if (InNode)
 	{
-		ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
-		InNode->ResizeNode(Resized);
-		return;
-	}
-
-	if (LeftSideTraversal)
-	{
-		if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
+		if (InNode->IsLeaf())
 		{
 			ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
 			InNode->ResizeNode(Resized);
-
-			ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+			return;
 		}
-		ResizeRecursion(InNode->RightNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
-	}
-	else
-	{
-		if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
-		{
-			ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
-			InNode->ResizeNode(Resized);
 
+		if (LeftSideTraversal)
+		{
+			if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
+			{
+				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
+				InNode->ResizeNode(Resized);
+
+				ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+			}
 			ResizeRecursion(InNode->RightNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
 		}
-		ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+		else
+		{
+			if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
+			{
+				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
+				InNode->ResizeNode(Resized);
+
+				ResizeRecursion(InNode->RightNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+			}
+			ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+		}
 	}
 }
 
 bool Splitter::GetOrientation() { return bIsVertical; }
+ImVec2 Splitter::GetSplitterSize() { return SplitterSize; }
+ImVec2 Splitter::GetSplitterPosition() { return SplitterPosition; }

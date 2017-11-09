@@ -197,8 +197,15 @@
     <ClInclude Include="Source\UI\Region.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Shared\GeoString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shared\GeoTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\imgui.ini" />
+    <None Include="Preferences\Default\DefaultLayout.lo" />
   </ItemGroup>
 </Project>

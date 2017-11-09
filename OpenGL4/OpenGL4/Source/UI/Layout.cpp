@@ -1,6 +1,12 @@
 #include "Layout.h"
 #include "System/Input.h"
+#include "Shared/GeoString.h"
+#include "Shared/GeoTree.h"
 #include "Region.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <queue>
 
 
 Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path)
@@ -23,14 +29,22 @@ Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* 
 
 Layout::~Layout()
 {
-	LayoutRoot->~TreeNode();
+	if (LayoutRoot) { LayoutRoot->~TreeNode(); }
 }
+
 
 // @TODO: Design system for easy saving and creating custom layouts
 void Layout::LoadDefaultLayout()
 {
-	RegionData RegionList = RegionData(RegionTypes::Stats, WindowDimensions, ImVec2(0, 0), false);
-	LayoutRoot = new TreeNode(RegionList, this);
+	LayoutRoot = GenerateLayout("Preferences/Default/SavedLayout.lo"); // @TODO: change this to a setting in a config file.
+	if (LayoutRoot)
+	{
+		RefreshContainerSizes(LayoutRoot);
+	}
+	else
+	{ 
+		printf("Error: Could not create Layout Root.\n"); 
+	}
 }
 
 bool Layout::RenderLayout()
@@ -103,21 +117,25 @@ bool Layout::MasterWindow()
 void Layout::RenderRegions()
 {
 	bSceneClicked = (MyInput && MyInput->PollSelectionRequest(&PolledRegion)) ? true : false;
-	LayoutRoot->Render();
 
-	if (ResizingNode.Node)
+	if (LayoutRoot)
 	{
-		Splitter* split = dynamic_cast<Splitter*>(ResizingNode.Node->GetContents());
-		if (split)
+		LayoutRoot->Render();
+
+		if (ResizingNode.Node)
 		{
-			split->ResizeRegions(ResizingNode.ResizeAmount);
+			Splitter* split = dynamic_cast<Splitter*>(ResizingNode.Node->GetContents());
+			if (split)
+			{
+				split->ResizeRegions(ResizingNode.ResizeAmount);
+			}
+
+			RefreshContainerSizes(LayoutRoot);
+			printf("\n");
+
+			ResizingNode.Node = NULL;
+			ResizingNode.ResizeAmount = ImVec2();
 		}
-
-		RefreshContainerSizes(LayoutRoot);
-		printf("\n");
-
-		ResizingNode.Node = NULL;
-		ResizingNode.ResizeAmount = ImVec2();
 	}
 }
 
@@ -140,22 +158,121 @@ void Layout::ResizeRegions()
 
 ImVec2 Layout::RefreshContainerSizes(TreeNode* InNode)
 {
-	if (InNode->RightNode == NULL && InNode->LeftNode == NULL)
+	if (InNode)
 	{
+		if (InNode->RightNode == NULL && InNode->LeftNode == NULL)
+		{
+			return InNode->GetRegionSize();
+		}
+
+		ImVec2 RightSize = RefreshContainerSizes(InNode->RightNode);
+		ImVec2 LeftSize = RefreshContainerSizes(InNode->LeftNode);
+
+		Splitter* split = dynamic_cast<Splitter*>(InNode->GetContents());
+		bool bIsVertical = true;
+		if (split) { bIsVertical = split->GetOrientation(); }
+
+		ImVec2 ResizeAmount = (bIsVertical) ? ImVec2(RightSize.x + LeftSize.x + SplitSpacing, InNode->GetRegionSize().y) : ImVec2(InNode->GetRegionSize().x, RightSize.y + LeftSize.y + SplitSpacing);
+		InNode->NewSize(ResizeAmount);
+
 		return InNode->GetRegionSize();
 	}
+	return ImVec2();
+}
 
-	ImVec2 RightSize = RefreshContainerSizes(InNode->RightNode);
-	ImVec2 LeftSize = RefreshContainerSizes(InNode->LeftNode);
+TreeNode* Layout::GenerateLayout(char* FilePath)
+{
+	std::string content;
+	std::ifstream fileStream(FilePath, std::ios::in);
+	if (!fileStream.is_open())
+	{
+		std::cerr << "Could not read file " << FilePath << ". File does not exist." << std::endl;
+		return NULL;
+	}
 
-	Splitter* split = dynamic_cast<Splitter*>(InNode->GetContents());
-	bool bIsVertical = true;
-	if (split) { bIsVertical = split->GetOrientation(); }
+	TreeNode* Root = NULL;
+	std::queue<TreeNode*> NodeStack;
+	std::string line = "";
+	while (!fileStream.eof())
+	{
+		std::getline(fileStream, line);
+		content.append(line + "\n");
 
-	ImVec2 ResizeAmount = (bIsVertical) ? ImVec2(RightSize.x + LeftSize.x + SplitSpacing, InNode->GetRegionSize().y) : ImVec2(InNode->GetRegionSize().x, RightSize.y + LeftSize.y + SplitSpacing);
-	InNode->NewSize(ResizeAmount);
+		if (line != "")
+		{
+			(line == "#") ? NodeStack.push(NULL) : NodeStack.push(BuildNode(line));
+		}
+	}
+	fileStream.close();
 
-	return InNode->GetRegionSize();
+	// convert to tree.
+	GeoTree::StackToTree<TreeNode>(NodeStack, Root);
+	return Root;
+}
+
+void Layout::SaveLayout()
+{
+	std::vector<TreeNode*> NodeArray;
+	GeoTree::TreeToArray<TreeNode>(LayoutRoot, &NodeArray);
+
+	std::ofstream OutFile;
+	OutFile.open("Preferences/Default/SavedLayout.lo");
+	for (TreeNode* node : NodeArray)
+	{
+		if (node)
+		{
+
+			OutFile << (RegionTypes) node->GetContents()->GetType() << ","
+					<< node->GetRegionSize().x << ","
+					<< node->GetRegionSize().y << ","
+					<< node->GetRegionPosition().x << ","
+					<< node->GetRegionPosition().y << ","
+					<< "0";
+					
+			if (RegionTypes(node->GetContents()->GetType()) == RegionTypes::Spacer)
+			{
+				Splitter* split = dynamic_cast<Splitter*>(node->GetContents());
+				OutFile << "," << split->GetSplitterSize().x << ","
+							   << split->GetSplitterSize().y << ","
+							   << split->GetSplitterPosition().x << ","
+							   << split->GetSplitterPosition().y << ","
+							   << split->GetOrientation();
+			}
+					
+			OutFile	<< std::endl;
+		}
+		else
+		{
+			OutFile << "#" << std::endl;
+		}
+	}
+
+	OutFile.close();
+}
+
+TreeNode* Layout::BuildNode(std::string NodeString)
+{
+	std::istringstream iss(NodeString);
+	std::string item;
+	std::vector<std::string> Data;
+	while (std::getline(iss, item, ','))
+	{
+		GeoString::trim(item);
+		Data.push_back(item);
+	}
+	
+	RegionData NodeData = RegionData(RegionTypes(std::stoi(Data[0])),
+									 ImVec2(std::stoi(Data[1]), std::stoi(Data[2])),
+									 ImVec2(std::stoi(Data[3]), std::stoi(Data[4])),
+									 GeoString::ParseBool(Data[5]));
+
+	TreeNode* NewNode = new TreeNode(NodeData, this);
+	if (RegionTypes(NodeData.Type == RegionTypes::Spacer))
+	{
+		NewNode->BuildSplitter(ImVec2(std::stoi(Data[6]), std::stoi(Data[7])), ImVec2(std::stoi(Data[8]), std::stoi(Data[9])), GeoString::ParseBool(Data[10]));
+	}
+
+	return NewNode;
 }
 
 World* Layout::GetWorld() { return MyWorld; }
@@ -228,7 +345,7 @@ void TreeNode::Render()
 
 void TreeNode::BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientation)
 {
-	Contents->~Region();
+	if (Contents) {	Contents->~Region(); }
 	Contents = new Splitter(InSize, InPosition, OwningLayout, this, InOrientation);
 	Data.Type = RegionTypes::Spacer;
 }
@@ -262,19 +379,6 @@ Region* TreeNode::CreateContents()
 
 void TreeNode::ResizeNode(ImVec2 InAmount)
 {
-	//if (Data.Type == RegionTypes::Spacer)
-	//{
-	//	Splitter* split = dynamic_cast<Splitter*>(Contents);
-	//	if (split) { split->ResizeSplitter(InAmount); }
-	//	Data.Size = InAmount;
-	//}
-	//else
-	//{
-	//	Data.Size.x += InAmount.x;
-	//	Data.Size.y += InAmount.y;
-	//}
-
-
 	Data.Size.x += InAmount.x;
 	Data.Size.y += InAmount.y;
 

@@ -51,6 +51,14 @@ bool Engine::Init()
 	MyInput = new Input(MyWorld, MyManager);
 	UILayout = new Layout(MainWindow, MyManager, MyWorld, MyInput);
 
+	if (MyManager && MyWorld && MyInput && UILayout)
+	{
+		if (!MyManager) { printf("Error: Engine Failed to initialize Manager.\n"); }
+		if (!MyWorld)   { printf("Error: Engine Failed to initialize World.\n"); }
+		if (!MyInput)   { printf("Error: Engine Failed to initialize Input.\n"); }
+		if (!UILayout)  { printf("Error: Engine Failed to initialize UILayout.\n"); }
+	}
+
 	return true;
 }
 
@@ -71,10 +79,11 @@ void Engine::Run()
 
 void Engine::CleanUp()
 {
-	MyWorld->~World();
-	MyManager->~Manager();
-	UILayout->~Layout();
-	MyInput->~Input();
+	if (MyWorld)   { MyWorld->~World(); }
+	if (MyManager) { MyManager->~Manager(); }
+	if (UILayout)  { UILayout->~Layout(); }
+	if (MyInput)   { MyInput->~Input(); }
+
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(MainWindow);
 	SDL_Quit();

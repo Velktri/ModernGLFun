@@ -14,7 +14,7 @@ class FrameBuffer;
 class Region
 {
 public:
-	Region(Layout* InLayout, TreeNode* InOwningNode);
+	Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType = RegionTypes::None);
 	~Region();
 
 	virtual bool Render();
@@ -24,6 +24,7 @@ public:
 	ImVec2 GetScenePosition();
 	ImGuiWindowFlags GetStyleFlags();
 	int GetRegionID();
+	RegionTypes GetType();
 
 	bool IsSceneHovered();
 
@@ -36,6 +37,7 @@ protected:
 	Layout* OwningLayout;
 	TreeNode* OwningNode;
 	bool bIsSceneHovered;
+	RegionTypes Type;
 
 	FrameBuffer* SceneFrame;
 	FrameBuffer* PickerFrame;
@@ -51,11 +53,9 @@ public:
 
 	virtual bool Render() override;
 
-	RegionTypes GetType();
+
 
 private:
-	RegionTypes Type;
-
 	/* Region Types */
 	void TestRegion();
 	void StatsRegion();
@@ -82,10 +82,13 @@ public:
 	void ResizeSplitter(ImVec2 InAmount);
 
 	bool GetOrientation();
+	ImVec2 GetSplitterSize();
+	ImVec2 GetSplitterPosition();
 
 private:
 	bool bIsVertical;
 	ImVec2 SplitterSize;
+	ImVec2 SplitterPosition;
 
 	void HorizontalSplit();
 	void VerticalSplit();
