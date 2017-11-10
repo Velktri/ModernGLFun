@@ -31,7 +31,6 @@ bool Input::ExecuteInput(Region* InActiveRegion)
 	bool SceneHovering = false;
 	if (InActiveRegion) // @TODO: rewrite for multiple scenes
 	{
-		//printf("%d", InActiveRegion->RegionID);
 		Container* ActiveContainer = dynamic_cast<Container*>(InActiveRegion);
 		if (ActiveContainer && ActiveContainer->GetType() == RegionTypes::Scene)
 		{

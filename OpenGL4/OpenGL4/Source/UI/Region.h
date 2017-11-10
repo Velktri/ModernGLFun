@@ -43,7 +43,7 @@ protected:
 	FrameBuffer* PickerFrame;
 	GLuint RenderFrame;
 
-	ImGuiWindowFlags ContainerStyleFlags; //@TODO: implement
+	ImGuiWindowFlags ContainerStyleFlags;
 };
 
 class Container : public Region
@@ -78,7 +78,10 @@ public:
 	Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation);
 
 	virtual bool Render() override;
-	void ResizeRegions(ImVec2 ResizeDelta);
+
+	/* Return true is region was resized. */
+	bool ResizeRegions(ImVec2 ResizeDelta);
+
 	void ResizeSplitter(ImVec2 InAmount);
 
 	bool GetOrientation();
@@ -92,5 +95,6 @@ private:
 
 	void HorizontalSplit();
 	void VerticalSplit();
-	void ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool LeftSideTraversal, float InResizeDelta);
+	void ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, float InAmount, bool LeftSideTraversal, std::vector<TreeNode*> &NodeArray, bool &bCanResize);
+	bool CheckNodeSize(TreeNode* InNode, bool bVertical, float InAmount);
 };

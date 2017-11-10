@@ -18,10 +18,6 @@ class Layout;
 
 struct RegionData
 {
-	/*
-		@TODO: Consider Min and Max size.
-	*/
-
 	RegionTypes Type;
 	ImVec2 Size;
 	ImVec2 Position;
@@ -102,6 +98,7 @@ public:
 	void SetHoveredRegion(Region* InRegion);
 	bool IsSceneClicked();
 	int GetPolledRegion();
+	int GetGlobalMinSize();
 
 	ResizingData ResizingNode;
 
@@ -126,6 +123,7 @@ private:
 	int PolledRegion;
 	bool bSceneClicked;
 	int RegionCount;
+	int GlobalMinRegionSize;
 
 	void LoadDefaultStyle(std::string path);
 	void ImportAsset();

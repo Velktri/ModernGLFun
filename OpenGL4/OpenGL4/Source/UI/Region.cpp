@@ -34,7 +34,7 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType)
 	TypeList.push_back(RegionTypes::Outliner);
 	TypeList.push_back(RegionTypes::Test);
 	TypeList.push_back(RegionTypes::Stats);
-	TypeList.push_back(RegionTypes::AssetEditor); // @TODO: use 	int i = (RegionTypes) type;   and    RegionTypes type = RegionTypes(i);
+	TypeList.push_back(RegionTypes::AssetEditor);
 
 
 
@@ -1973,7 +1973,7 @@ void Container::TestRegion()
 void Container::PanelSwitcher()
 {
 	/* TEMP */
-	const char* names[] = { "None", "MainMenu", "Scene", "Outliner", "Test", "Stats", "Asset Editor" };
+	const char* names[] = { "None", "MainMenu", "Scene", "Outliner", "Test", "Stats", "Asset Editor" }; // @TODO: use 	int i = (RegionTypes) type;   and    RegionTypes type = RegionTypes(i);
 	/**     */
 	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(17, 189, 2, 255));
 	if (ImGui::Button(names[Type])) { ImGui::OpenPopup("TypeList"); }
@@ -2081,12 +2081,36 @@ void Splitter::HorizontalSplit()
 	}
 }
 
-void Splitter::ResizeRegions(ImVec2 ResizeDelta)
+bool Splitter::ResizeRegions(ImVec2 ResizeDelta)
 {
 	bool OwnerIsVertical = (ResizeDelta.y == 0) ? true : false;
 	float Amount = (OwnerIsVertical) ? ResizeDelta.x : ResizeDelta. y;
-	ResizeRecursion(OwningNode->LeftNode, OwnerIsVertical, true, Amount);
-	ResizeRecursion(OwningNode->RightNode, OwnerIsVertical, false, -1 * Amount);
+	bool bCanResize = true;
+	std::vector<TreeNode*> LeftArray;
+	ResizeRecursion(OwningNode->LeftNode, OwnerIsVertical, Amount, true, LeftArray, bCanResize);
+
+	if (bCanResize)
+	{
+		std::vector<TreeNode*> RightArray;
+		ResizeRecursion(OwningNode->RightNode, OwnerIsVertical, -1 * Amount, false, RightArray, bCanResize);
+
+		if (bCanResize)
+		{
+			for (TreeNode* Node : LeftArray)
+			{
+				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(Amount, 0) : ImVec2(0, Amount);
+				Node->ResizeNode(Resized);
+			}
+
+			for (TreeNode* Node : RightArray)
+			{
+				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(-1 * Amount, 0) : ImVec2(0, -1 * Amount);
+				Node->ResizeNode(Resized);
+			}
+		}
+	}
+
+	return bCanResize;
 }
 
 void Splitter::ResizeSplitter(ImVec2 InAmount)
@@ -2101,14 +2125,14 @@ void Splitter::ResizeSplitter(ImVec2 InAmount)
 	}
 }
 
-void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool LeftSideTraversal, float InResizeDelta)
+void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, float InAmount, bool LeftSideTraversal, std::vector<TreeNode*> &NodeArray, bool &bCanResize)
 {
 	if (InNode)
 	{
 		if (InNode->IsLeaf())
 		{
-			ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
-			InNode->ResizeNode(Resized);
+			bCanResize &= CheckNodeSize(InNode, OwnerIsVertical, InAmount);
+			if (bCanResize) { NodeArray.push_back(InNode); }
 			return;
 		}
 
@@ -2116,25 +2140,30 @@ void Splitter::ResizeRecursion(TreeNode* InNode, bool OwnerIsVertical, bool Left
 		{
 			if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
 			{
-				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
-				InNode->ResizeNode(Resized);
+				bCanResize &= CheckNodeSize(InNode, OwnerIsVertical, InAmount);
+				if (bCanResize) { NodeArray.push_back(InNode); }
 
-				ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+				ResizeRecursion(InNode->LeftNode, OwnerIsVertical, InAmount, LeftSideTraversal, NodeArray, bCanResize);
 			}
-			ResizeRecursion(InNode->RightNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+			ResizeRecursion(InNode->RightNode, OwnerIsVertical, InAmount, LeftSideTraversal, NodeArray, bCanResize);
 		}
 		else
 		{
 			if (dynamic_cast<Splitter*>(InNode->GetContents())->bIsVertical != OwnerIsVertical)
 			{
-				ImVec2 Resized = (OwnerIsVertical) ? ImVec2(InResizeDelta, 0) : ImVec2(0, InResizeDelta);
-				InNode->ResizeNode(Resized);
+				bCanResize &= CheckNodeSize(InNode, OwnerIsVertical, InAmount);
+				if (bCanResize) { NodeArray.push_back(InNode); }
 
-				ResizeRecursion(InNode->RightNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+				ResizeRecursion(InNode->RightNode, OwnerIsVertical, InAmount, LeftSideTraversal, NodeArray, bCanResize);
 			}
-			ResizeRecursion(InNode->LeftNode, OwnerIsVertical, LeftSideTraversal, InResizeDelta);
+			ResizeRecursion(InNode->LeftNode, OwnerIsVertical, InAmount, LeftSideTraversal, NodeArray, bCanResize);
 		}
 	}
+}
+
+bool Splitter::CheckNodeSize(TreeNode* InNode, bool bVertical, float InAmount)
+{
+	return (bVertical) ? (InNode->GetRegionSize().x + InAmount) >= OwningLayout->GetGlobalMinSize() : (InNode->GetRegionSize().y + InAmount) >= OwningLayout->GetGlobalMinSize();
 }
 
 bool Splitter::GetOrientation() { return bIsVertical; }

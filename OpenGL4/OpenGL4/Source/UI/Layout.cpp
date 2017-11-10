@@ -59,6 +59,7 @@ void Layout::LoadDefaultStyle(std::string path)
 { 
 	ImGui::StyleColorsDark(); 
 	SplitSpacing = 4.0f;
+	GlobalMinRegionSize = 25;
 }
 
 void Layout::ImportAsset()
@@ -123,13 +124,11 @@ void Layout::RenderRegions()
 		if (ResizingNode.Node)
 		{
 			Splitter* split = dynamic_cast<Splitter*>(ResizingNode.Node->GetContents());
-			if (split)
-			{
-				split->ResizeRegions(ResizingNode.ResizeAmount);
-			}
 
-			RefreshContainerSizes(LayoutRoot);
-			printf("\n");
+			if (split && split->ResizeRegions(ResizingNode.ResizeAmount))
+			{
+				RefreshContainerSizes(LayoutRoot);
+			}
 
 			ResizingNode.Node = NULL;
 			ResizingNode.ResizeAmount = ImVec2();
@@ -137,7 +136,6 @@ void Layout::RenderRegions()
 	}
 }
 
-//@TODO: Look into maybe cleaning up potential overhead
 void Layout::UpdateWindowSize()
 {
 	int W, H;
@@ -280,6 +278,7 @@ Region* Layout::GetHoveredRegion() { return HoveredRegion; }
 void Layout::SetHoveredRegion(Region* InRegion) { HoveredRegion = InRegion; }
 bool Layout::IsSceneClicked() { return bSceneClicked; }
 int Layout::GetPolledRegion() { return PolledRegion; }
+int Layout::GetGlobalMinSize() { return GlobalMinRegionSize; }
 int Layout::AddAndGetRegionCount() { return RegionCount++; }
 void Layout::ShutDown() { bQuitLayout = true; }
 
@@ -323,7 +322,7 @@ void TreeNode::Render()
 {
 	if (Contents)
 	{
-		BeginRegionChild(NodeID, Data.Size, Contents->GetStyleFlags()); // @TODO: Add content style flags.
+		BeginRegionChild(NodeID, Data.Size, Contents->GetStyleFlags());
 
 		if (IsLeaf())
 		{
