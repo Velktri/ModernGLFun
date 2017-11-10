@@ -20,17 +20,14 @@ struct RegionData
 {
 	RegionTypes Type;
 	ImVec2 Size;
-	ImVec2 Position;
 	bool bIsElastic;
 
 	RegionData(RegionTypes InType = RegionTypes::None, 
 			   ImVec2 InSize = ImVec2(0, 0), 
-			   ImVec2 InPosition = ImVec2(0, 0), 
 			   bool InElastic = true)
 	{
 		Type = InType;
 		Size = InSize;
-		Position = InPosition;
 		bIsElastic = InElastic;
 	}
 };
@@ -55,13 +52,12 @@ public:
 
 	bool IsLeaf();
 	void Render();
-	void BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientation);
+	void BuildSplitter(ImVec2 InSize, bool InOrientation);
 
 	int GetNodeID();
 	Region* GetContents();
 	Layout* GetOwningLayout();
 	ImVec2 GetRegionSize();
-	ImVec2 GetRegionPosition();
 	void ResizeNode(ImVec2 InAmount);
 	void NewSize(ImVec2 InAmount);
 

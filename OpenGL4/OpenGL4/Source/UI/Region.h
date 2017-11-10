@@ -70,12 +70,16 @@ private:
 	/* Splits a region into two child regions either horizontally or vertically. */
 	void WindowSpliter();
 	void SplitRegion(bool bVertical);
+
+	/* Region Styling */
+	void BeginStyledMenuBar();
+	void EndStyledMenuBar();
 };
 
 class Splitter : public Region
 {
 public:
-	Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation);
+	Splitter(ImVec2 InSize, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation);
 
 	virtual bool Render() override;
 
@@ -86,12 +90,10 @@ public:
 
 	bool GetOrientation();
 	ImVec2 GetSplitterSize();
-	ImVec2 GetSplitterPosition();
 
 private:
 	bool bIsVertical;
 	ImVec2 SplitterSize;
-	ImVec2 SplitterPosition;
 
 	void HorizontalSplit();
 	void VerticalSplit();

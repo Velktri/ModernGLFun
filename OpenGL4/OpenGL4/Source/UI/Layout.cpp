@@ -34,7 +34,7 @@ Layout::~Layout()
 
 void Layout::LoadDefaultLayout()
 {
-	LayoutRoot = GenerateLayout("Preferences/Default/SavedLayout.lo"); // @TODO: change this to a setting in a config file.
+	LayoutRoot = GenerateLayout("Preferences/Default/DefaultLayout.lo"); // @TODO: change this to a setting in a config file.
 	if (LayoutRoot)
 	{
 		RefreshContainerSizes(LayoutRoot);
@@ -58,7 +58,7 @@ bool Layout::RenderLayout()
 void Layout::LoadDefaultStyle(std::string path)
 { 
 	ImGui::StyleColorsDark(); 
-	SplitSpacing = 4.0f;
+	SplitSpacing = 2.0f;
 	GlobalMinRegionSize = 25;
 }
 
@@ -221,8 +221,6 @@ void Layout::SaveLayout()
 			OutFile << (RegionTypes) node->GetContents()->GetType() << ","
 					<< node->GetRegionSize().x << ","
 					<< node->GetRegionSize().y << ","
-					<< node->GetRegionPosition().x << ","
-					<< node->GetRegionPosition().y << ","
 					<< "0";
 					
 			if (RegionTypes(node->GetContents()->GetType()) == RegionTypes::Spacer)
@@ -230,8 +228,6 @@ void Layout::SaveLayout()
 				Splitter* split = dynamic_cast<Splitter*>(node->GetContents());
 				OutFile << "," << split->GetSplitterSize().x << ","
 							   << split->GetSplitterSize().y << ","
-							   << split->GetSplitterPosition().x << ","
-							   << split->GetSplitterPosition().y << ","
 							   << split->GetOrientation();
 			}
 					
@@ -259,13 +255,15 @@ TreeNode* Layout::BuildNode(std::string NodeString)
 	
 	RegionData NodeData = RegionData(RegionTypes(std::stoi(Data[0])),
 									 ImVec2(std::stoi(Data[1]), std::stoi(Data[2])),
-									 ImVec2(std::stoi(Data[3]), std::stoi(Data[4])),
-									 GeoString::ParseBool(Data[5]));
+									 GeoString::ParseBool(Data[3])); // @TODO fix array sizes since position node was deleted.
 
 	TreeNode* NewNode = new TreeNode(NodeData, this);
 	if (RegionTypes(NodeData.Type == RegionTypes::Spacer))
 	{
-		NewNode->BuildSplitter(ImVec2(std::stoi(Data[6]), std::stoi(Data[7])), ImVec2(std::stoi(Data[8]), std::stoi(Data[9])), GeoString::ParseBool(Data[10]));
+		bool VOrientation = GeoString::ParseBool(Data[6]);
+		ImVec2 SpaceSize = (VOrientation) ? ImVec2(SplitSpacing/*std::stoi(Data[4])*/, std::stoi(Data[5])) : ImVec2(std::stoi(Data[4]), SplitSpacing/*std::stoi(Data[5])*/);
+
+		NewNode->BuildSplitter(SpaceSize/*ImVec2(std::stoi(Data[4]), std::stoi(Data[5]))*/, VOrientation);
 	}
 
 	return NewNode;
@@ -340,10 +338,10 @@ void TreeNode::Render()
 	}
 }
 
-void TreeNode::BuildSplitter(ImVec2 InSize, ImVec2 InPosition, bool InOrientation)
+void TreeNode::BuildSplitter(ImVec2 InSize, bool InOrientation)
 {
 	if (Contents) {	Contents->~Region(); }
-	Contents = new Splitter(InSize, InPosition, OwningLayout, this, InOrientation);
+	Contents = new Splitter(InSize, OwningLayout, this, InOrientation);
 	Data.Type = RegionTypes::Spacer;
 }
 
@@ -391,6 +389,5 @@ int TreeNode::GetNodeID() { return NodeID; }
 Region* TreeNode::GetContents() { return Contents; }
 Layout* TreeNode::GetOwningLayout() { return OwningLayout; }
 ImVec2 TreeNode::GetRegionSize() { return Data.Size; }
-ImVec2 TreeNode::GetRegionPosition() { return Data.Position; }
 bool TreeNode::IsLeaf() { return (RightNode || LeftNode) ? false : true; }
 void TreeNode::NewSize(ImVec2 InAmount) { Data.Size = InAmount; }

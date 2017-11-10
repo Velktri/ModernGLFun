@@ -126,27 +126,27 @@ void Manager::BuildPrimative(Primatives InType)
 	switch (InType)
 	{
 		case Cube:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cube.obj");
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/cube.obj");
 			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
 			break;
 		case Plane:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/plane.obj");
 			SpawnedAsset->Name = std::string("Plane_" + AssetNum);
 			break;
 		case Sphere:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/Sphere.obj");
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/Sphere.obj");
 			SpawnedAsset->Name = std::string("Sphere_" + AssetNum);
 			break;
 		case Cylinder:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/cylinder.obj");
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/cylinder.obj");
 			SpawnedAsset->Name = std::string("Cylinder_" + AssetNum);
 			break;
 		case Curve:
-			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/plane.obj");
+			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/plane.obj");
 			//SpawnedAsset->Name = std::string("Plane_" + AssetNum);
 			break;
 		case Smooth:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "assets/Models/Primitives/smoothSphere.obj");
+			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/smoothSphere.obj");
 			SpawnedAsset->Name = std::string("SmoothSphere_" + AssetNum); // @TODO: change along with enum in future.
 			break;
 		default:

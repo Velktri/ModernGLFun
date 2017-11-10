@@ -63,7 +63,7 @@ RegionTypes Region::GetType() { return Type; }
 
 Container::Container(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType) : Region(InLayout, InOwningNode, InType)
 {
-	ContainerStyleFlags = ImGuiWindowFlags_MenuBar;
+	ContainerStyleFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_ShowBorders;
 }
 
 bool Container::Render()
@@ -101,11 +101,10 @@ void Container::StatsRegion()
 	/* @TODO: Add Stats like FPS, Memory, etc. */
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 0.0f));
-	ImGui::BeginMenuBar();
+	BeginStyledMenuBar();
 		PanelSwitcher();
 		WindowSpliter();
-	ImGui::EndMenuBar();
+	EndStyledMenuBar();
 
 	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 200, 0));
 	std::string newName = "Stats_" + std::to_string(OwningNode->GetNodeID());
@@ -116,7 +115,6 @@ void Container::StatsRegion()
 
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
 }
 
 void Container::SceneRegion()
@@ -124,60 +122,62 @@ void Container::SceneRegion()
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 	ImGui::Spacing();
 
-	ImGui::BeginMenuBar();
-	PanelSwitcher();
-	ImGui::Indent(15.0f);
+	BeginStyledMenuBar();
+		PanelSwitcher();
+		ImGui::Indent(15.0f);
 
-	ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = SceneFrame->GetFrameTexture(); };
-	ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = PickerFrame->GetFrameTexture(); };
+		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = SceneFrame->GetFrameTexture(); };
+		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = PickerFrame->GetFrameTexture(); };
 
-	ImGui::SameLine();		 if (ImGui::Button("Cube")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
-	ImGui::SameLine();		 if (ImGui::Button("Plane")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
-	ImGui::SameLine();		 if (ImGui::Button("Sphere")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
-	ImGui::SameLine();		 if (ImGui::Button("Cylinder")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
-	ImGui::SameLine();		 if (ImGui::Button("SmoothTest")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
-	ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Curve); };
+		ImGui::SameLine();		 if (ImGui::Button("Cube")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
+		ImGui::SameLine();		 if (ImGui::Button("Plane")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
+		ImGui::SameLine();		 if (ImGui::Button("Sphere")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
+		ImGui::SameLine();		 if (ImGui::Button("Cylinder")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
+		ImGui::SameLine();		 if (ImGui::Button("SmoothTest")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
+		ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Curve); };
 
-	ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetWorld()->ClearLines(); };
+		ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetWorld()->ClearLines(); };
 
-	float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
-	ImGui::EndMenuBar();
+		float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
+	EndStyledMenuBar();
 
+
+	//ImVec2 testSize = ImGui::GetCurrentWindow()->Size;    // @TODO: look into get size from ImGui directly.
 	SceneSize = OwningNode->GetRegionSize();
-	ScenePosition = OwningNode->GetRegionPosition();
 	SceneSize.y -= MenuSize;
-	ScenePosition.y += MenuSize;
 
 	ImGui::BeginGroup();
-	if (!SceneFrame || !PickerFrame)
-	{
-		if (!SceneFrame)
+		ScenePosition = ImVec2(ImGui::GetCurrentWindow()->Pos.x, ImGui::GetCurrentWindow()->Pos.y + MenuSize);
+
+		if (!SceneFrame || !PickerFrame)
 		{
-			SceneFrame = new FrameBuffer(SceneSize.x, SceneSize.y);
-			RenderFrame = SceneFrame->GetFrameTexture();
+			if (!SceneFrame)
+			{
+				SceneFrame = new FrameBuffer(SceneSize.x, SceneSize.y);
+				RenderFrame = SceneFrame->GetFrameTexture();
+			}
+
+			if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame spawned upside down, need further real time testing
+		}
+		else
+		{
+			glViewport(0, 0, SceneSize.x, SceneSize.y);
+
+			if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
+			{
+				glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
+				coords.x -= ScenePosition.x;
+				coords.y -= ScenePosition.y;
+				//printf("%f, %f\n", coords.x, coords.y);
+				OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y), coords));
+			}
+
+			SceneFrame->RenderWorldFrame(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y));
 		}
 
-		if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame spawned upside down, need further real time testing
-	}
-	else
-	{
-		glViewport(0, 0, SceneSize.x, SceneSize.y);
-
-		if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
-		{
-			glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
-			coords.x -= ScenePosition.x;
-			coords.y -= ScenePosition.y;
-			printf("%f, %f\n", coords.x, coords.y);
-			OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y), coords));
-		}
-
-		SceneFrame->RenderWorldFrame(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y));
-	}
-
-	ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
-	bIsSceneHovered = false;
-	if (ImGui::IsItemHovered()) { bIsSceneHovered = true; }
+		ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+		bIsSceneHovered = false;
+		if (ImGui::IsItemHovered()) { bIsSceneHovered = true; }
 	ImGui::EndGroup();
 }
 
@@ -185,15 +185,15 @@ void Container::OutlinerRegion()
 {
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
 	/* @TODO: Add Scene hierarchy here. */
-	ImGui::BeginMenuBar();
+	BeginStyledMenuBar();
 		PanelSwitcher();
-	ImGui::EndMenuBar();
+	EndStyledMenuBar();
 }
 
 void Container::MainMenuRegion()
 {
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
-	ImGui::BeginMenuBar();
+	BeginStyledMenuBar();
 		PanelSwitcher(); ImGui::SameLine();
 		if (ImGui::Button("Save Layout")) { OwningLayout->SaveLayout(); } ImGui::SameLine();
 
@@ -216,15 +216,15 @@ void Container::MainMenuRegion()
 			if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
 			ImGui::EndPopup();
 		}
-	ImGui::EndMenuBar();
+	EndStyledMenuBar();
 }
 
 void Container::AssetEditorRegion()
 {
 	ContainerStyleFlags = ImGuiWindowFlags_MenuBar;
-	ImGui::BeginMenuBar();
+	BeginStyledMenuBar();
 		PanelSwitcher();
-	ImGui::EndMenuBar();
+	EndStyledMenuBar();
 	
 	/*
   ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);
@@ -323,7 +323,7 @@ void Container::AssetEditorRegion()
 
 void Container::TestRegion()
 {
-	ContainerStyleFlags = 0;
+	ContainerStyleFlags = ImGuiWindowFlags_MenuBar;
 
 	static bool show_app_style_editor = false;
 	static bool show_app_metrics = false;
@@ -343,30 +343,33 @@ void Container::TestRegion()
 
 	static bool no_border = true;
 	static bool no_scrollbar = false;
-	static bool no_menu = false;
 
 	ImGuiWindowFlags window_flags = 0;
 	if (!no_border)   window_flags |= ImGuiWindowFlags_ShowBorders;
 	if (no_scrollbar) window_flags |= ImGuiWindowFlags_NoScrollbar;
-	if (!no_menu)     window_flags |= ImGuiWindowFlags_MenuBar;
+
+	BeginStyledMenuBar();
+	PanelSwitcher();
+
+	if (ImGui::BeginMenu("Help"))
+	{
+		ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
+		ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
+		ImGui::MenuItem("About ImGui", NULL, &show_app_about);
+		ImGui::EndMenu();
+	}
+	EndStyledMenuBar();
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 3));
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 3));
 
 	char buf[256];
 	sprintf_s(buf, "Test_%d", GetRegionID());
-	ImGui::BeginChild(buf, OwningNode->GetRegionSize()/*Size*/, false, window_flags);
+	ImGui::BeginChild(buf, OwningNode->GetRegionSize(), false, window_flags);
 	// Menu
-	if (ImGui::BeginMenuBar())
-	{
-		PanelSwitcher();
 
-		if (ImGui::BeginMenu("Help"))
-		{
-			ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
-			ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
-			ImGui::MenuItem("About ImGui", NULL, &show_app_about);
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
+	
+
 
 	ImGui::Spacing();
 	ImGui::Text("dear imgui says hello. (%s)", IMGUI_VERSION);
@@ -380,7 +383,6 @@ void Container::TestRegion()
 
 	if (ImGui::CollapsingHeader("Window options"))
 	{
-		ImGui::Checkbox("No menu", &no_menu); ImGui::SameLine();
 		ImGui::Checkbox("No border", &no_border); ImGui::SameLine();
 		ImGui::Checkbox("No scrollbar", &no_scrollbar);	
 
@@ -1968,6 +1970,8 @@ void Container::TestRegion()
 		}
 	}
 	ImGui::EndChild();
+
+	ImGui::PopStyleVar(2);
 }
 
 void Container::PanelSwitcher()
@@ -2004,21 +2008,32 @@ void Container::WindowSpliter()
 void Container::SplitRegion(bool bVertical)
 {
 	ImVec2 TempSize = OwningNode->GetRegionSize();
-	ImVec2 ChildSize = (bVertical) ? ImVec2(TempSize.x / 2 - 2, TempSize.y) : ImVec2(TempSize.x, TempSize.y / 2 - 2);  // @TODO: integrate in border spacing. hardcoded as "- 2"
+	ImVec2 ChildSize = (bVertical) ? ImVec2(TempSize.x / 2 - 1, TempSize.y) : ImVec2(TempSize.x, TempSize.y / 2 - 1);  // @TODO: integrate in border spacing. hardcoded as "- 1"
 	RegionTypes OwnerType = dynamic_cast<Container*>(OwningNode->GetContents())->GetType();
 
-	RegionData LeftData = RegionData(OwnerType, ChildSize, OwningNode->GetRegionPosition(), false);
+	RegionData LeftData = RegionData(OwnerType, ChildSize, false);
 	OwningNode->LeftNode = new TreeNode(LeftData, OwningLayout);
 
 
-	ImVec2 ChildPosition = (bVertical) ? ImVec2(ChildSize.x + OwningNode->GetRegionPosition().x + 4, OwningNode->GetRegionPosition().y) : ImVec2(OwningNode->GetRegionPosition().x, ChildSize.y + OwningNode->GetRegionPosition().y + 4);
-	RegionData RightData = RegionData(OwnerType, ChildSize, ChildPosition, false);
+	RegionData RightData = RegionData(OwnerType, ChildSize, false);
 	OwningNode->RightNode = new TreeNode(RightData, OwningLayout);
 
 
 	ImVec2 SpacerSize = (bVertical) ? ImVec2(OwningLayout->SplitSpacing, OwningNode->GetRegionSize().y) : ImVec2(OwningNode->GetRegionSize().x, OwningLayout->SplitSpacing);
-	ImVec2 SplitterPosition = (bVertical) ? ImVec2(ChildSize.x + OwningNode->GetRegionPosition().x, OwningNode->GetRegionPosition().y) : ImVec2(OwningNode->GetRegionPosition().x, ChildSize.y + OwningNode->GetRegionPosition().y);
-	OwningNode->BuildSplitter(SpacerSize, SplitterPosition, bVertical);
+	OwningNode->BuildSplitter(SpacerSize, bVertical);
+}
+
+void Container::BeginStyledMenuBar()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3.0f, 0.0f));
+	ImGui::BeginMenuBar();
+	ImGui::Spacing();
+}
+
+void Container::EndStyledMenuBar()
+{
+	ImGui::EndMenuBar();
+	ImGui::PopStyleVar();
 }
 
 int Region::GetRegionID() { return OwningNode->GetNodeID(); }
@@ -2031,12 +2046,11 @@ int Region::GetRegionID() { return OwningNode->GetNodeID(); }
 
 
 
-Splitter::Splitter(ImVec2 InSize, ImVec2 InPosition, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation) : Region(InLayout, InOwningNode)
+Splitter::Splitter(ImVec2 InSize, Layout* InLayout, TreeNode* InOwningNode, bool InOrientation) : Region(InLayout, InOwningNode)
 {
 	bIsVertical = InOrientation;
 	ContainerStyleFlags = ImGuiWindowFlags_NoScrollbar;
 	SplitterSize = InSize;
-	SplitterPosition = InPosition;
 	Type = RegionTypes::Spacer;
 }
 
@@ -2168,4 +2182,3 @@ bool Splitter::CheckNodeSize(TreeNode* InNode, bool bVertical, float InAmount)
 
 bool Splitter::GetOrientation() { return bIsVertical; }
 ImVec2 Splitter::GetSplitterSize() { return SplitterSize; }
-ImVec2 Splitter::GetSplitterPosition() { return SplitterPosition; }
