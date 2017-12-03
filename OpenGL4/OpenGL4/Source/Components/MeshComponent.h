@@ -9,7 +9,7 @@ public:
 	MeshComponent(Asset* InParent, std::string path = "");
 	~MeshComponent();
 
-	virtual void Render(Shader* shader, Camera* WorldCamera) override;
+	virtual void Render(Shader* shader) override;
 
 private:
 	Mesh* MeshData;

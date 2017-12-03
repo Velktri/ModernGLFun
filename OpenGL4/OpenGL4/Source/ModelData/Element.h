@@ -21,7 +21,7 @@ public:
 	Element();
 	~Element();
 
-	void Render(class Shader* shader, class Camera* WorldCamera);
+	void Render(class Shader* shader);
 	int GetType();
 
 protected:

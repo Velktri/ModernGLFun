@@ -27,7 +27,7 @@ class Asset
 public:
 	Asset(GLuint InAssetID, Manager* InManager);
 	~Asset();
-	void Render(Shader* shader, Camera* WorldCamera);
+	void Render(Shader* shader);
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);

@@ -4,8 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include "openvr.h"
 
 class Camera;
+class VR_HMD;
 class Grid;
 class Manager;
 class Light;
@@ -24,17 +26,18 @@ public:
 
 	void RenderWorld(glm::vec2 FrameSize);
 	void RenderColorWorld(glm::vec2 FrameSize);
-	void RenderSystemEntities();
-	void RenderUserEntities();
 	void ClearLines();
 
 	Timer* GetTimer();
 	Camera* GetCamera();
 	std::vector<Light*> GetLights();
+	Manager* GetManager();
+	void InitVR(vr::IVRSystem* InHMD);
 
 private:
-	Camera* WorldCamera;
-	Grid* Scene;
+	Camera* UserCamera;
+	VR_HMD* VRCamera;
+	Grid* GridFloor;
 	Gizmo* SelectionGizmo;
 	Manager* MyManager;
 	Timer* WorldClock;
@@ -43,6 +46,10 @@ private:
 	int GRIDRADIUS_Y = 10;
 	float GRIDSPACING = 1.0;
 
+	void RenderSystemEntities();
+	void RenderUserEntities();
+
+	bool bInitVR;
 
 	std::vector<Element*> SystemElements;
 };

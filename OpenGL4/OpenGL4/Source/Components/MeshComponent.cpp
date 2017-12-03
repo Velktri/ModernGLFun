@@ -15,14 +15,14 @@ MeshComponent::~MeshComponent()
 {
 }
 
-void MeshComponent::Render(Shader* shader, Camera* WorldCamera)
+void MeshComponent::Render(Shader* shader)
 {
 	if (MeshData)
 	{
-		MeshData->Render(shader, WorldCamera);
+		MeshData->Render(shader);
 	}
 
-	ComponentBase::Render(shader, WorldCamera);
+	ComponentBase::Render(shader);
 }
 
 void MeshComponent::InitAndSet(std::string path)

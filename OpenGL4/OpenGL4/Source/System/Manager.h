@@ -18,7 +18,7 @@ public:
 
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
 	void DrawAssets(Camera* WorldCamera, Shader* AssetShader);
-	void BuildAsset(std::string path = "");
+	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
 	void ShadeLights(Camera* WorldCamera, Shader* LightShader);
 	void Draw(Shader* shader);

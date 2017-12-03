@@ -1,6 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include <SDL.h>
+#include "openvr.h"
 
 class Engine
 {
@@ -28,6 +29,10 @@ private:
 
 	SDL_Window* MainWindow;
 	SDL_GLContext context;
+
+	class vr::IVRSystem* VR_HMD;
+	bool bInitVR;
+	vr::EVRInitError VRError;
 
 	GLuint WIDTH;
 	GLuint HEIGHT;

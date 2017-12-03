@@ -13,7 +13,11 @@ Camera::Camera(glm::vec3 position)
 	OrbitSpeed = 25.0f;
 	CameraNearDistance = 0.5f;
 
-	updateCameraVectors();
+	NearClip = 0.01f;
+	FarClip = 1000.0f;
+	FieldOfView = 45.0f;
+
+	UpdateCameraVectors();
 }
 
 Camera::~Camera()
@@ -30,7 +34,7 @@ void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime)
 
 	WorldPosition += UpVector * velocity_Y;
 	FocusPoint += UpVector * velocity_Y;
-	updateCameraVectors();
+	UpdateCameraVectors();
 }
 
 void Camera::ZoomCamera(int scroll, GLfloat deltaTime)
@@ -50,7 +54,7 @@ void Camera::ZoomCamera(int scroll, GLfloat deltaTime)
 		WorldPosition += ForwardVector * velocity;
 	}
 
-	updateCameraVectors();
+	UpdateCameraVectors();
 }
 
 void Camera::OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime)
@@ -63,49 +67,28 @@ void Camera::OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime)
 	glm::mat4 PitchRotation = glm::rotate(glm::mat4(1.0f), glm::radians(PitchAngle), RightVector);
 
 	WorldPosition = glm::vec3(PitchRotation * YawRotation * glm::vec4(camFocusVector, 1.0)) + FocusPoint;
-	updateCameraVectors();
+	UpdateCameraVectors();
 }
 
-glm::vec3 Camera::GetPosition()
+void Camera::UpdatePerspective(glm::vec2 FrameSize)
 {
-	return WorldPosition;
+	Projection = glm::perspective(glm::radians(FieldOfView), (GLfloat) FrameSize.x / (GLfloat) FrameSize.y, NearClip, FarClip);
 }
 
-glm::vec3 Camera::GetFrontCameraDirection()
+void Camera::UpdateFieldOfView(float InFOV)
 {
-	return ForwardVector;
+	if (InFOV > 0 && InFOV < 180)
+	{
+		FieldOfView = InFOV;
+	}
 }
 
-glm::vec3 Camera::GetUpCameraDirection()
-{
-	return UpVector;
-}
-
-glm::vec3 Camera::GetRightCameraDirection()
-{
-	return RightVector;
-}
-
-void Camera::SetProjection(glm::mat4 InProjection)
-{
-	Projection = InProjection;
-}
-
-glm::mat4 Camera::GetProjection()
-{
-	return Projection;
-}
-
-glm::mat4 Camera::GetViewMatrix()
-{
-	return glm::lookAt(WorldPosition, FocusPoint, UpVector);
-}
-
-void Camera::updateCameraVectors()
+void Camera::UpdateCameraVectors()
 {
 	ForwardVector = glm::normalize(WorldPosition - FocusPoint);
 	RightVector = glm::normalize(glm::cross(ForwardVector, WorldUp));
 	UpVector = glm::normalize(glm::cross(RightVector, ForwardVector));
+	ViewMatrix = glm::lookAt(WorldPosition, FocusPoint, UpVector);
 }
 
 void Camera::Refocus(Asset* InSelection)
@@ -119,5 +102,15 @@ void Camera::Refocus(Asset* InSelection)
 		FocusPoint = InSelection->GetOrigin();
 	}
 
-	updateCameraVectors();
+	UpdateCameraVectors();
 }
+
+
+glm::vec3 Camera::GetPosition() { return WorldPosition; }
+glm::vec3 Camera::GetFrontCameraDirection() { return ForwardVector; }
+glm::vec3 Camera::GetUpCameraDirection() { return UpVector; }
+glm::vec3 Camera::GetRightCameraDirection() { return RightVector; }
+float Camera::GetFieldOfView() { return FieldOfView; }
+glm::mat4 Camera::GetProjection() { return Projection; }
+glm::mat4 Camera::GetViewMatrix() { return ViewMatrix; }
+glm::mat4 Camera::GetViewProjection() { return Projection * ViewMatrix; }

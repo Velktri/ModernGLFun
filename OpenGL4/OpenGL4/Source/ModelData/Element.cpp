@@ -58,7 +58,7 @@ void Element::Init()
 	}
 }
 
-void Element::Render(Shader* shader, Camera* WorldCamera)
+void Element::Render(Shader* shader)
 {
 	/* Render Self */
 	if (type != MESH)

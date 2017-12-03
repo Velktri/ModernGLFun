@@ -5,9 +5,8 @@
 #include "System\Input.h"
 #include "System\FrameBuffer.h"
 #include "System\Manager.h"
-#include "Lights\Light.h"
 
-// @TODO: Add an config file system for easy tweaks
+
 bool Engine::Init()
 {
 	WIDTH = 1920;
@@ -20,6 +19,23 @@ bool Engine::Init()
 		return false;
 	}
 
+	/* Init SteamVR */
+	bInitVR = vr::VR_IsHmdPresent() /* || other VR options*/;
+	if (bInitVR)
+	{
+		VRError = vr::VRInitError_None;
+		VR_HMD = vr::VR_Init(&VRError, vr::VRApplication_Scene);
+
+		if (VRError != vr::VRInitError_None)
+		{
+			VR_HMD = NULL;
+			char buf[1024];
+			sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(VRError));
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+			return false;
+		}
+	}
+
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -27,7 +43,7 @@ bool Engine::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	MainWindow = SDL_CreateWindow("GL_Render", 200, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	MainWindow = SDL_CreateWindow("GeoEngine", 200, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if (!MainWindow)
 	{
 		printf("Error: %s\n", SDL_GetError());
@@ -43,11 +59,19 @@ bool Engine::Init()
 
 	/* GLEW Init */
 	glewExperimental = GL_TRUE;
-	glewInit();
+	GLenum GlewError = glewInit();
+	if (GlewError != GLEW_OK)
+	{
+		printf("%s - Error initializing GLEW! %s\n", __FUNCTION__, glewGetErrorString(GlewError));
+		return false;
+	}
+	glGetError(); // to clear the error caused deep in GLEW
+
 	glEnable(GL_DEPTH_TEST);
 
 	MyManager = new Manager();
 	MyWorld = new World(MyManager);
+	if (bInitVR) { MyWorld->InitVR(VR_HMD); }
 	MyInput = new Input(MyWorld, MyManager);
 	UILayout = new Layout(MainWindow, MyManager, MyWorld, MyInput);
 

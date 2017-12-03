@@ -18,7 +18,7 @@ public:
 	std::string GetName();
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
-	virtual void Render(Shader* shader, Camera* WorldCamera);
+	virtual void Render(Shader* shader);
 
 protected:
 	std::string Name;

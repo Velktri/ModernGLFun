@@ -21,9 +21,9 @@ Asset::~Asset()
 	Root->~ComponentBase();
 }
 
-void Asset::Render(Shader* shader, Camera* WorldCamera)
+void Asset::Render(Shader* shader)
 {
-	Root->Render(shader, WorldCamera);
+	Root->Render(shader);
 }
 
 void Asset::TranslateAsset(float x, float y, float z)

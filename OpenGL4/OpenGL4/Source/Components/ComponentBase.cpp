@@ -15,13 +15,13 @@ ComponentBase::~ComponentBase()
 	}
 }
 
-void ComponentBase::Render(Shader* shader, Camera* WorldCamera)
+void ComponentBase::Render(Shader* shader)
 {
 	for (ComponentBase* comp : Components)
 	{
 		if (comp)
 		{
-			comp->Render(shader, WorldCamera);
+			comp->Render(shader);
 		}
 	}
 }

@@ -17,19 +17,23 @@ public:
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 	~Camera();
 
-	glm::mat4 GetViewMatrix();
 	void PanCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void Refocus(Asset* InSelection);
 
+
+	/* GETTERS */
 	glm::vec3 GetPosition();
 	glm::vec3 GetFrontCameraDirection();
 	glm::vec3 GetUpCameraDirection();
 	glm::vec3 GetRightCameraDirection();
-
-	void SetProjection(glm::mat4 InProjection);
+	void UpdatePerspective(glm::vec2 FrameSize);
+	void UpdateFieldOfView(float InFOV);
+	float GetFieldOfView();
 	glm::mat4 GetProjection();
+	glm::mat4 GetViewMatrix();
+	glm::mat4 GetViewProjection();
 
 private:
 	/* Camera World Attributes */
@@ -48,8 +52,12 @@ private:
 	GLfloat OrbitSpeed;
 	GLfloat CameraNearDistance;
 
-	void updateCameraVectors();
+	void UpdateCameraVectors();
 
+	float NearClip;
+	float FarClip;
+	float FieldOfView;
 
 	glm::mat4 Projection;
+	glm::mat4 ViewMatrix;
 };

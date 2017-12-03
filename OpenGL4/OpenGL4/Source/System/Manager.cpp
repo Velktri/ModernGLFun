@@ -44,9 +44,9 @@ void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shade
 	{
 		CurrentShader = InCurrentShader;
 		CurrentShader->Use();
+		
 
-		glUniformMatrix4fv(CurrentShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
-		glUniformMatrix4fv(CurrentShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
+		glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
 		glm::vec3 pos = WorldCamera->GetPosition();
 		glUniform3f(CurrentShader->ShaderList["cameraPos"], pos.x, pos.y + 1, pos.z);
 		//glm::vec3 pos = WorldCamera->GetPosition();
@@ -91,18 +91,17 @@ void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader)
 	for each (Asset* mod in AssetMap[Shader])
 	{
 		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
-		mod->Render(Shader, WorldCamera);
+		mod->Render(Shader);
 	}
 }
 
 void Manager::SetSystemShader(Camera* WorldCamera)
 {
 	SceneShader->Use();
-	glUniformMatrix4fv(SceneShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
-	glUniformMatrix4fv(SceneShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
+	glUniformMatrix4fv(SceneShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
 }
 
-void Manager::BuildAsset(std::string path)
+Asset* Manager::BuildAsset(std::string path)
 {
 	Asset* SpawnedAsset = NULL;
 	if (path == "")
@@ -117,6 +116,8 @@ void Manager::BuildAsset(std::string path)
 	}
 
 	AddAssetToPool(SpawnedAsset);
+
+	return SpawnedAsset;
 }
 
 void Manager::BuildPrimative(Primatives InType)
@@ -142,8 +143,8 @@ void Manager::BuildPrimative(Primatives InType)
 			SpawnedAsset->Name = std::string("Cylinder_" + AssetNum);
 			break;
 		case Curve:
-			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/plane.obj");
-			//SpawnedAsset->Name = std::string("Plane_" + AssetNum);
+			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/curve.obj");
+			//SpawnedAsset->Name = std::string("Curve_" + AssetNum);
 			break;
 		case Smooth:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/smoothSphere.obj");
@@ -161,8 +162,7 @@ void Manager::BuildPrimative(Primatives InType)
 void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader)
 {
 	LightShader->Use();
-	glUniformMatrix4fv(LightShader->ShaderList["view"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewMatrix()));
-	glUniformMatrix4fv(LightShader->ShaderList["projection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetProjection()));
+	glUniformMatrix4fv(LightShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
 }
 
 void Manager::Draw(Shader* shader)

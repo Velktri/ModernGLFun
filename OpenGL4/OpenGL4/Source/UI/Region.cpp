@@ -161,8 +161,6 @@ void Container::SceneRegion()
 		}
 		else
 		{
-			glViewport(0, 0, SceneSize.x, SceneSize.y);
-
 			if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
 			{
 				glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
@@ -214,6 +212,7 @@ void Container::MainMenuRegion()
 			if (ImGui::Selectable("Cut")) { printf("Pressed Cut!\n"); }
 			if (ImGui::Selectable("Copy")) { printf("Pressed Copy!\n"); }
 			if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
+			// @TODO: add VR options
 			ImGui::EndPopup();
 		}
 	EndStyledMenuBar();
