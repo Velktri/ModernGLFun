@@ -1,9 +1,12 @@
 #include "Camera.h"
 #include "Models\Asset.h"
+#include "FrameBuffer.h"
 #include <iostream>
+#include "Universe.h"
 
-Camera::Camera(glm::vec3 position)
+Camera::Camera(Universe* InUniverse, glm::vec3 position)
 {
+	OwningUniverse = InUniverse;
 	WorldPosition = position;
 	WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	FocusPoint = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -22,6 +25,8 @@ Camera::Camera(glm::vec3 position)
 
 Camera::~Camera()
 {
+	if (SceneFrame) { SceneFrame->~FrameBuffer(); }
+	if (PickerFrame) { PickerFrame->~FrameBuffer(); }
 }
 
 void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime)
@@ -106,6 +111,27 @@ void Camera::Refocus(Asset* InSelection)
 }
 
 
+FrameBuffer* Camera::RenderCameraFrame(glm::vec2 InFrameSize, bool bRenderScene /* @TODO: Change to enum later */)
+{
+	UpdatePerspective(InFrameSize);
+	if (bRenderScene)
+	{
+		if (!SceneFrame)
+		{
+			SceneFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
+		}
+		SceneFrame->RenderWorldFrame(this, OwningUniverse->ActiveWorld, InFrameSize);
+		return SceneFrame;
+	}
+
+	if (!PickerFrame)
+	{
+		PickerFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
+	}
+	PickerFrame->RenderColorPick(this, OwningUniverse->ActiveWorld, InFrameSize);
+	return PickerFrame;
+}
+
 glm::vec3 Camera::GetPosition() { return WorldPosition; }
 glm::vec3 Camera::GetFrontCameraDirection() { return ForwardVector; }
 glm::vec3 Camera::GetUpCameraDirection() { return UpVector; }
@@ -114,3 +140,4 @@ float Camera::GetFieldOfView() { return FieldOfView; }
 glm::mat4 Camera::GetProjection() { return Projection; }
 glm::mat4 Camera::GetViewMatrix() { return ViewMatrix; }
 glm::mat4 Camera::GetViewProjection() { return Projection * ViewMatrix; }
+Universe* Camera::GetOwningUniverse() { return OwningUniverse; }

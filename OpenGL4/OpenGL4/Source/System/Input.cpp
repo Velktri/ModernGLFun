@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <imgui.h>
+#include "Universe.h"
 #include "World.h"
 #include "Camera.h"
 #include "Timer.h"
@@ -7,9 +8,9 @@
 #include "UI/Layout.h"
 #include "UI/Region.h"
 
-Input::Input(World* InWorld, Manager* InManager)
+Input::Input(Universe* InUniverse, Manager* InManager)
 {
-	world = InWorld;
+	MyUniverse = InUniverse;
 	MyManager = InManager;
 	bLeftIsPressed = false;
 	bSelectionRequest = false;
@@ -43,7 +44,7 @@ bool Input::ExecuteInput(Region* InActiveRegion)
 	{
 		if (windowEvent.type == SDL_MOUSEWHEEL && SceneHovering)
 		{
-			world->GetCamera()->ZoomCamera(windowEvent.wheel.y, world->GetTimer()->GetDeltaTime());
+			ActiveSceneRegion->GetRegionCamera()->ZoomCamera(windowEvent.wheel.y, MyUniverse->GetUniversalTimer()->GetDeltaTime());
 		}
 
 		if (windowEvent.type == SDL_QUIT)
@@ -73,11 +74,11 @@ void Input::ProcessMouseEvents()
 {
 	if (mouseState & SDL_BUTTON_LMASK)
 	{
-		world->GetCamera()->OrbitCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
+		ActiveSceneRegion->GetRegionCamera()->OrbitCamera(xRelState, yRelState, MyUniverse->GetUniversalTimer()->GetDeltaTime());
 	}
 	else if (mouseState & SDL_BUTTON_RMASK)
 	{
-		world->GetCamera()->PanCamera(xRelState, yRelState, world->GetTimer()->GetDeltaTime());
+		ActiveSceneRegion->GetRegionCamera()->PanCamera(xRelState, yRelState, MyUniverse->GetUniversalTimer()->GetDeltaTime());
 	}
 }
 
@@ -85,7 +86,7 @@ void Input::ProcessKeyEvents()
 {
 	if (keyState[SDL_SCANCODE_F])
 	{
-		world->GetCamera()->Refocus(MyManager->GetSelectedAsset());
+		ActiveSceneRegion->GetRegionCamera()->Refocus(MyManager->GetSelectedAsset());
 	}
 }
 
@@ -109,7 +110,7 @@ void Input::QuerySelection()
 
 void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
 {
-	world->CastRaytrace(glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
+	MyUniverse->ActiveWorld->CastRaytrace(glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
 						glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
 	bSelectionRequest = true;
 }

@@ -5,6 +5,8 @@
 #include "System/Manager.h"
 #include "System/World.h"
 #include "imgui_internal.h"
+#include "System/Universe.h"
+#include "System/Camera.h"
 
 // @TODO: Give proper styling to dropdown menus.
 static void ShowHelpMarker(const char* desc)
@@ -26,7 +28,8 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType)
 	OwningLayout = InLayout;
 	Type = InType;
 	bIsSceneHovered = false;
-	RenderFrame = 0;
+	RenderFrame = true;
+	ActiveCamera = GetOwningLayout()->GetUniverse()->GetCamaras().Perspective;
 
 	TypeList.push_back(RegionTypes::None);
 	TypeList.push_back(RegionTypes::MainMenu);
@@ -43,8 +46,7 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType)
 
 Region::~Region()
 {
-	if (SceneFrame) { SceneFrame->~FrameBuffer(); }
-	if (PickerFrame) { PickerFrame->~FrameBuffer(); }
+
 }
 
 bool Region::Render() { return true; }
@@ -54,7 +56,7 @@ ImVec2 Region::GetScenePosition() { return ScenePosition; }
 ImGuiWindowFlags Region::GetStyleFlags() { return ContainerStyleFlags; }
 bool Region::IsSceneHovered() { return bIsSceneHovered; }
 RegionTypes Region::GetType() { return Type; }
-
+Camera* Region::GetRegionCamera() { return ActiveCamera; }
 
 
 
@@ -126,8 +128,8 @@ void Container::SceneRegion()
 		PanelSwitcher();
 		ImGui::Indent(15.0f);
 
-		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = SceneFrame->GetFrameTexture(); };
-		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = PickerFrame->GetFrameTexture(); };
+		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = true; };
+		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = false; };
 
 		ImGui::SameLine();		 if (ImGui::Button("Cube")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
 		ImGui::SameLine();		 if (ImGui::Button("Plane")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
@@ -136,7 +138,7 @@ void Container::SceneRegion()
 		ImGui::SameLine();		 if (ImGui::Button("SmoothTest")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
 		ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Curve); };
 
-		ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetWorld()->ClearLines(); };
+		ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetUniverse()->ActiveWorld->ClearLines(); };
 
 		float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 	EndStyledMenuBar();
@@ -149,31 +151,21 @@ void Container::SceneRegion()
 	ImGui::BeginGroup();
 		ScenePosition = ImVec2(ImGui::GetCurrentWindow()->Pos.x, ImGui::GetCurrentWindow()->Pos.y + MenuSize);
 
-		if (!SceneFrame || !PickerFrame)
+		if (ActiveCamera)
 		{
-			if (!SceneFrame)
-			{
-				SceneFrame = new FrameBuffer(SceneSize.x, SceneSize.y);
-				RenderFrame = SceneFrame->GetFrameTexture();
-			}
-
-			if (!PickerFrame) { PickerFrame = new FrameBuffer(SceneSize.x, SceneSize.y); } // @TODO: PickerFrame spawned upside down, need further real time testing
-		}
-		else
-		{
-			if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
-			{
-				glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
-				coords.x -= ScenePosition.x;
-				coords.y -= ScenePosition.y;
-				//printf("%f, %f\n", coords.x, coords.y);
-				OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y), coords));
-			}
-
-			SceneFrame->RenderWorldFrame(OwningLayout->GetWorld(), glm::vec2(SceneSize.x, SceneSize.y));
+			FrameBuffer* CameraFrame = ActiveCamera->RenderCameraFrame(glm::vec2(SceneSize.x, SceneSize.y), RenderFrame);
+			ImGui::Image((GLuint*) CameraFrame->GetFrameTexture(), SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		}
 
-		ImGui::Image((GLuint*) RenderFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+		//if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
+		//{
+		//	glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
+		//	coords.x -= ScenePosition.x;
+		//	coords.y -= ScenePosition.y;
+		//	//printf("%f, %f\n", coords.x, coords.y);
+		//	OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetUniverse(), glm::vec2(SceneSize.x, SceneSize.y), coords));
+		//}
+
 		bIsSceneHovered = false;
 		if (ImGui::IsItemHovered()) { bIsSceneHovered = true; }
 	ImGui::EndGroup();

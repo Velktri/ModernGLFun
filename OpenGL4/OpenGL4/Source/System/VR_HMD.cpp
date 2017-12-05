@@ -1,13 +1,13 @@
 #include "VR_HMD.h"
 #include "Models/MeshAsset.h"
-#include "World.h"
+#include "Universe.h"
 #include "Manager.h"
 #include <string>
 
-VR_HMD::VR_HMD(World* InWorld, vr::IVRSystem* InHMD)
+VR_HMD::VR_HMD(Universe* InUniverse, vr::IVRSystem* InHMD)
 {
 	HMD = InHMD;
-	SceneWorld = InWorld;
+	SceneUniverse = InUniverse;
 
 	NearClip = 0.1f;
 	FarClip = 30.0f;
@@ -162,8 +162,8 @@ bool VR_HMD::CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, Ey
 
 void VR_HMD::CreateControllers()
 {
-	LeftController = SceneWorld->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
-	RightController = SceneWorld->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+	LeftController = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+	RightController = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
 }
 
 void VR_HMD::RenderControllerAxes()

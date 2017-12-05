@@ -9,7 +9,7 @@
 #include <openvr.h>
 
 class Asset;
-class World;
+class Universe;
 
 struct EyeFrameData
 {
@@ -23,7 +23,7 @@ struct EyeFrameData
 class VR_HMD
 {
 public:
-	VR_HMD(World* InWorld, vr::IVRSystem* InHMD);
+	VR_HMD(Universe* InUniverse, vr::IVRSystem* InHMD);
 	~VR_HMD();
 
 
@@ -40,7 +40,7 @@ public:
 
 private:
 	vr::IVRSystem* HMD;
-	World* SceneWorld;
+	Universe* SceneUniverse;
 
 	glm::mat4 Projection_Left;
 	glm::mat4 Projection_Right;

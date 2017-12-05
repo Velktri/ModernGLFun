@@ -5,13 +5,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class World;
+class Universe;
 class Manager;
 class Region;
 
 class Input {
 public:
-	Input(World* InWorld, Manager* InManager);
+	Input(Universe* InUniverse, Manager* InManager);
 	~Input();
 	void UpdateInput();
 	bool ExecuteInput(Region* InActiveRegion);
@@ -23,7 +23,7 @@ private:
 	const Uint8* keyState;
 	Uint32 mouseState;
 	Uint32 relativeMouseState;
-	World* world;
+	Universe* MyUniverse;
 	Manager* MyManager;
 	Region* ActiveSceneRegion;
 

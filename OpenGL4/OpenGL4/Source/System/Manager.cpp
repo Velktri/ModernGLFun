@@ -86,7 +86,7 @@ void Manager::BuildShaders()
 	UserShaderList.push_back(DefaultShader);
 }
 
-void Manager::DrawAssets(Camera* WorldCamera, Shader* Shader)
+void Manager::DrawAssets(Shader* Shader)
 {
 	for each (Asset* mod in AssetMap[Shader])
 	{
@@ -212,8 +212,6 @@ void Manager::AddAssetToPool(Asset* InAsset)
 	}
 }
 
-
-
 void Manager::BuildTexture(std::string path)
 {
 	TextureList.push_back(new Texture(path));
@@ -223,21 +221,6 @@ void Manager::BuildLights()
 {
 	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
 }
-
-std::vector<Element*> Manager::GetMeshList() { return MeshList; }
-Shader* Manager::GetSceneShader() { return SceneShader; }
-Shader* Manager::GetAssetShader() { return AssetShader; }
-Shader* Manager::GetLightShader() { return LightShader; }
-Shader* Manager::GetScreenShader() { return ScreenShader; }
-Shader* Manager::GetDefaultShader() { return DefaultShader; }
-Shader* Manager::GetCurrentShader() { return CurrentShader; }
-std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
-Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
-std::vector<Asset*> Manager::GetAssets() { return AssetList; }
-std::vector<Light*> Manager::GetLights() { return LightsList; }
-void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
-void Manager::SetPickerShader() { CurrentShader = PickerShader; }
-void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
 
 Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
 {
@@ -311,3 +294,22 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 //	}
 //	return textures;
 //}
+
+
+
+
+
+std::vector<Element*> Manager::GetMeshList() { return MeshList; }
+Shader* Manager::GetSceneShader() { return SceneShader; }
+Shader* Manager::GetAssetShader() { return AssetShader; }
+Shader* Manager::GetLightShader() { return LightShader; }
+Shader* Manager::GetScreenShader() { return ScreenShader; }
+Shader* Manager::GetDefaultShader() { return DefaultShader; }
+Shader* Manager::GetCurrentShader() { return CurrentShader; }
+std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
+Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
+std::vector<Asset*> Manager::GetAssets() { return AssetList; }
+std::vector<Light*> Manager::GetLights() { return LightsList; }
+void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
+void Manager::SetPickerShader() { CurrentShader = PickerShader; }
+void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }

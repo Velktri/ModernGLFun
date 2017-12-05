@@ -8,7 +8,7 @@
 #include <imgui.h>
 #include "imgui_impl_sdl_gl3.h"
 
-class World;
+class Universe;
 class Manager;
 class Region;
 class FrameBuffer;
@@ -81,13 +81,13 @@ private:
 class Layout
 {
 public:
-	Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path = "");
+	Layout(SDL_Window* InWindow, Manager* InManager, Universe* InUniverse, Input* InInput, std::string path = "");
 	~Layout();
 
 	bool RenderLayout();
 	void ShutDown();
 
-	World* GetWorld();
+	Universe* GetUniverse();
 	Input* GetInput();
 	Manager* GetManager();
 	Region* GetHoveredRegion();
@@ -106,7 +106,7 @@ public:
 
 private:
 	SDL_Window* Window;
-	World* MyWorld;
+	Universe* MyUniverse;
 	ImVec2 WindowDimensions;
 	Region* HoveredRegion;
 	Manager* MyManager;

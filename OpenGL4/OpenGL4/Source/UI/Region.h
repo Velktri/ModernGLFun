@@ -9,6 +9,7 @@
 class Layout;
 class TreeNode;
 class FrameBuffer;
+class Camera;
 
 
 class Region
@@ -25,6 +26,7 @@ public:
 	ImGuiWindowFlags GetStyleFlags();
 	int GetRegionID();
 	RegionTypes GetType();
+	Camera* GetRegionCamera();
 
 	bool IsSceneHovered();
 
@@ -39,9 +41,8 @@ protected:
 	bool bIsSceneHovered;
 	RegionTypes Type;
 
-	FrameBuffer* SceneFrame;
-	FrameBuffer* PickerFrame;
-	GLuint RenderFrame;
+	Camera* ActiveCamera;
+	bool RenderFrame;
 
 	ImGuiWindowFlags ContainerStyleFlags;
 };

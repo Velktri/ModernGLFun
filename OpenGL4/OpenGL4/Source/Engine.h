@@ -22,7 +22,7 @@ public:
 private:
 	Engine() {}
 
-	class World* MyWorld;
+	class Universe* MyUniverse;
 	class Layout* UILayout;
 	class Input* MyInput;
 	class Manager* MyManager;

@@ -9,11 +9,11 @@
 #include <queue>
 
 
-Layout::Layout(SDL_Window* InWindow, Manager* InManager, World* InWorld, Input* InInput, std::string path)
+Layout::Layout(SDL_Window* InWindow, Manager* InManager, Universe* InUniverse, Input* InInput, std::string path)
 {
 	Window = InWindow;
 	MyManager = InManager;
-	MyWorld = InWorld;
+	MyUniverse = InUniverse;
 	MyInput = InInput;
 
 	ResizingNode = ResizingData();
@@ -150,6 +150,7 @@ void Layout::UpdateWindowSize()
 void Layout::ResizeRegions()
 {
 	// @TODO: try getting the growth/shrink by % and changing regions by that amount,
+	// @TODO: destroy and recreate camera frame buffers when resizing.
 }
 
 ImVec2 Layout::RefreshContainerSizes(TreeNode* InNode)
@@ -269,7 +270,7 @@ TreeNode* Layout::BuildNode(std::string NodeString)
 	return NewNode;
 }
 
-World* Layout::GetWorld() { return MyWorld; }
+Universe* Layout::GetUniverse() { return MyUniverse; }
 Input* Layout::GetInput() { return MyInput; }
 Manager* Layout::GetManager() { return MyManager; }
 Region* Layout::GetHoveredRegion() { return HoveredRegion; }

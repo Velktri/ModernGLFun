@@ -29,41 +29,41 @@ FrameBuffer::~FrameBuffer()
 	glDeleteFramebuffers(1, &Framebuffer);
 }
 
-void FrameBuffer::RenderWorldFrame(World* InWorld, glm::vec2 FrameSize)
+void FrameBuffer::RenderWorldFrame(Camera* InCamera, World* InWorld, glm::vec2 FrameSize)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glViewport(0, 0, FrameSize.x, FrameSize.y);
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	InWorld->RenderWorld(FrameSize);
+	InWorld->RenderWorld(InCamera, FrameSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int FrameBuffer::RenderColorPick(World* InWorld, glm::vec2 FrameSize, glm::vec2 pickerCoords) // @TODO: expand to use box select in future.
+void FrameBuffer::RenderColorPick(Camera* InCamera, World* InWorld, glm::vec2 FrameSize/*, glm::vec2 pickerCoords*/) // @TODO: expand to use box select in future. Move color selection to different function.
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glViewport(0, 0, FrameSize.x, FrameSize.y);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	InWorld->RenderColorWorld(FrameSize);
+	InWorld->RenderColorWorld(InCamera, FrameSize);
 
-	glFlush();
-	glFinish();
+	//glFlush();
+	//glFinish();
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	unsigned char data[4];
-	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
+	//unsigned char data[4];
+	//glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	return (data[0] + data[1] * 256 + data[2] * 256 * 256);
+	//return (data[0] + data[1] * 256 + data[2] * 256 * 256);
 }
 
 GLuint FrameBuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil) {

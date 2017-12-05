@@ -5,14 +5,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 class World;
+class Camera;
 
 class FrameBuffer {
 public:
-	FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y);
+	FrameBuffer(GLuint InFrameSize_X = 1920.0f, GLuint InFrameSize_Y = 1080.0f);
 	~FrameBuffer();
 
-	void RenderWorldFrame(World* world, glm::vec2 FrameSize); 
-	int RenderColorPick(World* world, glm::vec2 FrameSize, glm::vec2 pickerCoords);
+	void RenderWorldFrame(Camera* InCamera, World* world, glm::vec2 FrameSize); 
+	void RenderColorPick(Camera* InCamera, World* world, glm::vec2 FrameSize/*, glm::vec2 pickerCoords*/);
 	GLuint GetFrameTexture();
 
 

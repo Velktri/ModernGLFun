@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "UI\Layout.h"
-#include "System\World.h"
+#include "System\Universe.h"
 #include "System\Timer.h"
 #include "System\Input.h"
 #include "System\FrameBuffer.h"
@@ -19,7 +19,7 @@ bool Engine::Init()
 		return false;
 	}
 
-	/* Init SteamVR */
+	/* Init SteamVR */ /* @TODO: Consider Init in the Universe class instead. */
 	bInitVR = vr::VR_IsHmdPresent() /* || other VR options*/;
 	if (bInitVR)
 	{
@@ -70,17 +70,17 @@ bool Engine::Init()
 	glEnable(GL_DEPTH_TEST);
 
 	MyManager = new Manager();
-	MyWorld = new World(MyManager);
-	if (bInitVR) { MyWorld->InitVR(VR_HMD); }
-	MyInput = new Input(MyWorld, MyManager);
-	UILayout = new Layout(MainWindow, MyManager, MyWorld, MyInput);
+	MyUniverse = new Universe(MyManager);
+	if (bInitVR) { MyUniverse->InitVR(VR_HMD); }
+	MyInput = new Input(MyUniverse, MyManager);
+	UILayout = new Layout(MainWindow, MyManager, MyUniverse, MyInput);
 
-	if (MyManager && MyWorld && MyInput && UILayout)
+	if (MyManager && MyUniverse && MyInput && UILayout)
 	{
-		if (!MyManager) { printf("Error: Engine Failed to initialize Manager.\n"); }
-		if (!MyWorld)   { printf("Error: Engine Failed to initialize World.\n"); }
-		if (!MyInput)   { printf("Error: Engine Failed to initialize Input.\n"); }
-		if (!UILayout)  { printf("Error: Engine Failed to initialize UILayout.\n"); }
+		if (!MyManager)		{ printf("Error: Engine Failed to initialize Manager.\n"); }
+		if (!MyUniverse)	{ printf("Error: Engine Failed to initialize Universe.\n"); }
+		if (!MyInput)		{ printf("Error: Engine Failed to initialize Input.\n"); }
+		if (!UILayout)		{ printf("Error: Engine Failed to initialize UILayout.\n"); }
 	}
 
 	return true;
@@ -88,10 +88,10 @@ bool Engine::Init()
 
 void Engine::Run()
 {
-	MyWorld->GetTimer()->Start();
+	MyUniverse->GetUniversalTimer()->Start();
 	while (true)
 	{
-		MyWorld->GetTimer()->Update();
+		MyUniverse->GetUniversalTimer()->Update();
 		MyInput->UpdateInput();
 
 		if (!MyInput->ExecuteInput(UILayout->GetHoveredRegion())) { break; }
@@ -103,10 +103,10 @@ void Engine::Run()
 
 void Engine::CleanUp()
 {
-	if (MyWorld)   { MyWorld->~World(); }
-	if (MyManager) { MyManager->~Manager(); }
-	if (UILayout)  { UILayout->~Layout(); }
-	if (MyInput)   { MyInput->~Input(); }
+	if (MyUniverse) { MyUniverse->~Universe(); }
+	if (MyManager)  { MyManager->~Manager(); }
+	if (UILayout)   { UILayout->~Layout(); }
+	if (MyInput)    { MyInput->~Input(); }
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(MainWindow);

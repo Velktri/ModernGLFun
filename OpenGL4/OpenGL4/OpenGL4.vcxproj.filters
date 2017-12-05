@@ -114,6 +114,9 @@
     <ClCompile Include="Source\System\VR_HMD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\System\Universe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Components\ComponentBase.h">
@@ -207,6 +210,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\System\VR_HMD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\System\Universe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,7 +17,7 @@ public:
 	~Manager();
 
 	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
-	void DrawAssets(Camera* WorldCamera, Shader* AssetShader);
+	void DrawAssets(Shader* AssetShader);
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
 	void ShadeLights(Camera* WorldCamera, Shader* LightShader);

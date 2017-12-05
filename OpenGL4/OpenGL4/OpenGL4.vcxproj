@@ -178,6 +178,7 @@
     <ClCompile Include="Source\UI\Layout.cpp" />
     <ClCompile Include="Source\UI\Region.cpp" />
     <ClCompile Include="Source\System\VR_HMD.cpp" />
+    <ClCompile Include="Source\System\Universe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Components\ComponentBase.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="Source\UI\Layout.h" />
     <ClInclude Include="Source\UI\Region.h" />
     <ClInclude Include="Source\System\VR_HMD.h" />
+    <ClInclude Include="Source\System\Universe.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Preferences\Default\DefaultLayout.lo" />

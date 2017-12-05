@@ -1,6 +1,5 @@
 #include "World.h"
 #include "Camera.h"
-#include "VR_HMD.h"
 #include "Manager.h"
 #include "Timer.h"
 #include "ModelData\Grid.h"
@@ -14,14 +13,10 @@
 World::World(Manager* InManager)
 {
 	MyManager = InManager;
-	UserCamera = new Camera(glm::vec3(0.0f, 10.0f, 20.0f));
 	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
 	SelectionGizmo = new Gizmo();
 	SystemElements.push_back(GridFloor);
 	SystemElements.push_back(SelectionGizmo);
-
-	WorldClock = new Timer();
-	bInitVR = false;
 }
 
 World::~World()
@@ -30,31 +25,36 @@ World::~World()
 	{
 		e->~Element();
 	}
-	UserCamera->~Camera();
-	WorldClock->~Timer();
 }
 
-void World::InitVR(vr::IVRSystem* InHMD)
+void World::RenderWorld(Camera* InCamera, glm::vec2 FrameSize)
 {
-	VRCamera = new VR_HMD(this, InHMD);
-	bInitVR = true;
+	/* System Rendering */
+	MyManager->SetSystemShader(InCamera);
+	for each (Element* e in SystemElements)
+	{
+		e->Render(MyManager->GetSceneShader());
+	}
+
+
+	/* User Rendering */
+	MyManager->SetCurrentShader(NULL);
+	for each (Shader* s in MyManager->GetUserShaderList())
+	{
+		MyManager->ShadeAssets(InCamera, GetLights(), s);
+		MyManager->DrawAssets(s);
+	}
+
+	MyManager->ShadeLights(InCamera, MyManager->GetLightShader());
+	MyManager->Draw(MyManager->GetLightShader());
 }
 
-void World::RenderWorld(glm::vec2 FrameSize)
+void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 {
-	UserCamera->UpdatePerspective(FrameSize);
-	RenderSystemEntities();
-	RenderUserEntities();
-	if (bInitVR) { VRCamera->Render(); }
-}
-
-void World::RenderColorWorld(glm::vec2 FrameSize)
-{
-	UserCamera->UpdatePerspective(FrameSize);
 	MyManager->SetPickerShader();
 	Shader* shader = MyManager->GetCurrentShader();
 	shader->Use();
-	glUniformMatrix4fv(shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(glm::scale(UserCamera->GetProjection(), glm::vec3(1, -1, 1)) * UserCamera->GetViewMatrix()));
+	glUniformMatrix4fv(shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(glm::scale(InCamera->GetProjection(), glm::vec3(1, -1, 1)) * InCamera->GetViewMatrix()));
 
 	for each (Asset* mod in MyManager->GetAssets())
 	{
@@ -80,53 +80,29 @@ void World::RenderColorWorld(glm::vec2 FrameSize)
 */
 Asset* World::CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize)
 {
-	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
+	//printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
 
-	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
-	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
+	//float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
+	//float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
+	//float z = 1.0f;
+	//glm::vec3 ray_nds = glm::vec3(x, y, z);
 
-	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
+	//glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
 
-	glm::vec4 ray_eye = glm::inverse(UserCamera->GetProjection()) * ray_clip;
-	ray_eye.z = -1.0f;
-	ray_eye.w = 0.0f;
+	//glm::vec4 ray_eye = glm::inverse(UserCamera->GetProjection()) * ray_clip;
+	//ray_eye.z = -1.0f;
+	//ray_eye.w = 0.0f;
 
-	glm::vec4 a = glm::vec4(glm::inverse(UserCamera->GetViewMatrix()) * ray_eye);
-	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
-	ray_wor = glm::normalize(ray_wor);
+	//glm::vec4 a = glm::vec4(glm::inverse(UserCamera->GetViewMatrix()) * ray_eye);
+	//glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
+	//ray_wor = glm::normalize(ray_wor);
 
-	glm::vec3 lStart = UserCamera->GetPosition();
-	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
+	//glm::vec3 lStart = UserCamera->GetPosition();
+	//glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
 
-	SystemElements.push_back(new Line(lStart, lEnd));
+	//SystemElements.push_back(new Line(lStart, lEnd));
 
 	return NULL;
-}
-
-void World::RenderSystemEntities()
-{
-	MyManager->SetSystemShader(UserCamera);
-	for each (Element* e in SystemElements)
-	{
-		e->Render(MyManager->GetSceneShader());
-	}
-}
-
-void World::RenderUserEntities()
-{
-	/* Draw Assets */
-	MyManager->SetCurrentShader(NULL);
-	for each (Shader* s in MyManager->GetUserShaderList())
-	{
-		MyManager->ShadeAssets(UserCamera, GetLights(), s);
-		MyManager->DrawAssets(UserCamera, s);
-	}
-
-	/* Draw Lights */
-	MyManager->ShadeLights(UserCamera, MyManager->GetLightShader());
-	MyManager->Draw(MyManager->GetLightShader());
 }
 
 void World::ClearLines()
@@ -142,7 +118,5 @@ void World::ClearLines()
 
 
 
-Camera* World::GetCamera() { return UserCamera; }
 std::vector<Light*> World::GetLights() { return MyManager->GetLights(); }
 Manager* World::GetManager() { return MyManager; }
-Timer* World::GetTimer() { return WorldClock; }

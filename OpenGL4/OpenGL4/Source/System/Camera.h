@@ -11,16 +11,19 @@
 
 
 class Asset;
+class FrameBuffer;
+class Universe;
 
 class Camera {
 public:
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
+	Camera(Universe* InUniverse, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 	~Camera();
 
 	void PanCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void Refocus(Asset* InSelection);
+	FrameBuffer* RenderCameraFrame(glm::vec2 InFrameSize, bool bRenderScene);
 
 
 	/* GETTERS */
@@ -34,6 +37,7 @@ public:
 	glm::mat4 GetProjection();
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetViewProjection();
+	Universe* GetOwningUniverse();
 
 private:
 	/* Camera World Attributes */
@@ -52,6 +56,9 @@ private:
 	GLfloat OrbitSpeed;
 	GLfloat CameraNearDistance;
 
+	FrameBuffer* SceneFrame;
+	FrameBuffer* PickerFrame;
+
 	void UpdateCameraVectors();
 
 	float NearClip;
@@ -60,4 +67,6 @@ private:
 
 	glm::mat4 Projection;
 	glm::mat4 ViewMatrix;
+
+	Universe* OwningUniverse;
 };
