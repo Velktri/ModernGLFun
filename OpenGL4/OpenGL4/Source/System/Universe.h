@@ -41,7 +41,7 @@ public:
 	std::vector<World*> Worlds;
 	World* ActiveWorld;
 
-	void InitVR(vr::IVRSystem* InHMD);
+	void InitVR();
 
 	/* GETTERS */
 	Timer* GetUniversalTimer();
@@ -54,6 +54,5 @@ private:
 	Timer* UniversalTimer;
 	void InitCameras();
 	void InitWorlds();
-
 };
 

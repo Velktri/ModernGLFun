@@ -21,7 +21,7 @@ public:
 	~World();
 
 	//void CreateCurve();
-	Asset* CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize);
+	Asset* CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize);
 
 	void RenderWorld(Camera* InCamera, glm::vec2 FrameSize);
 	void RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize);

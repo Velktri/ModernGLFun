@@ -45,9 +45,20 @@ void Universe::InitWorlds()
 }
 
 
-void Universe::InitVR(vr::IVRSystem* InHMD)
+void Universe::InitVR()
 {
-	UserCameras.VRCamera = new VR_HMD(this, InHMD);
+	vr::EVRInitError VRError = vr::VRInitError_None;
+	class vr::IVRSystem* HMD = vr::VR_Init(&VRError, vr::VRApplication_Scene);
+
+	if (VRError != vr::VRInitError_None)
+	{
+		HMD = NULL;
+		char buf[1024];
+		sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(VRError));
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+	}
+
+	UserCameras.VRCamera = new VR_HMD(this, HMD);
 }
 
 

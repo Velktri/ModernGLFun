@@ -19,23 +19,6 @@ bool Engine::Init()
 		return false;
 	}
 
-	/* Init SteamVR */ /* @TODO: Consider Init in the Universe class instead. */
-	bInitVR = vr::VR_IsHmdPresent() /* || other VR options*/;
-	if (bInitVR)
-	{
-		VRError = vr::VRInitError_None;
-		VR_HMD = vr::VR_Init(&VRError, vr::VRApplication_Scene);
-
-		if (VRError != vr::VRInitError_None)
-		{
-			VR_HMD = NULL;
-			char buf[1024];
-			sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(VRError));
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
-			return false;
-		}
-	}
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -71,7 +54,7 @@ bool Engine::Init()
 
 	MyManager = new Manager();
 	MyUniverse = new Universe(MyManager);
-	if (bInitVR) { MyUniverse->InitVR(VR_HMD); }
+	if (vr::VR_IsHmdPresent() /* || other VR options*/) { MyUniverse->InitVR(); }
 	MyInput = new Input(MyUniverse, MyManager);
 	UILayout = new Layout(MainWindow, MyManager, MyUniverse, MyInput);
 

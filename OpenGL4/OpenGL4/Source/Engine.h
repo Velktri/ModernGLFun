@@ -30,10 +30,6 @@ private:
 	SDL_Window* MainWindow;
 	SDL_GLContext context;
 
-	class vr::IVRSystem* VR_HMD;
-	bool bInitVR;
-	vr::EVRInitError VRError;
-
 	GLuint WIDTH;
 	GLuint HEIGHT;
 };

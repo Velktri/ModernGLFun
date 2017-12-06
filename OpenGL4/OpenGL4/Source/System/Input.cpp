@@ -110,7 +110,7 @@ void Input::QuerySelection()
 
 void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
 {
-	MyUniverse->ActiveWorld->CastRaytrace(glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
+	MyUniverse->ActiveWorld->CastRaytrace(MyUniverse->GetCamaras().Perspective, glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
 						glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
 	bSelectionRequest = true;
 }

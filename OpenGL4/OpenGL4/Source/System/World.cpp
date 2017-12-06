@@ -78,29 +78,29 @@ void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 
    @TODO: split into two functions. one to change coords from device to world space and other to ray cast.
 */
-Asset* World::CastRaytrace(glm::vec2 DeviceCoords, glm::vec2 SceneSize)
+Asset* World::CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize)
 {
-	//printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
+	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
 
-	//float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
-	//float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
-	//float z = 1.0f;
-	//glm::vec3 ray_nds = glm::vec3(x, y, z);
+	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
+	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
+	float z = 1.0f;
+	glm::vec3 ray_nds = glm::vec3(x, y, z);
 
-	//glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
+	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
 
-	//glm::vec4 ray_eye = glm::inverse(UserCamera->GetProjection()) * ray_clip;
-	//ray_eye.z = -1.0f;
-	//ray_eye.w = 0.0f;
+	glm::vec4 ray_eye = glm::inverse(InCamera->GetProjection()) * ray_clip;
+	ray_eye.z = -1.0f;
+	ray_eye.w = 0.0f;
 
-	//glm::vec4 a = glm::vec4(glm::inverse(UserCamera->GetViewMatrix()) * ray_eye);
-	//glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
-	//ray_wor = glm::normalize(ray_wor);
+	glm::vec4 a = glm::vec4(glm::inverse(InCamera->GetViewMatrix()) * ray_eye);
+	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
+	ray_wor = glm::normalize(ray_wor);
 
-	//glm::vec3 lStart = UserCamera->GetPosition();
-	//glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
+	glm::vec3 lStart = InCamera->GetPosition();
+	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
 
-	//SystemElements.push_back(new Line(lStart, lEnd));
+	SystemElements.push_back(new Line(lStart, lEnd));
 
 	return NULL;
 }
