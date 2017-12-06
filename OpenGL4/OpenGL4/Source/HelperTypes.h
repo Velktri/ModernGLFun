@@ -28,6 +28,6 @@ enum Primatives
 	Plane,
 	Sphere,
 	Cylinder,
-	Curve,
+	ECurve,
 	Smooth // @TODO: temp, change later when working with normals.
 };

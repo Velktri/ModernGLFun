@@ -25,6 +25,23 @@ void MeshComponent::Render(Shader* shader)
 	ComponentBase::Render(shader);
 }
 
+void MeshComponent::SetMesh(Element* InElement)
+{
+	if (InElement)
+	{
+		//Manager* MyManager = GetParentAsset()->GetManager();
+		//if (MyManager)
+		//{
+		//	MeshData = GetParentAsset()->GetManager()->CheckPool<Element>(path);
+		//	if (!MeshData)
+		//	{
+		//		MeshData = MyManager->SpawnToPool<Element>(path);
+		//	}
+		//}
+		MeshData = InElement;
+	}
+}
+
 void MeshComponent::InitAndSet(std::string path)
 {
 	if (path != "" && GetParentAsset())

@@ -13,12 +13,13 @@ public:
 	~ComponentBase();
 
 	void AddComponent(ComponentBase* InComponent);
+	virtual void Render(Shader* shader);
+
 
 	/** GETTERS - SETTERS */
 	std::string GetName();
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
-	virtual void Render(Shader* shader);
 
 protected:
 	std::string Name;

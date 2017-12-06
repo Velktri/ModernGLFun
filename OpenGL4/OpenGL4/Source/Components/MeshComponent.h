@@ -1,7 +1,7 @@
 #pragma once
 #include "Components/ComponentBase.h"
 
-class Mesh;
+class Element;
 
 class MeshComponent : public ComponentBase
 {
@@ -10,9 +10,10 @@ public:
 	~MeshComponent();
 
 	virtual void Render(Shader* shader) override;
+	void SetMesh(Element* InElement);
 
 private:
-	Mesh* MeshData;
+	Element* MeshData;
 
 	void InitAndSet(std::string path);
 };

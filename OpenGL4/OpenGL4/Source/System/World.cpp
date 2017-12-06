@@ -4,7 +4,6 @@
 #include "Timer.h"
 #include "ModelData\Grid.h"
 #include "ModelData\Line.h"
-#include "ModelData\Curve.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
 #include "Lights\Light.h"
@@ -66,12 +65,6 @@ void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 		mod->Render(shader);
 	}
 }
-
-// @TODO: rebuild for assets
-//void World::CreateCurve()  
-//{
-//	SystemElements.push_back(new Curve());
-//}
 
 /* @TODO: Ray Trace is aiming slightly lower than it should. 
 		  The borders between regions are throwing the positions off by a couple of pixels

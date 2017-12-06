@@ -136,7 +136,7 @@ void Container::SceneRegion()
 		ImGui::SameLine();		 if (ImGui::Button("Sphere")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
 		ImGui::SameLine();		 if (ImGui::Button("Cylinder")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
 		ImGui::SameLine();		 if (ImGui::Button("SmoothTest")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
-		ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Curve); };
+		ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::ECurve); };
 
 		ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetUniverse()->ActiveWorld->ClearLines(); };
 

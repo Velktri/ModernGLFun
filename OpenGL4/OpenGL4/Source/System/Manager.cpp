@@ -5,6 +5,8 @@
 #include "ModelData/Texture.h"
 #include "ModelData/Mesh.h"
 #include "ModelData/Element.h"
+#include "ModelData/Curve.h"
+#include "Components/MeshComponent.h"
 #include "Lights/Light.h"
 #include <iostream>
 
@@ -142,9 +144,10 @@ void Manager::BuildPrimative(Primatives InType)
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/cylinder.obj");
 			SpawnedAsset->Name = std::string("Cylinder_" + AssetNum);
 			break;
-		case Curve:
-			//SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/curve.obj");
-			//SpawnedAsset->Name = std::string("Curve_" + AssetNum);
+		case ECurve:
+			SpawnedAsset = new MeshAsset(AssetList.size(), this);
+			dynamic_cast<MeshComponent*>(SpawnedAsset->GetRoot()->GetComponents()[0])->SetMesh(new Curve());
+			SpawnedAsset->Name = std::string("Curve_" + AssetNum);
 			break;
 		case Smooth:
 			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/smoothSphere.obj");
