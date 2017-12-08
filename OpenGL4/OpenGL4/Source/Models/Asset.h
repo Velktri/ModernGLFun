@@ -39,6 +39,7 @@ public:
 	glm::vec3 GetOrigin();
 	GLuint GetAssetID();
 	glm::mat4 GetWorldSpace();
+	void SetWorldSpace(glm::mat4 InWorldSpace);
 	ComponentBase* GetRoot();
 	Manager* GetManager();
 

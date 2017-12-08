@@ -47,6 +47,7 @@ public:
 	Timer* GetUniversalTimer();
 	Manager* GetManager();
 	CameraSet GetCamaras();
+	void RenderVR();
 
 private:
 	CameraSet UserCameras;

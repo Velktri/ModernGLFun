@@ -20,6 +20,20 @@ struct EyeFrameData
 	GLuint ResolveFramebufferId;
 };
 
+struct VRController
+{
+	Asset* ControllerModel;
+	vr::TrackedDeviceIndex_t DeviceID;
+	vr::ETrackedControllerRole ControllerRole;
+
+	VRController()
+	{
+		ControllerModel = NULL;
+		ControllerRole = vr::TrackedControllerRole_Invalid;
+		DeviceID = 17;
+	}
+};
+
 class VR_HMD
 {
 public:
@@ -63,8 +77,8 @@ private:
 	int ValidPoseCount = 0;
 	int TrackedControllerCount = 0;
 
-	Asset* RightController;
-	Asset* LeftController;
+	VRController RightController;
+	VRController LeftController;
 
 	bool SetupStereoRenderTargets();
 	bool CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, EyeFrameData InEyeFrame);

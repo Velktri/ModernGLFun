@@ -44,7 +44,6 @@ void Universe::InitWorlds()
 	ActiveWorld = Worlds[0];
 }
 
-
 void Universe::InitVR()
 {
 	vr::EVRInitError VRError = vr::VRInitError_None;
@@ -59,6 +58,14 @@ void Universe::InitVR()
 	}
 
 	UserCameras.VRCamera = new VR_HMD(this, HMD);
+}
+
+void Universe::RenderVR()
+{
+	if (UserCameras.VRCamera)
+	{
+		UserCameras.VRCamera->Render();
+	}
 }
 
 

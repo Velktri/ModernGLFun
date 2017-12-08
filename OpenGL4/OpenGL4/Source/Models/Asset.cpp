@@ -49,5 +49,11 @@ void Asset::ScaleAsset(float x, float y, float z)
 glm::vec3 Asset::GetOrigin() { return OriginPoint; }
 GLuint Asset::GetAssetID() { return AssetID; }
 glm::mat4 Asset::GetWorldSpace() { return WorldSpaceOrientation; }
+
+void Asset::SetWorldSpace(glm::mat4 InWorldSpace)
+{
+	WorldSpaceOrientation = InWorldSpace;
+}
+
 ComponentBase* Asset::GetRoot() { return Root; }
 Manager* Asset::GetManager() { return MyManager; }

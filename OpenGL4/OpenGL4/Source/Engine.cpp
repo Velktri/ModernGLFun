@@ -79,6 +79,7 @@ void Engine::Run()
 
 		if (!MyInput->ExecuteInput(UILayout->GetHoveredRegion())) { break; }
 		if (!UILayout->RenderLayout()) { break; }
+		MyUniverse->RenderVR();
 
 		SDL_GL_SwapWindow(MainWindow);
 	}
