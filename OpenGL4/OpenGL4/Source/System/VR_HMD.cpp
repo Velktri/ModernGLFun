@@ -12,9 +12,10 @@ VR_HMD::VR_HMD(Universe* InUniverse, vr::IVRSystem* InHMD)
 	NearClip = 0.1f;
 	FarClip = 30.0f;
 
-	LeftController = VRController();
-	RightController = VRController();
-	CreateControllers();
+	LeftController = VRDevice();
+	RightController = VRDevice();
+	HMDDevice = VRDevice();
+	CreateVRDevices();
 
 	Projection_Left = GetHMDMatrixProjectionEye(vr::Eye_Left);
 	Projection_Right = GetHMDMatrixProjectionEye(vr::Eye_Right);
@@ -162,9 +163,9 @@ bool VR_HMD::CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, Ey
 	return true;
 }
 
-void VR_HMD::CreateControllers()
+void VR_HMD::CreateVRDevices()
 {
-	for (vr::TrackedDeviceIndex_t TrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; TrackedDevice < vr::k_unMaxTrackedDeviceCount; ++TrackedDevice)
+	for (vr::TrackedDeviceIndex_t TrackedDevice = vr::k_unTrackedDeviceIndex_Hmd; TrackedDevice < vr::k_unMaxTrackedDeviceCount; ++TrackedDevice)
 	{
 		if (HMD->IsTrackedDeviceConnected(TrackedDevice) && 
 			HMD->GetTrackedDeviceClass(TrackedDevice) == vr::TrackedDeviceClass_Controller)
@@ -174,41 +175,52 @@ void VR_HMD::CreateControllers()
 			{
 				LeftController.ControllerRole = vr::TrackedControllerRole_LeftHand;
 				LeftController.DeviceID = TrackedDevice;
-				LeftController.ControllerModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+				LeftController.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
 			}
 			else if (HMD->GetControllerRoleForTrackedDeviceIndex(TrackedDevice) == vr::TrackedControllerRole_RightHand &&
 					 RightController.ControllerRole == vr::TrackedControllerRole_Invalid)
 			{
 				RightController.ControllerRole = vr::TrackedControllerRole_RightHand;
 				RightController.DeviceID = TrackedDevice;
-				RightController.ControllerModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+				RightController.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
 			}
+		}
+
+		if (HMD->IsTrackedDeviceConnected(TrackedDevice) &&
+			HMD->GetTrackedDeviceClass(TrackedDevice) == vr::TrackedDeviceClass_HMD)
+		{
+			HMDDevice.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRHMD.obj");
+			HMDDevice.DeviceID = TrackedDevice;
 		}
 	}
 }
 
-void VR_HMD::RenderControllerAxes()
+void VR_HMD::RenderVRDevices()
 {
 	//// don't draw controllers if somebody else has input focus
 	//if (m_pHMD->IsInputFocusCapturedByAnotherProcess())
 	//	return;
 
 	if (LeftController.ControllerRole == vr::TrackedControllerRole_Invalid ||
-		RightController.ControllerRole == vr::TrackedControllerRole_Invalid)
+		RightController.ControllerRole == vr::TrackedControllerRole_Invalid ||
+		HMDDevice.DeviceModel == NULL)
 	{
-		CreateControllers();
+		CreateVRDevices();
 	}
 
 	if (TrackedDevicePose[LeftController.DeviceID].bPoseIsValid) 
 	{ 
-		const glm::mat4& mat = DevicePose[LeftController.DeviceID];
-		LeftController.ControllerModel->SetWorldSpace(mat);
+		LeftController.DeviceModel->SetWorldSpace(DevicePose[LeftController.DeviceID]);
 	}
 
 	if (TrackedDevicePose[RightController.DeviceID].bPoseIsValid)
 	{
-		const glm::mat4& mat = DevicePose[RightController.DeviceID];
-		RightController.ControllerModel->SetWorldSpace(mat);
+		RightController.DeviceModel->SetWorldSpace(DevicePose[RightController.DeviceID]);
+	}
+
+	if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
+	{
+		HMDDevice.DeviceModel->SetWorldSpace(DevicePose[HMDDevice.DeviceID]);
 	}
 }
 
@@ -254,7 +266,7 @@ void VR_HMD::RenderHMDEyes()
 
 void VR_HMD::Render()
 {
-	RenderControllerAxes();
+	RenderVRDevices();
 	RenderHMDEyes();
 	UpdateHMDMatrixPose();
 }
