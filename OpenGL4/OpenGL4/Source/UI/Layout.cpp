@@ -219,7 +219,7 @@ void Layout::SaveLayout()
 		if (node)
 		{
 
-			OutFile << (RegionTypes) node->GetContents()->GetType() << ","
+			OutFile << static_cast<int>(node->GetContents()->GetType()) << ","
 					<< node->GetRegionSize().x << ","
 					<< node->GetRegionSize().y << ","
 					<< "0";
@@ -259,7 +259,7 @@ TreeNode* Layout::BuildNode(std::string NodeString)
 									 GeoString::ParseBool(Data[3])); // @TODO fix array sizes since position node was deleted.
 
 	TreeNode* NewNode = new TreeNode(NodeData, this);
-	if (RegionTypes(NodeData.Type == RegionTypes::Spacer))
+	if (static_cast<RegionTypes>(NodeData.Type) == RegionTypes::Spacer)
 	{
 		bool VOrientation = GeoString::ParseBool(Data[6]);
 		ImVec2 SpaceSize = (VOrientation) ? ImVec2(SplitSpacing/*std::stoi(Data[4])*/, std::stoi(Data[5])) : ImVec2(std::stoi(Data[4]), SplitSpacing/*std::stoi(Data[5])*/);

@@ -112,13 +112,13 @@ void Camera::Refocus(Asset* InSelection)
 }
 
 
-/*FrameBuffer**/GLuint Camera::RenderCameraFrame(glm::vec2 InFrameSize, int RenderFrame /* @TODO: Change to enum later */)
+GLuint Camera::RenderCameraFrame(glm::vec2 InFrameSize, EFrameTypes FrameType)
 {
 	UpdatePerspective(InFrameSize);
 
-	switch (RenderFrame)
+	switch (FrameType)
 	{
-		case 0:
+		case EFrameTypes::ColorPicker:
 		{
 			if (!PickerFrame)
 			{
@@ -127,7 +127,7 @@ void Camera::Refocus(Asset* InSelection)
 			PickerFrame->RenderColorPick(this, OwningUniverse->ActiveWorld, InFrameSize);
 			return PickerFrame->GetFrameTexture();
 		}
-		case 1:
+		case EFrameTypes::Scene:
 		{
 			if (!SceneFrame)
 			{
@@ -136,11 +136,11 @@ void Camera::Refocus(Asset* InSelection)
 			SceneFrame->RenderWorldFrame(this, OwningUniverse->ActiveWorld, InFrameSize);
 			return SceneFrame->GetFrameTexture();
 		}
-		case 2:
+		case EFrameTypes::VR_LeftEye:
 		{
 			return OwningUniverse->GetCamaras().VRCamera->GetLeftFrame().ResolveTextureId;
 		}
-		case 3:
+		case EFrameTypes::VR_RightEye:
 		{	
 			return OwningUniverse->GetCamaras().VRCamera->GetRightFrame().ResolveTextureId;
 		}

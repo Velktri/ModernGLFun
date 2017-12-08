@@ -1,29 +1,22 @@
 #include "World.h"
+#include "Universe.h"
 #include "Camera.h"
 #include "Manager.h"
 #include "Timer.h"
-#include "ModelData\Grid.h"
-#include "ModelData\Line.h"
+#include "ModelData\Element.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
 #include "Lights\Light.h"
-#include "ModelData\Gizmo.h"
 
-World::World(Manager* InManager)
+World::World(Universe* InUniverse, Manager* InManager)
 {
+	OwningUniverse = InUniverse;
 	MyManager = InManager;
-	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-	SelectionGizmo = new Gizmo();
-	SystemElements.push_back(GridFloor);
-	SystemElements.push_back(SelectionGizmo);
 }
 
 World::~World()
 {
-	for (Element* e : SystemElements)
-	{
-		e->~Element();
-	}
+
 }
 
 void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, glm::vec2 FrameSize)
@@ -33,7 +26,7 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, 
 
 	/* System Rendering */
 	MyManager->SetSystemShader(InViewProjection);
-	for each (Element* e in SystemElements)
+	for each (Element* e in OwningUniverse->GetSystemElements())
 	{
 		e->Render(MyManager->GetSceneShader());
 	}
@@ -68,50 +61,6 @@ void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 		mod->Render(shader);
 	}
 }
-
-/* @TODO: Ray Trace is aiming slightly lower than it should. 
-		  The borders between regions are throwing the positions off by a couple of pixels
-
-   @TODO: split into two functions. one to change coords from device to world space and other to ray cast.
-*/
-Asset* World::CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize)
-{
-	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
-
-	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
-	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
-
-	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
-
-	glm::vec4 ray_eye = glm::inverse(InCamera->GetProjection()) * ray_clip;
-	ray_eye.z = -1.0f;
-	ray_eye.w = 0.0f;
-
-	glm::vec4 a = glm::vec4(glm::inverse(InCamera->GetViewMatrix()) * ray_eye);
-	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
-	ray_wor = glm::normalize(ray_wor);
-
-	glm::vec3 lStart = InCamera->GetPosition();
-	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
-
-	SystemElements.push_back(new Line(lStart, lEnd));
-
-	return NULL;
-}
-
-void World::ClearLines()
-{
-	for each (Element* e in SystemElements)
-	{
-		if (e->GetType() == ShaderType::LINE)
-		{
-			e->~Element();
-		}
-	}
-}
-
 
 
 std::vector<Light*> World::GetLights() { return MyManager->GetLights(); }

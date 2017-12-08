@@ -28,7 +28,7 @@ Region::Region(Layout* InLayout, TreeNode* InOwningNode, RegionTypes InType)
 	OwningLayout = InLayout;
 	Type = InType;
 	bIsSceneHovered = false;
-	RenderFrame = true;
+	RenderFrame = EFrameTypes::Scene;
 	ActiveCamera = GetOwningLayout()->GetUniverse()->GetCamaras().Perspective;
 
 	TypeList.push_back(RegionTypes::None);
@@ -72,22 +72,22 @@ bool Container::Render()
 {
 	switch (Type)
 	{
-		case Scene:
+		case RegionTypes::Scene:
 			SceneRegion();
 			break;
-		case Outliner:
+		case RegionTypes::Outliner:
 			OutlinerRegion();
 			break;
-		case Test:
+		case RegionTypes::Test:
 			TestRegion();
 			break;
-		case Stats:
+		case RegionTypes::Stats:
 			StatsRegion();
 			break;
-		case MainMenu:
+		case RegionTypes::MainMenu:
 			MainMenuRegion();
 			break;
-		case AssetEditor:
+		case RegionTypes::AssetEditor:
 			AssetEditorRegion();
 			break;
 		default:
@@ -126,27 +126,36 @@ void Container::SceneRegion()
 
 	BeginStyledMenuBar();
 		PanelSwitcher();
-		ImGui::Indent(15.0f);
 
-		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = 1; };
-		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = 0; };
-		ImGui::SameLine();		 if (ImGui::Button("Left Eye")) { RenderFrame = 2; };
-		ImGui::SameLine();		 if (ImGui::Button("Right Eye")) { RenderFrame = 3; };
+		if (ImGui::Button("Frames")) { ImGui::OpenPopup("FrameSelect"); }
+		if (ImGui::BeginPopup("FrameSelect"))
+		{
+			if (ImGui::Selectable("SceneFrame"))	{ RenderFrame = EFrameTypes::Scene; };
+			if (ImGui::Selectable("PickerFrame"))	{ RenderFrame = EFrameTypes::ColorPicker; };
+			if (ImGui::Selectable("Left Eye")) 		{ RenderFrame = EFrameTypes::VR_LeftEye; };
+			if (ImGui::Selectable("Right Eye"))		{ RenderFrame = EFrameTypes::VR_RightEye; };
 
-		ImGui::SameLine();		 if (ImGui::Button("Cube")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
-		ImGui::SameLine();		 if (ImGui::Button("Plane")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
-		ImGui::SameLine();		 if (ImGui::Button("Sphere")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
-		ImGui::SameLine();		 if (ImGui::Button("Cylinder")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
-		ImGui::SameLine();		 if (ImGui::Button("SmoothTest")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
-		ImGui::SameLine();		 if (ImGui::Button("Curve")) { OwningLayout->GetManager()->BuildPrimative(Primatives::ECurve); };
+			ImGui::EndPopup();
+		}
 
-		ImGui::SameLine();		 if (ImGui::Button("Clear Lines")) { OwningLayout->GetUniverse()->ActiveWorld->ClearLines(); };
+		if (ImGui::Button("Primatives")) { ImGui::OpenPopup("PrimativesSelect"); }
+		if (ImGui::BeginPopup("PrimativesSelect"))
+		{
+			if (ImGui::Selectable("Cube"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
+			if (ImGui::Selectable("Plane"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
+			if (ImGui::Selectable("Sphere"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Sphere); };
+			if (ImGui::Selectable("Cylinder"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
+			if (ImGui::Selectable("SmoothTest"))	{ OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
+			if (ImGui::Selectable("Curve"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::ECurve); };
+			if (ImGui::Selectable("Clear Lines"))	{ OwningLayout->GetUniverse()->ClearLines(); };
+
+			ImGui::EndPopup();
+		}
 
 		float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 	EndStyledMenuBar();
 
 
-	//ImVec2 testSize = ImGui::GetCurrentWindow()->Size;    // @TODO: look into get size from ImGui directly.
 	SceneSize = OwningNode->GetRegionSize();
 	SceneSize.y -= MenuSize;
 
@@ -155,8 +164,8 @@ void Container::SceneRegion()
 
 		if (ActiveCamera)
 		{
-			/*FrameBuffer**/GLuint CameraFrame = ActiveCamera->RenderCameraFrame(glm::vec2(SceneSize.x, SceneSize.y), RenderFrame);
-			ImGui::Image((GLuint*) CameraFrame/*->GetFrameTexture()*/, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+			GLuint CameraFrame = ActiveCamera->RenderCameraFrame(glm::vec2(SceneSize.x, SceneSize.y), RenderFrame);
+			ImGui::Image((GLuint*) CameraFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		}
 
 		//if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
@@ -1973,7 +1982,7 @@ void Container::PanelSwitcher()
 	const char* names[] = { "None", "MainMenu", "Scene", "Outliner", "Test", "Stats", "Asset Editor" }; // @TODO: use 	int i = (RegionTypes) type;   and    RegionTypes type = RegionTypes(i);
 	/**     */
 	ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(17, 189, 2, 255));
-	if (ImGui::Button(names[Type])) { ImGui::OpenPopup("TypeList"); }
+	if (ImGui::Button(names[static_cast<int>(Type)])) { ImGui::OpenPopup("TypeList"); }
 	if (ImGui::BeginPopup("TypeList"))
 	{
 		ImGui::Text("Panel Types");

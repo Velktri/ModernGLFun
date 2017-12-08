@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include "HelperTypes.h"
 
 class Asset;
 class FrameBuffer;
@@ -23,7 +23,7 @@ public:
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void Refocus(Asset* InSelection);
-	/*FrameBuffer**/GLuint RenderCameraFrame(glm::vec2 InFrameSize, int bRenderScene);
+	GLuint RenderCameraFrame(glm::vec2 InFrameSize, EFrameTypes FrameType);
 
 
 	/* GETTERS */

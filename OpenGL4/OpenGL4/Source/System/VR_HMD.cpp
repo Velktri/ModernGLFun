@@ -57,17 +57,7 @@ glm::mat4 VR_HMD::GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye)
 
 glm::mat4 VR_HMD::GetHMDMatrixPoseEye(vr::Hmd_Eye nEye)
 {
-	if (!HMD) { return glm::mat4(); }
-
-	vr::HmdMatrix34_t matEyeRight = HMD->GetEyeToHeadTransform(nEye);
-	glm::mat4 matrixObj(
-		matEyeRight.m[0][0], matEyeRight.m[1][0], matEyeRight.m[2][0], 0.0,
-		matEyeRight.m[0][1], matEyeRight.m[1][1], matEyeRight.m[2][1], 0.0,
-		matEyeRight.m[0][2], matEyeRight.m[1][2], matEyeRight.m[2][2], 0.0,
-		matEyeRight.m[0][3], matEyeRight.m[1][3], matEyeRight.m[2][3], 1.0f
-	);
-
-	return glm::inverse(matrixObj);
+	return (HMD) ? glm::inverse(Hmd34ToGLM(HMD->GetEyeToHeadTransform(nEye))) : glm::mat4();
 }
 
 void VR_HMD::UpdateHMDMatrixPose()
@@ -76,44 +66,19 @@ void VR_HMD::UpdateHMDMatrixPose()
 	{
 		vr::VRCompositor()->WaitGetPoses(TrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
-		ValidPoseCount = 0;
-		std::string PoseClasses = "";
-		// @TODO: optimize
-		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+		if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
 		{
-			if (TrackedDevicePose[nDevice].bPoseIsValid)
-			{
-				ValidPoseCount++;
-
-				vr::HmdMatrix34_t matPose = TrackedDevicePose[nDevice].mDeviceToAbsoluteTracking;
-				glm::mat4 matrixObj(
-					matPose.m[0][0], matPose.m[1][0], matPose.m[2][0], 0.0,
-					matPose.m[0][1], matPose.m[1][1], matPose.m[2][1], 0.0,
-					matPose.m[0][2], matPose.m[1][2], matPose.m[2][2], 0.0,
-					matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
-				);
-
-				DevicePose[nDevice] = matrixObj;
-
-				if (DeviceClassChar[nDevice] == 0)
-				{
-					switch (HMD->GetTrackedDeviceClass(nDevice))
-					{
-						case vr::TrackedDeviceClass_Controller:        DeviceClassChar[nDevice] = 'C'; break;
-						case vr::TrackedDeviceClass_HMD:               DeviceClassChar[nDevice] = 'H'; break;
-						case vr::TrackedDeviceClass_Invalid:           DeviceClassChar[nDevice] = 'I'; break;
-						case vr::TrackedDeviceClass_GenericTracker:    DeviceClassChar[nDevice] = 'G'; break;
-						case vr::TrackedDeviceClass_TrackingReference: DeviceClassChar[nDevice] = 'T'; break;
-						default:                                       DeviceClassChar[nDevice] = '?'; break;
-					}
-				}
-				PoseClasses += DeviceClassChar[nDevice];
-			}
+			HMDDevice.PoseData = glm::inverse(Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking));
 		}
 
-		if (TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+		if (TrackedDevicePose[LeftController.DeviceID].bPoseIsValid)
 		{
-			HMDPose = glm::inverse(DevicePose[vr::k_unTrackedDeviceIndex_Hmd]);
+			LeftController.PoseData = Hmd34ToGLM(TrackedDevicePose[LeftController.DeviceID].mDeviceToAbsoluteTracking);
+		}
+
+		if (TrackedDevicePose[RightController.DeviceID].bPoseIsValid)
+		{
+			RightController.PoseData = Hmd34ToGLM(TrackedDevicePose[RightController.DeviceID].mDeviceToAbsoluteTracking);
 		}
 	}
 }
@@ -200,10 +165,6 @@ void VR_HMD::CreateVRDevices()
 
 void VR_HMD::RenderVRDevices()
 {
-	//// don't draw controllers if somebody else has input focus
-	//if (m_pHMD->IsInputFocusCapturedByAnotherProcess())
-	//	return;
-
 	if (LeftController.ControllerRole == vr::TrackedControllerRole_Invalid ||
 		RightController.ControllerRole == vr::TrackedControllerRole_Invalid ||
 		HMDDevice.DeviceModel == NULL)
@@ -213,12 +174,12 @@ void VR_HMD::RenderVRDevices()
 
 	if (TrackedDevicePose[LeftController.DeviceID].bPoseIsValid) 
 	{ 
-		LeftController.DeviceModel->SetWorldSpace(DevicePose[LeftController.DeviceID]);
+		LeftController.DeviceModel->SetWorldSpace(LeftController.PoseData);
 	}
 
 	if (TrackedDevicePose[RightController.DeviceID].bPoseIsValid)
 	{
-		RightController.DeviceModel->SetWorldSpace(DevicePose[RightController.DeviceID]);
+		RightController.DeviceModel->SetWorldSpace(RightController.PoseData);
 	}
 
 	//if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
@@ -231,7 +192,7 @@ void VR_HMD::RenderHMDEyes()
 {
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glEnable(GL_MULTISAMPLE);
-	glm::vec3 HMDPosition = glm::vec3(HMDPose[0][3], HMDPose[1][3], HMDPose[2][3]);
+	glm::vec3 HMDPosition = glm::vec3(HMDDevice.PoseData[0][3], HMDDevice.PoseData[1][3], HMDDevice.PoseData[2][3]);
 
 	// Left Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrame.RenderFramebufferId);
@@ -273,11 +234,11 @@ glm::mat4 VR_HMD::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	glm::mat4 matMVP;
 	if (nEye == vr::Eye_Left)
 	{
-		matMVP = Projection_Left * WorldPosition_Left * HMDPose;
+		matMVP = Projection_Left * WorldPosition_Left * HMDDevice.PoseData;
 	}
 	else if (nEye == vr::Eye_Right)
 	{
-		matMVP = Projection_Right * WorldPosition_Right * HMDPose;
+		matMVP = Projection_Right * WorldPosition_Right * HMDDevice.PoseData;
 	}
 
 	return matMVP;
@@ -293,14 +254,6 @@ void VR_HMD::Render()
 	vr::Texture_t rightEyeTexture = { (void*) (uintptr_t) RightEyeFrame.ResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 
-	
-	//glFinish();
-	//glClearColor(0, 0, 0, 1);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//glFlush();
-	//glFinish();
-
 	UpdateHMDMatrixPose();
 }
 
@@ -315,6 +268,16 @@ bool VR_HMD::InitCompositor()
 	}
 
 	return true;
+}
+
+glm::mat4 VR_HMD::Hmd34ToGLM(vr::HmdMatrix34_t InHmdM)
+{
+	return glm::mat4(
+		InHmdM.m[0][0], InHmdM.m[1][0], InHmdM.m[2][0], 0.0,
+		InHmdM.m[0][1], InHmdM.m[1][1], InHmdM.m[2][1], 0.0,
+		InHmdM.m[0][2], InHmdM.m[1][2], InHmdM.m[2][2], 0.0,
+		InHmdM.m[0][3], InHmdM.m[1][3], InHmdM.m[2][3], 1.0f
+	);
 }
 
 

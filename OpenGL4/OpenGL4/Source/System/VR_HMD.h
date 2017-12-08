@@ -25,12 +25,14 @@ struct VRDevice
 	Asset* DeviceModel;
 	vr::TrackedDeviceIndex_t DeviceID;
 	vr::ETrackedControllerRole ControllerRole;
+	glm::mat4 PoseData;
 
 	VRDevice()
 	{
 		DeviceModel = NULL;
 		ControllerRole = vr::TrackedControllerRole_Invalid;
 		DeviceID = vr::k_unMaxTrackedDeviceCount + 1;
+		PoseData = glm::mat4();
 	}
 };
 
@@ -72,11 +74,6 @@ private:
 	EyeFrameData RightEyeFrame;
 
 	vr::TrackedDevicePose_t TrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-	glm::mat4 DevicePose[vr::k_unMaxTrackedDeviceCount];
-	char DeviceClassChar[vr::k_unMaxTrackedDeviceCount];
-	glm::mat4 HMDPose;
-	int ValidPoseCount = 0;
-	int TrackedControllerCount = 0;
 
 	VRDevice RightController;
 	VRDevice LeftController;
@@ -88,5 +85,6 @@ private:
 	void RenderVRDevices();
 	void RenderHMDEyes();
 	glm::mat4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
+	glm::mat4 Hmd34ToGLM(vr::HmdMatrix34_t InHmdM);
 };
 

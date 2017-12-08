@@ -42,7 +42,7 @@ protected:
 	RegionTypes Type;
 
 	Camera* ActiveCamera;
-	int RenderFrame;
+	EFrameTypes RenderFrame;
 
 	ImGuiWindowFlags ContainerStyleFlags;
 };

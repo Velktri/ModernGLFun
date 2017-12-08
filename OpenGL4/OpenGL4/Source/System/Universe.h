@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "openvr.h"
 
 class Camera;
@@ -7,6 +10,10 @@ class VR_HMD;
 class World;
 class Manager;
 class Timer;
+class Gizmo;
+class Grid;
+class Element;
+class Asset;
 
 struct CameraSet
 {
@@ -42,11 +49,15 @@ public:
 	World* ActiveWorld;
 
 	void InitVR();
+	Asset* CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize);
+	void ClearLines();
+
 
 	/* GETTERS */
 	Timer* GetUniversalTimer();
 	Manager* GetManager();
 	CameraSet GetCamaras();
+	std::vector<Element*> GetSystemElements();
 	void RenderVR();
 
 private:
@@ -55,5 +66,14 @@ private:
 	Timer* UniversalTimer;
 	void InitCameras();
 	void InitWorlds();
+
+	Grid* GridFloor;
+	Gizmo* SelectionGizmo;
+
+	int GRIDRADIUS_X = 20;
+	int GRIDRADIUS_Y = 20;
+	float GRIDSPACING = 1.0;
+
+	std::vector<Element*> SystemElements;
 };
 

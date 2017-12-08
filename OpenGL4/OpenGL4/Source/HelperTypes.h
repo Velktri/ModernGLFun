@@ -10,7 +10,7 @@ struct Vertex
 	glm::vec2 TexCoords;
 };
 
-enum RegionTypes
+enum class RegionTypes
 {
 	None,
 	MainMenu,
@@ -22,7 +22,7 @@ enum RegionTypes
 	Spacer
 };
 
-enum Primatives
+enum class Primatives
 {
 	Cube,	
 	Plane,
@@ -30,4 +30,12 @@ enum Primatives
 	Cylinder,
 	ECurve,
 	Smooth // @TODO: temp, change later when working with normals.
+};
+enum class EFrameTypes
+{
+	None,
+	Scene,
+	ColorPicker,
+	VR_LeftEye,
+	VR_RightEye
 };

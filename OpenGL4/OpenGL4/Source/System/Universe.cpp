@@ -1,4 +1,7 @@
 #include "Universe.h"
+#include "ModelData\Grid.h"
+#include "ModelData\Gizmo.h"
+#include "ModelData\Line.h"
 #include "Manager.h"
 #include "World.h"
 #include "Timer.h"
@@ -9,6 +12,11 @@ Universe::Universe(Manager* InManager)
 {
 	MyManager = InManager;
 	UniversalTimer = new Timer();
+
+	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
+	SelectionGizmo = new Gizmo();
+	SystemElements.push_back(GridFloor);
+	SystemElements.push_back(SelectionGizmo);
 
 	InitCameras();
 	InitWorlds();
@@ -29,6 +37,11 @@ Universe::~Universe()
 	}
 
 	if (UniversalTimer) { UniversalTimer->~Timer(); }
+
+	for (Element* e : SystemElements)
+	{
+		if (e) { e->~Element(); }
+	}
 }
 
 void Universe::InitCameras()
@@ -40,7 +53,7 @@ void Universe::InitCameras()
 
 void Universe::InitWorlds()
 {
-	Worlds.push_back(new World(MyManager));
+	Worlds.push_back(new World(this, MyManager));
 	ActiveWorld = Worlds[0];
 }
 
@@ -73,8 +86,52 @@ void Universe::RenderVR()
 	}
 }
 
+/* @TODO: Ray Trace is aiming slightly lower than it should. 
+The borders between regions are throwing the positions off by a couple of pixels
+
+@TODO: split into two functions. one to change coords from device to world space and other to ray cast.
+
+*/
+Asset* Universe::CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize)
+{
+	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
+
+	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
+	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
+	float z = 1.0f;
+	glm::vec3 ray_nds = glm::vec3(x, y, z);
+
+	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
+
+	glm::vec4 ray_eye = glm::inverse(InCamera->GetProjection()) * ray_clip;
+	ray_eye.z = -1.0f;
+	ray_eye.w = 0.0f;
+
+	glm::vec4 a = glm::vec4(glm::inverse(InCamera->GetViewMatrix()) * ray_eye);
+	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
+	ray_wor = glm::normalize(ray_wor);
+
+	glm::vec3 lStart = InCamera->GetPosition();
+	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
+
+	SystemElements.push_back(new Line(lStart, lEnd));
+
+	return NULL;
+}
+
+void Universe::ClearLines()
+{
+	for each (Element* e in SystemElements)
+	{
+		if (e->GetType() == ShaderType::LINE)
+		{
+			e->~Element();
+		}
+	}
+}
 
 
 Timer* Universe::GetUniversalTimer() { return UniversalTimer; }
 Manager* Universe::GetManager() { return MyManager; }
 CameraSet Universe::GetCamaras() { return UserCameras; }
+std::vector<Element*> Universe::GetSystemElements() { return SystemElements; }
