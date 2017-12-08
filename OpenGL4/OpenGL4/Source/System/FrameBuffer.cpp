@@ -1,5 +1,6 @@
 #include "FrameBuffer.h"
 #include "World.h"
+#include "Camera.h"
 #include <iostream>
 
 FrameBuffer::FrameBuffer(GLuint InFrameSize_X, GLuint InFrameSize_Y)
@@ -36,7 +37,7 @@ void FrameBuffer::RenderWorldFrame(Camera* InCamera, World* InWorld, glm::vec2 F
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	InWorld->RenderWorld(InCamera, FrameSize);
+	InWorld->RenderWorld(InCamera->GetPosition(), InCamera->GetViewProjection(), FrameSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);

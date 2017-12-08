@@ -26,10 +26,13 @@ World::~World()
 	}
 }
 
-void World::RenderWorld(Camera* InCamera, glm::vec2 FrameSize)
+void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, glm::vec2 FrameSize)
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
 	/* System Rendering */
-	MyManager->SetSystemShader(InCamera);
+	MyManager->SetSystemShader(InViewProjection);
 	for each (Element* e in SystemElements)
 	{
 		e->Render(MyManager->GetSceneShader());
@@ -40,11 +43,11 @@ void World::RenderWorld(Camera* InCamera, glm::vec2 FrameSize)
 	MyManager->SetCurrentShader(NULL);
 	for each (Shader* s in MyManager->GetUserShaderList())
 	{
-		MyManager->ShadeAssets(InCamera, GetLights(), s);
+		MyManager->ShadeAssets(InCameraPosition, InViewProjection, GetLights(), s);
 		MyManager->DrawAssets(s);
 	}
 
-	MyManager->ShadeLights(InCamera, MyManager->GetLightShader());
+	MyManager->ShadeLights(InViewProjection, MyManager->GetLightShader());
 	MyManager->Draw(MyManager->GetLightShader());
 }
 

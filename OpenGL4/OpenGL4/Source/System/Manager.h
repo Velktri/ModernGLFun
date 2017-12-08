@@ -16,11 +16,11 @@ public:
 	Manager();
 	~Manager();
 
-	void ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader);
+	void ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader);
 	void DrawAssets(Shader* AssetShader);
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
-	void ShadeLights(Camera* WorldCamera, Shader* LightShader);
+	void ShadeLights(glm::mat4 InViewProjection, Shader* LightShader);
 	void Draw(Shader* shader);
 	void CheckForSelection(int InID);
 	void AddAssetToPool(Asset* InAsset);
@@ -44,7 +44,7 @@ public:
 	Asset* GetSelectedAsset();
 	std::vector<Asset*> GetAssets();
 	std::vector<Light*> GetLights();
-	void SetSystemShader(Camera* WorldCamera);
+	void SetSystemShader(glm::mat4 InViewProjection);
 	void SetSelectedAsset(Asset* InAsset);
 	void SetPickerShader();
 	void SetCurrentShader(Shader* s);

@@ -52,6 +52,7 @@ public:
 	uint32_t GetFrameHeight();
 	void Render();
 
+	bool InitCompositor();
 private:
 	vr::IVRSystem* HMD;
 	Universe* SceneUniverse;
@@ -82,9 +83,10 @@ private:
 	VRDevice HMDDevice;
 
 	bool SetupStereoRenderTargets();
-	bool CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, EyeFrameData InEyeFrame);
+	bool CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, EyeFrameData &InEyeFrame);
 	void CreateVRDevices();
 	void RenderVRDevices();
 	void RenderHMDEyes();
+	glm::mat4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
 };
 

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "VR_HMD.h"
 #include "Models\Asset.h"
 #include "FrameBuffer.h"
 #include <iostream>
@@ -111,25 +112,43 @@ void Camera::Refocus(Asset* InSelection)
 }
 
 
-FrameBuffer* Camera::RenderCameraFrame(glm::vec2 InFrameSize, bool bRenderScene /* @TODO: Change to enum later */)
+/*FrameBuffer**/GLuint Camera::RenderCameraFrame(glm::vec2 InFrameSize, int RenderFrame /* @TODO: Change to enum later */)
 {
 	UpdatePerspective(InFrameSize);
-	if (bRenderScene)
-	{
-		if (!SceneFrame)
-		{
-			SceneFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
-		}
-		SceneFrame->RenderWorldFrame(this, OwningUniverse->ActiveWorld, InFrameSize);
-		return SceneFrame;
-	}
 
-	if (!PickerFrame)
+	switch (RenderFrame)
 	{
-		PickerFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
+		case 0:
+		{
+			if (!PickerFrame)
+			{
+				PickerFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
+			}
+			PickerFrame->RenderColorPick(this, OwningUniverse->ActiveWorld, InFrameSize);
+			return PickerFrame->GetFrameTexture();
+		}
+		case 1:
+		{
+			if (!SceneFrame)
+			{
+				SceneFrame = new FrameBuffer(InFrameSize.x, InFrameSize.y);
+			}
+			SceneFrame->RenderWorldFrame(this, OwningUniverse->ActiveWorld, InFrameSize);
+			return SceneFrame->GetFrameTexture();
+		}
+		case 2:
+		{
+			return OwningUniverse->GetCamaras().VRCamera->GetLeftFrame().ResolveTextureId;
+		}
+		case 3:
+		{	
+			return OwningUniverse->GetCamaras().VRCamera->GetRightFrame().ResolveTextureId;
+		}
+		default:
+		{
+			return NULL;
+		}
 	}
-	PickerFrame->RenderColorPick(this, OwningUniverse->ActiveWorld, InFrameSize);
-	return PickerFrame;
 }
 
 glm::vec3 Camera::GetPosition() { return WorldPosition; }

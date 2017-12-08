@@ -23,7 +23,7 @@ public:
 	void ZoomCamera(int scroll, GLfloat deltaTime);
 	void OrbitCamera(int Start_X, int Start_Y, GLfloat deltaTime);
 	void Refocus(Asset* InSelection);
-	FrameBuffer* RenderCameraFrame(glm::vec2 InFrameSize, bool bRenderScene);
+	/*FrameBuffer**/GLuint RenderCameraFrame(glm::vec2 InFrameSize, int bRenderScene);
 
 
 	/* GETTERS */

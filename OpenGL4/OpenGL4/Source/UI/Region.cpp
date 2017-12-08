@@ -128,8 +128,10 @@ void Container::SceneRegion()
 		PanelSwitcher();
 		ImGui::Indent(15.0f);
 
-		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = true; };
-		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = false; };
+		ImGui::SameLine();		 if (ImGui::Button("SceneFrame")) { RenderFrame = 1; };
+		ImGui::SameLine();		 if (ImGui::Button("PickerFrame")) { RenderFrame = 0; };
+		ImGui::SameLine();		 if (ImGui::Button("Left Eye")) { RenderFrame = 2; };
+		ImGui::SameLine();		 if (ImGui::Button("Right Eye")) { RenderFrame = 3; };
 
 		ImGui::SameLine();		 if (ImGui::Button("Cube")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
 		ImGui::SameLine();		 if (ImGui::Button("Plane")) { OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
@@ -153,8 +155,8 @@ void Container::SceneRegion()
 
 		if (ActiveCamera)
 		{
-			FrameBuffer* CameraFrame = ActiveCamera->RenderCameraFrame(glm::vec2(SceneSize.x, SceneSize.y), RenderFrame);
-			ImGui::Image((GLuint*) CameraFrame->GetFrameTexture(), SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
+			/*FrameBuffer**/GLuint CameraFrame = ActiveCamera->RenderCameraFrame(glm::vec2(SceneSize.x, SceneSize.y), RenderFrame);
+			ImGui::Image((GLuint*) CameraFrame/*->GetFrameTexture()*/, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		}
 
 		//if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())

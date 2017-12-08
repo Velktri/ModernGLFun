@@ -58,6 +58,11 @@ void Universe::InitVR()
 	}
 
 	UserCameras.VRCamera = new VR_HMD(this, HMD);
+
+	if (!UserCameras.VRCamera->InitCompositor())
+	{
+		printf("%s - Failed to initialize VR Compositor!\n", __FUNCTION__);
+	}
 }
 
 void Universe::RenderVR()

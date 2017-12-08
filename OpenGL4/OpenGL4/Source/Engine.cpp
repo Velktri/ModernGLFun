@@ -26,6 +26,9 @@ bool Engine::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+
 	MainWindow = SDL_CreateWindow("GeoEngine", 200, 180, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if (!MainWindow)
 	{
@@ -78,10 +81,9 @@ void Engine::Run()
 		MyInput->UpdateInput();
 
 		if (!MyInput->ExecuteInput(UILayout->GetHoveredRegion())) { break; }
-		if (!UILayout->RenderLayout()) { break; }
 		MyUniverse->RenderVR();
-
-		SDL_GL_SwapWindow(MainWindow);
+		if (!UILayout->RenderLayout()) { break; }
+		SDL_GL_SwapWindow(MainWindow);		
 	}
 }
 

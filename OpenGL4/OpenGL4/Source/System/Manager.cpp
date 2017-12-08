@@ -40,7 +40,7 @@ Manager::~Manager()
 	for each (Light* l in LightsList)  {  l->~Light();  }
 }
 
-void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shader* InCurrentShader)
+void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader)
 {
 	if (InCurrentShader != CurrentShader)
 	{
@@ -48,9 +48,8 @@ void Manager::ShadeAssets(Camera* WorldCamera, std::vector<Light*> Lights, Shade
 		CurrentShader->Use();
 		
 
-		glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
-		glm::vec3 pos = WorldCamera->GetPosition();
-		glUniform3f(CurrentShader->ShaderList["cameraPos"], pos.x, pos.y + 1, pos.z);
+		glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
+		glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y + 1, InCameraPosition.z);
 		//glm::vec3 pos = WorldCamera->GetPosition();
 		//glUniform3f(AssetShader->ShaderList["viewPos"], pos.x, pos.y, pos.z);
 		//glUniform3f(AssetShader->ShaderList["dirLight.position"], 0.0f, 0.0f, 0.0f);
@@ -97,10 +96,10 @@ void Manager::DrawAssets(Shader* Shader)
 	}
 }
 
-void Manager::SetSystemShader(Camera* WorldCamera)
+void Manager::SetSystemShader(glm::mat4 InViewProjection)
 {
 	SceneShader->Use();
-	glUniformMatrix4fv(SceneShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
+	glUniformMatrix4fv(SceneShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
 }
 
 Asset* Manager::BuildAsset(std::string path)
@@ -162,10 +161,10 @@ void Manager::BuildPrimative(Primatives InType)
 	AddAssetToPool(SpawnedAsset);
 }
 
-void Manager::ShadeLights(Camera* WorldCamera, Shader* LightShader)
+void Manager::ShadeLights(glm::mat4 InViewProjection, Shader* LightShader)
 {
 	LightShader->Use();
-	glUniformMatrix4fv(LightShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(WorldCamera->GetViewProjection()));
+	glUniformMatrix4fv(LightShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
 }
 
 void Manager::Draw(Shader* shader)

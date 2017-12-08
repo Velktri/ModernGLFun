@@ -1,5 +1,6 @@
 #include "VR_HMD.h"
 #include "Models/MeshAsset.h"
+#include "World.h"
 #include "Universe.h"
 #include "Manager.h"
 #include <string>
@@ -77,6 +78,7 @@ void VR_HMD::UpdateHMDMatrixPose()
 
 		ValidPoseCount = 0;
 		std::string PoseClasses = "";
+		// @TODO: optimize
 		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
 			if (TrackedDevicePose[nDevice].bPoseIsValid)
@@ -90,6 +92,7 @@ void VR_HMD::UpdateHMDMatrixPose()
 					matPose.m[0][2], matPose.m[1][2], matPose.m[2][2], 0.0,
 					matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
 				);
+
 				DevicePose[nDevice] = matrixObj;
 
 				if (DeviceClassChar[nDevice] == 0)
@@ -110,8 +113,7 @@ void VR_HMD::UpdateHMDMatrixPose()
 
 		if (TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
 		{
-			HMDPose = DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
-			glm::inverse(HMDPose);
+			HMDPose = glm::inverse(DevicePose[vr::k_unTrackedDeviceIndex_Hmd]);
 		}
 	}
 }
@@ -131,7 +133,7 @@ bool VR_HMD::SetupStereoRenderTargets()
 }
 
 /* @TODO: update to use the Framebuffer class. */
-bool VR_HMD::CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, EyeFrameData InEyeFrame)
+bool VR_HMD::CreateFrameBuffer(uint32_t InFrameWidth, uint32_t InFrameHeight, EyeFrameData &InEyeFrame)
 {
 	glGenFramebuffers(1, &InEyeFrame.RenderFramebufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, InEyeFrame.RenderFramebufferId);
@@ -187,7 +189,8 @@ void VR_HMD::CreateVRDevices()
 		}
 
 		if (HMD->IsTrackedDeviceConnected(TrackedDevice) &&
-			HMD->GetTrackedDeviceClass(TrackedDevice) == vr::TrackedDeviceClass_HMD)
+			HMD->GetTrackedDeviceClass(TrackedDevice) == vr::TrackedDeviceClass_HMD &&
+			HMDDevice.DeviceModel == NULL)
 		{
 			HMDDevice.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRHMD.obj");
 			HMDDevice.DeviceID = TrackedDevice;
@@ -218,21 +221,22 @@ void VR_HMD::RenderVRDevices()
 		RightController.DeviceModel->SetWorldSpace(DevicePose[RightController.DeviceID]);
 	}
 
-	if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
-	{
-		HMDDevice.DeviceModel->SetWorldSpace(DevicePose[HMDDevice.DeviceID]);
-	}
+	//if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
+	//{
+	//	HMDDevice.DeviceModel->SetWorldSpace(DevicePose[HMDDevice.DeviceID]);
+	//}
 }
 
 void VR_HMD::RenderHMDEyes()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glEnable(GL_MULTISAMPLE);
+	glm::vec3 HMDPosition = glm::vec3(HMDPose[0][3], HMDPose[1][3], HMDPose[2][3]);
 
 	// Left Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
-	//SceneWorld->RenderWorld(vr::Eye_Left);
+	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Left), glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
@@ -250,7 +254,7 @@ void VR_HMD::RenderHMDEyes()
 	// Right Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
-	//SceneWorld->RenderWorld(vr::Eye_Right);
+	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Right), glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
@@ -264,14 +268,54 @@ void VR_HMD::RenderHMDEyes()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
+glm::mat4 VR_HMD::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
+{
+	glm::mat4 matMVP;
+	if (nEye == vr::Eye_Left)
+	{
+		matMVP = Projection_Left * WorldPosition_Left * HMDPose;
+	}
+	else if (nEye == vr::Eye_Right)
+	{
+		matMVP = Projection_Right * WorldPosition_Right * HMDPose;
+	}
+
+	return matMVP;
+}
+
 void VR_HMD::Render()
 {
 	RenderVRDevices();
 	RenderHMDEyes();
+
+	vr::Texture_t leftEyeTexture = { (void*) (uintptr_t) LeftEyeFrame.ResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+	vr::Texture_t rightEyeTexture = { (void*) (uintptr_t) RightEyeFrame.ResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+
+	
+	//glFinish();
+	//glClearColor(0, 0, 0, 1);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//glFlush();
+	//glFinish();
+
 	UpdateHMDMatrixPose();
 }
 
+bool VR_HMD::InitCompositor()
+{
+	vr::EVRInitError peError = vr::VRInitError_None;
 
+	if (!vr::VRCompositor())
+	{
+		printf("Compositor initialization failed. See log file for details\n");
+		return false;
+	}
+
+	return true;
+}
 
 
 EyeFrameData VR_HMD::GetLeftFrame() { return LeftEyeFrame; }
