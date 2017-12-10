@@ -17,6 +17,7 @@ class Texture;
 class Shader;
 class Camera;
 class Manager;
+class Transforms;
 
 /** 
 An empty asset with no components.
@@ -27,7 +28,7 @@ class Asset
 public:
 	Asset(GLuint InAssetID, Manager* InManager);
 	~Asset();
-	void Render(Shader* shader);
+	virtual void Render(Shader* shader);
 	void TranslateAsset(float x, float y, float z);
 	void RotateAsset(float x, float y, float z);
 	void ScaleAsset(float x, float y, float z);
@@ -43,9 +44,9 @@ public:
 	ComponentBase* GetRoot();
 	Manager* GetManager();
 
+
 private:
-	glm::vec3 OriginPoint;
-	glm::mat4 WorldSpaceOrientation;
+	Transforms* AssetTransform;
 	GLuint AssetID;
 	ComponentBase* Root;
 	Manager* MyManager;

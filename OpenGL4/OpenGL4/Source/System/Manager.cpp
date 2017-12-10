@@ -311,6 +311,7 @@ Shader* Manager::GetCurrentShader() { return CurrentShader; }
 std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
 Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
 std::vector<Asset*> Manager::GetAssets() { return AssetList; }
+int Manager::GetAssetListSize() { return AssetList.size(); }
 std::vector<Light*> Manager::GetLights() { return LightsList; }
 void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
 void Manager::SetPickerShader() { CurrentShader = PickerShader; }

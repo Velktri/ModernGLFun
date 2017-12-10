@@ -3,6 +3,8 @@
 #include "ModelData/Mesh.h"
 #include "Models/Asset.h"
 #include "System/Manager.h"
+#include "Models/Shader.h"
+#include "System/Transforms.h"
 
 MeshComponent::MeshComponent(Asset* InParent, std::string path) : ComponentBase(InParent)
 {
@@ -19,6 +21,7 @@ void MeshComponent::Render(Shader* shader)
 {
 	if (MeshData)
 	{
+		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(ComponentTransform->WorldSpaceOrientation));
 		MeshData->Render(shader);
 	}
 

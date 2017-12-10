@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Manager.h"
 #include "Timer.h"
+#include "Models\Gizmo.h"
 #include "ModelData\Element.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
@@ -30,6 +31,8 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, 
 	{
 		e->Render(MyManager->GetSceneShader());
 	}
+
+	OwningUniverse->GetGizmo()->Render(MyManager->GetSceneShader());
 
 
 	/* User Rendering */

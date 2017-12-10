@@ -155,7 +155,7 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\ModelData\Curve.cpp" />
     <ClCompile Include="Source\ModelData\Element.cpp" />
-    <ClCompile Include="Source\ModelData\Gizmo.cpp" />
+    <ClCompile Include="Source\Models\Gizmo.cpp" />
     <ClCompile Include="Source\ModelData\Grid.cpp" />
     <ClCompile Include="Source\ModelData\Line.cpp" />
     <ClCompile Include="Source\ModelData\Mesh.cpp" />
@@ -179,6 +179,7 @@
     <ClCompile Include="Source\UI\Region.cpp" />
     <ClCompile Include="Source\System\VR_HMD.cpp" />
     <ClCompile Include="Source\System\Universe.cpp" />
+    <ClCompile Include="Source\System\Transforms.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Components\ComponentBase.h" />
@@ -191,7 +192,7 @@
     <ClInclude Include="Source\Lights\SunLight.h" />
     <ClInclude Include="Source\ModelData\Curve.h" />
     <ClInclude Include="Source\ModelData\Element.h" />
-    <ClInclude Include="Source\ModelData\Gizmo.h" />
+    <ClInclude Include="Source\Models\Gizmo.h" />
     <ClInclude Include="Source\ModelData\Grid.h" />
     <ClInclude Include="Source\ModelData\Line.h" />
     <ClInclude Include="Source\ModelData\Mesh.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="Source\UI\Region.h" />
     <ClInclude Include="Source\System\VR_HMD.h" />
     <ClInclude Include="Source\System\Universe.h" />
+    <ClInclude Include="Source\System\Transforms.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Preferences\Default\DefaultLayout.lo" />

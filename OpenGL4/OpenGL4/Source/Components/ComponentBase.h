@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "Models/Asset.h"
 
-class Asset;
 class Shader;
 class Camera;
+class Transforms;
 
 class ComponentBase
 {
@@ -13,6 +14,9 @@ public:
 	~ComponentBase();
 
 	void AddComponent(ComponentBase* InComponent);
+	void TranslateComponent(float x, float y, float z);
+	void RotateComponent(float x, float y, float z);
+	void ScaleComponent(float x, float y, float z);
 	virtual void Render(Shader* shader);
 
 
@@ -21,7 +25,10 @@ public:
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
 
+
+
 protected:
+	Transforms* ComponentTransform;
 	std::string Name;
 	Asset* ParentAsset;
 	std::vector<ComponentBase*> Components;

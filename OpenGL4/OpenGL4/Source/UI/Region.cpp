@@ -7,6 +7,7 @@
 #include "imgui_internal.h"
 #include "System/Universe.h"
 #include "System/Camera.h"
+#include "Models/Asset.h"
 
 // @TODO: Give proper styling to dropdown menus.
 static void ShowHelpMarker(const char* desc)
@@ -147,10 +148,11 @@ void Container::SceneRegion()
 			if (ImGui::Selectable("Cylinder"))		{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cylinder); };
 			if (ImGui::Selectable("SmoothTest"))	{ OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
 			if (ImGui::Selectable("Curve"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::ECurve); };
-			if (ImGui::Selectable("Clear Lines"))	{ OwningLayout->GetUniverse()->ClearLines(); };
 
 			ImGui::EndPopup();
 		}
+
+		if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetUniverse()->ClearLines(); };
 
 		float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 	EndStyledMenuBar();
@@ -189,6 +191,19 @@ void Container::OutlinerRegion()
 	BeginStyledMenuBar();
 		PanelSwitcher();
 	EndStyledMenuBar();
+
+	ImGui::Text("Without border:");
+	ImGui::Columns(2, "AssetColumns", false);  // 3-ways, no border
+	ImGui::Separator();
+	std::vector<Asset*> CurrentAssets = GetOwningLayout()->GetManager()->GetAssets();
+	for (int n = 0; n < CurrentAssets.size(); n++)
+	{
+		char label[32];
+		sprintf_s(label, "Item %d", n);
+		if (ImGui::Selectable(CurrentAssets[n]->Name.c_str())) {}
+		//if (ImGui::Button(label, ImVec2(-1,0))) {}
+		ImGui::NextColumn();
+	}
 }
 
 void Container::MainMenuRegion()

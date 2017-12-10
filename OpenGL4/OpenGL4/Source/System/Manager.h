@@ -43,6 +43,7 @@ public:
 	std::vector<Shader*> GetUserShaderList();
 	Asset* GetSelectedAsset();
 	std::vector<Asset*> GetAssets();
+	int GetAssetListSize();
 	std::vector<Light*> GetLights();
 	void SetSystemShader(glm::mat4 InViewProjection);
 	void SetSelectedAsset(Asset* InAsset);

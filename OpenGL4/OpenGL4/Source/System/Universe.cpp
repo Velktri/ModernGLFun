@@ -1,6 +1,6 @@
 #include "Universe.h"
 #include "ModelData\Grid.h"
-#include "ModelData\Gizmo.h"
+#include "Models\Gizmo.h"
 #include "ModelData\Line.h"
 #include "Manager.h"
 #include "World.h"
@@ -14,9 +14,9 @@ Universe::Universe(Manager* InManager)
 	UniversalTimer = new Timer();
 
 	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-	SelectionGizmo = new Gizmo();
+	SelectionGizmo = new Gizmo(MyManager->GetAssetListSize(), MyManager);
 	SystemElements.push_back(GridFloor);
-	SystemElements.push_back(SelectionGizmo);
+	//SystemElements.push_back(SelectionGizmo);
 
 	InitCameras();
 	InitWorlds();
@@ -86,37 +86,48 @@ void Universe::RenderVR()
 	}
 }
 
-/* @TODO: Ray Trace is aiming slightly lower than it should. 
+/* 
+@TODO: Ray Trace is aiming slightly lower than it should. 
 The borders between regions are throwing the positions off by a couple of pixels
-
-@TODO: split into two functions. one to change coords from device to world space and other to ray cast.
-
 */
 Asset* Universe::CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize)
 {
-	printf("%f, %f  ", DeviceCoords.x, DeviceCoords.y);
+	glm::vec3 WorldPosition;
+	glm::vec3 WorldDirection;
+	ConvertScreenToWorldSpace(DeviceCoords, SceneSize, glm::inverse(InCamera->GetViewProjection()), WorldPosition, WorldDirection);
 
-	float x = (2.0f * DeviceCoords.x) / SceneSize.x - 1.0f;
-	float y = 1.0f - (2.0f * DeviceCoords.y) / SceneSize.y;
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
+	glm::vec3 lEnd = WorldPosition + (WorldDirection * -100.0f);
 
-	glm::vec4 ray_clip = glm::vec4(x, y, -1.0, 1.0);
-
-	glm::vec4 ray_eye = glm::inverse(InCamera->GetProjection()) * ray_clip;
-	ray_eye.z = -1.0f;
-	ray_eye.w = 0.0f;
-
-	glm::vec4 a = glm::vec4(glm::inverse(InCamera->GetViewMatrix()) * ray_eye);
-	glm::vec3 ray_wor = glm::vec3(a.x, a.y, a.z);
-	ray_wor = glm::normalize(ray_wor);
-
-	glm::vec3 lStart = InCamera->GetPosition();
-	glm::vec3 lEnd = lStart + (ray_wor * 100.0f);
-
-	SystemElements.push_back(new Line(lStart, lEnd));
+	SystemElements.push_back(new Line(WorldPosition, lEnd));
 
 	return NULL;
+}
+
+void Universe::ConvertScreenToWorldSpace(glm::vec2 InScreenSelection, glm::vec2 InSceneSpace, glm::mat4 InvertedViewProjection, glm::vec3& WorldPosition, glm::vec3& WorldDirection)
+{
+	// Get pixel coordinates into projection space
+	float NormalizedX = ((2.0f * InScreenSelection.x) / InSceneSpace.x) - 1.0f;
+	float NormalizedY = 1.0f - ((2.0f * InScreenSelection.y) / InSceneSpace.y);
+
+	const glm::vec4 ProjectionRayStart = glm::vec4(NormalizedX, NormalizedY, 1.0f, 1.0f);
+	const glm::vec4 ProjectionRayEnd = glm::vec4(NormalizedX, NormalizedY, 0.5f, 1.0f);
+
+	const glm::vec4 HomogeneousRayStart = InvertedViewProjection * ProjectionRayStart;
+	const glm::vec4 HomogeneousRayEnd = InvertedViewProjection * ProjectionRayEnd;
+
+	glm::vec3 RayStartWorldSpace(HomogeneousRayStart.x, HomogeneousRayStart.y, HomogeneousRayStart.z);
+	glm::vec3 RayEndWorldSpace(HomogeneousRayEnd.x, HomogeneousRayEnd.y, HomogeneousRayEnd.z);
+
+	// divide vectors by W to undo any projection and get the 3-space coordinate 
+	if (HomogeneousRayStart.w != 0.0f)	{ RayStartWorldSpace /= HomogeneousRayStart.w; }
+	if (HomogeneousRayEnd.w != 0.0f)	{ RayEndWorldSpace /= HomogeneousRayEnd.w; }
+
+
+	WorldPosition = RayEndWorldSpace;
+
+	// check normalization safety
+	glm::vec3 DirCheck = RayEndWorldSpace - RayStartWorldSpace;
+	WorldDirection = ((DirCheck.x * DirCheck.x + DirCheck.y * DirCheck.y + DirCheck.z * DirCheck.z) == 0) ? glm::vec3() : glm::normalize(RayEndWorldSpace - RayStartWorldSpace);
 }
 
 void Universe::ClearLines()
@@ -135,3 +146,4 @@ Timer* Universe::GetUniversalTimer() { return UniversalTimer; }
 Manager* Universe::GetManager() { return MyManager; }
 CameraSet Universe::GetCamaras() { return UserCameras; }
 std::vector<Element*> Universe::GetSystemElements() { return SystemElements; }
+Gizmo* Universe::GetGizmo() { return SelectionGizmo; }

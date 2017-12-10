@@ -50,6 +50,7 @@ public:
 
 	void InitVR();
 	Asset* CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize);
+	void ConvertScreenToWorldSpace(glm::vec2 InScreenSelection, glm::vec2 InSceneSpace, glm::mat4 InvertedViewProjection, glm::vec3& WorldPosition, glm::vec3& WorldDirection);
 	void ClearLines();
 
 
@@ -58,6 +59,7 @@ public:
 	Manager* GetManager();
 	CameraSet GetCamaras();
 	std::vector<Element*> GetSystemElements();
+	Gizmo* GetGizmo();
 	void RenderVR();
 
 private:
