@@ -22,17 +22,17 @@ World::~World()
 
 void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, glm::vec2 FrameSize)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
 	/* System Rendering */
 	MyManager->SetSystemShader(InViewProjection);
 	for each (Element* e in OwningUniverse->GetSystemElements())
 	{
-		e->Render(MyManager->GetSceneShader());
+		glUniform3f(MyManager->GetSystemShader()->ShaderList["color"], e->Color.x, e->Color.y, e->Color.z);
+		e->Render(MyManager->GetSystemShader());
 	}
 
-	OwningUniverse->GetGizmo()->Render(MyManager->GetSceneShader());
+	OwningUniverse->GetGizmo()->Render(MyManager->GetSystemShader());
 
 
 	/* User Rendering */

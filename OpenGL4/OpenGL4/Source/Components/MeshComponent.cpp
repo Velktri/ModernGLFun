@@ -21,6 +21,7 @@ void MeshComponent::Render(Shader* shader)
 {
 	if (MeshData)
 	{
+		glUniform3f(shader->ShaderList["color"], Color.x, Color.y, Color.z);
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(ComponentTransform->WorldSpaceOrientation));
 		MeshData->Render(shader);
 	}

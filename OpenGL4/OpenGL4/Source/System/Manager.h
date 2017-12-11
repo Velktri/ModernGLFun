@@ -34,10 +34,9 @@ public:
 
 	/* GETTERS */
 	std::vector<Element*> GetMeshList();
-	Shader* GetSceneShader();
+	Shader* GetSystemShader();
 	Shader* GetAssetShader();
 	Shader* GetLightShader();
-	Shader* GetScreenShader();
 	Shader* GetDefaultShader();
 	Shader* GetCurrentShader();
 	std::vector<Shader*> GetUserShaderList();
@@ -60,10 +59,9 @@ private:
 	std::unordered_map<std::string, Mesh*> MeshPool;
 
 	/* Shader */
-	Shader* SceneShader;
+	Shader* SystemShader;
 	Shader* AssetShader;
 	Shader* LightShader;
-	Shader* ScreenShader;
 	Shader* DefaultShader;
 	Shader* PickerShader;
 

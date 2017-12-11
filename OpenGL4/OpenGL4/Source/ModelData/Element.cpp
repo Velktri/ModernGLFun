@@ -6,6 +6,7 @@
 Element::Element()
 {
 	type = NONE;
+	Color = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 Element::~Element()

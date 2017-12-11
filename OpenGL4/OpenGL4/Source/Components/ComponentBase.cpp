@@ -7,6 +7,7 @@ ComponentBase::ComponentBase(Asset* InParent)
 {
 	ParentAsset = InParent;
 	ComponentTransform = new Transforms();
+	Color = glm::vec3();
 }
 
 ComponentBase::~ComponentBase()

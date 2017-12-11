@@ -24,7 +24,7 @@ public:
 	std::string GetName();
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
-
+	glm::vec3 Color;
 
 
 protected:
@@ -32,4 +32,5 @@ protected:
 	std::string Name;
 	Asset* ParentAsset;
 	std::vector<ComponentBase*> Components;
+
 };

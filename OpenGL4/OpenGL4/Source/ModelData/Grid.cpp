@@ -29,6 +29,8 @@ Grid::Grid(int RowRadius, int ColumnRadius, float spacing)
 		vertices.push_back(end);
 	}
 
+	Color = glm::vec3(0.25f, 0.25f, 0.25f);
+
 	Init();
 }
 

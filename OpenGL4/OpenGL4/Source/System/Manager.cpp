@@ -72,19 +72,18 @@ void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection
 
 void Manager::BuildShaders()
 {
-	SceneShader = new Shader("Shaders/Scene.vert", "Shaders/Scene.frag");
+	SystemShader = new Shader("Shaders/System.vert", "Shaders/System.frag");
 	PickerShader = new Shader("Shaders/Picker.vert", "Shaders/Picker.frag");
 	//AssetShader = new Shader("Shaders/Lighting.vert", "Shaders/Lighting.frag");
 	LightShader = new Shader("Shaders/Lamp.vert", "Shaders/Lamp.frag");
-	ScreenShader = new Shader("Shaders/Screen.vert", "Shaders/Screen.frag");
 	DefaultShader = new Shader("Shaders/Default.vert", "Shaders/Default.frag");
 
-	SystemShaderList.push_back(SceneShader);
+	SystemShaderList.push_back(SystemShader);
 	SystemShaderList.push_back(PickerShader);
-	//ShaderList.push_back(AssetShader);
 	SystemShaderList.push_back(LightShader);
-	SystemShaderList.push_back(ScreenShader);
+
 	UserShaderList.push_back(DefaultShader);
+	//UserShaderList.push_back(AssetShader);
 }
 
 void Manager::DrawAssets(Shader* Shader)
@@ -98,8 +97,8 @@ void Manager::DrawAssets(Shader* Shader)
 
 void Manager::SetSystemShader(glm::mat4 InViewProjection)
 {
-	SceneShader->Use();
-	glUniformMatrix4fv(SceneShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
+	SystemShader->Use();
+	glUniformMatrix4fv(SystemShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
 }
 
 Asset* Manager::BuildAsset(std::string path)
@@ -302,10 +301,9 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 
 
 std::vector<Element*> Manager::GetMeshList() { return MeshList; }
-Shader* Manager::GetSceneShader() { return SceneShader; }
+Shader* Manager::GetSystemShader() { return SystemShader; }
 Shader* Manager::GetAssetShader() { return AssetShader; }
 Shader* Manager::GetLightShader() { return LightShader; }
-Shader* Manager::GetScreenShader() { return ScreenShader; }
 Shader* Manager::GetDefaultShader() { return DefaultShader; }
 Shader* Manager::GetCurrentShader() { return CurrentShader; }
 std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }

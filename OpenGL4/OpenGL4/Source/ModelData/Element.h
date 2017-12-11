@@ -23,6 +23,7 @@ public:
 
 	void Render(class Shader* shader);
 	int GetType();
+	glm::vec3 Color;
 
 protected:
 	void Init();
@@ -30,6 +31,7 @@ protected:
 	GLuint VAO, VBO, EBO;
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
+
 
 	ShaderType type;
 };
