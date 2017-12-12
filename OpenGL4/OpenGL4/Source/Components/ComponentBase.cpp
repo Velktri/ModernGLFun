@@ -51,6 +51,17 @@ void ComponentBase::ScaleComponent(float x, float y, float z)
 	ComponentTransform->Scale(x, y, z);
 }
 
+void ComponentBase::UpdateTransforms(glm::mat4 InWorldTransform)
+{
+	ComponentTransform->WorldSpaceOrientation = InWorldTransform;
+	// @TODO: add relative offsets
+
+	for (ComponentBase* comp : Components)
+	{
+		comp->UpdateTransforms(InWorldTransform);
+	}
+}
+
 std::string ComponentBase::GetName() { return Name; }
 Asset* ComponentBase::GetParentAsset() { return ParentAsset; }
 std::vector<ComponentBase*> ComponentBase::GetComponents() { return Components; }

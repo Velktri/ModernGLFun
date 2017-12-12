@@ -24,6 +24,7 @@ public:
 	std::string GetName();
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
+	void UpdateTransforms(glm::mat4 InWorldTransform);
 	glm::vec3 Color;
 
 

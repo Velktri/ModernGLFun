@@ -67,6 +67,14 @@ private:
 
 	Shader* CurrentShader;
 
+
+	/* TEMP */
+	Texture* Albedo;
+	Texture* Normal;
+	Texture* Metallic;
+	Texture* Roughness;
+	Texture* AO;
+
 	bool bIsWireFrame;
 
 	std::vector<Shader*> UserShaderList;
@@ -74,7 +82,7 @@ private:
 	void BuildShaders();
 
 	/* Textures */
-	void BuildTexture(std::string path);
+	Texture* BuildTexture(std::string path);
 	std::vector<Texture*> TextureList;
 
 	/* Lights */

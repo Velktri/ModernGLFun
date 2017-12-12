@@ -219,6 +219,8 @@
   <ItemGroup>
     <None Include="Preferences\Default\DefaultLayout.lo" />
     <None Include="Preferences\Default\SavedLayout.lo" />
+    <None Include="Shaders\PBR.frag" />
+    <None Include="Shaders\PBR.vert" />
     <None Include="Source\imgui.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

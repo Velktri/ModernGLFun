@@ -3,11 +3,15 @@
 Light::Light() {
 	WorldPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	BuildLight();
+
+	Color = glm::vec3(150.0f, 150.0f, 150.0f);
 }
 
 Light::Light(glm::vec3 Position) {
 	WorldPosition = Position;
 	BuildLight();
+
+	Color = glm::vec3(150.0f, 150.0f, 150.0f);
 }
 
 

@@ -68,7 +68,7 @@ void VR_HMD::UpdateHMDMatrixPose()
 
 		if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
 		{
-			HMDDevice.PoseData = glm::inverse(Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking));
+			HMDDevice.PoseData = /*glm::inverse(*/Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking)/*)*/;
 		}
 
 		if (TrackedDevicePose[LeftController.DeviceID].bPoseIsValid)
@@ -182,21 +182,25 @@ void VR_HMD::RenderVRDevices()
 		RightController.DeviceModel->SetWorldSpace(RightController.PoseData);
 	}
 
-	//if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
-	//{
-	//	HMDDevice.DeviceModel->SetWorldSpace(DevicePose[HMDDevice.DeviceID]);
-	//}
+	if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
+	{
+		HMDDevice.DeviceModel->SetWorldSpace(HMDDevice.PoseData);
+	}
 }
 
 void VR_HMD::RenderHMDEyes()
 {
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glEnable(GL_MULTISAMPLE);
-	glm::vec3 HMDPosition = glm::vec3(HMDDevice.PoseData[0][3], HMDDevice.PoseData[1][3], HMDDevice.PoseData[2][3]);
+
+	//glm::mat4 tempMat = Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking);
+	//glm::vec3 HMDPosition = glm::vec3(tempMat[3][0], tempMat[3][1], tempMat[3][2]);
+	glm::vec3 HMDPosition = glm::vec3(HMDDevice.PoseData[3][0], HMDDevice.PoseData[3][1], HMDDevice.PoseData[3][2]);
 
 	// Left Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Left), glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -215,6 +219,7 @@ void VR_HMD::RenderHMDEyes()
 	// Right Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Right), glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -234,11 +239,11 @@ glm::mat4 VR_HMD::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	glm::mat4 matMVP;
 	if (nEye == vr::Eye_Left)
 	{
-		matMVP = Projection_Left * WorldPosition_Left * HMDDevice.PoseData;
+		matMVP = Projection_Left * WorldPosition_Left * glm::inverse(HMDDevice.PoseData);
 	}
 	else if (nEye == vr::Eye_Right)
 	{
-		matMVP = Projection_Right * WorldPosition_Right * HMDDevice.PoseData;
+		matMVP = Projection_Right * WorldPosition_Right * glm::inverse(HMDDevice.PoseData);
 	}
 
 	return matMVP;

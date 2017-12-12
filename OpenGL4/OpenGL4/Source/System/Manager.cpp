@@ -21,6 +21,21 @@ Manager::Manager()
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 	bIsWireFrame = false;
+
+	BuildLights(); // TEMP
+
+	Albedo = BuildTexture("Models/Textures/Albedo.png");
+	Normal = BuildTexture("Models/Textures/Normal.png");
+	Metallic = BuildTexture("Models/Textures/Metallic.png");
+	Roughness = BuildTexture("Models/Textures/Roughness.png");
+	AO = BuildTexture("Models/Textures/AO.png");
+
+	DefaultShader->Use();
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "albedoMap"), 0);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "normalMap"), 1);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "metallicMap"), 2);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "roughnessMap"), 3);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "aoMap"), 4);
 }
 
 
@@ -49,7 +64,32 @@ void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection
 		
 
 		glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
-		glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y + 1, InCameraPosition.z);
+		glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Albedo->GetTexture());
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, Normal->GetTexture());
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, Metallic->GetTexture());
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, Roughness->GetTexture());
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, AO->GetTexture());
+		
+		for (int i = 0; i < LightsList.size(); i++)
+		{
+			glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
+						"lightPositions"), 
+						 1, 
+						 &LightsList[i]->WorldPosition[0]); 
+
+			glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
+						"lightColors"), 
+						 1, 
+						 &LightsList[i]->Color[0]); 
+		}
+
 		//glm::vec3 pos = WorldCamera->GetPosition();
 		//glUniform3f(AssetShader->ShaderList["viewPos"], pos.x, pos.y, pos.z);
 		//glUniform3f(AssetShader->ShaderList["dirLight.position"], 0.0f, 0.0f, 0.0f);
@@ -76,7 +116,9 @@ void Manager::BuildShaders()
 	PickerShader = new Shader("Shaders/Picker.vert", "Shaders/Picker.frag");
 	//AssetShader = new Shader("Shaders/Lighting.vert", "Shaders/Lighting.frag");
 	LightShader = new Shader("Shaders/Lamp.vert", "Shaders/Lamp.frag");
-	DefaultShader = new Shader("Shaders/Default.vert", "Shaders/Default.frag");
+	//DefaultShader = new Shader("Shaders/Default.vert", "Shaders/Default.frag");
+
+	DefaultShader = new Shader("Shaders/PBR.vert", "Shaders/PBR.frag");
 
 	SystemShaderList.push_back(SystemShader);
 	SystemShaderList.push_back(PickerShader);
@@ -213,14 +255,16 @@ void Manager::AddAssetToPool(Asset* InAsset)
 	}
 }
 
-void Manager::BuildTexture(std::string path)
+Texture* Manager::BuildTexture(std::string path)
 {
-	TextureList.push_back(new Texture(path));
+	Texture* newTexture = new Texture(path);
+	if (newTexture) { TextureList.push_back(newTexture); }
+	return newTexture;
 }
 
 void Manager::BuildLights()
 {
-	LightsList.push_back(new Light(glm::vec3(-3.0f, 2.0f, 0.0f)));
+	LightsList.push_back(new Light(glm::vec3(5.0f, 7.0f, 0.0f)));
 }
 
 Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)

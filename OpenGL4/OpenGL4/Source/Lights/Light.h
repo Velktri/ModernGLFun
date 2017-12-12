@@ -13,6 +13,7 @@ public:
 	~Light();
 
 	glm::vec3 WorldPosition;
+	glm::vec3 Color;
 	int indicesSize;
 
 	GLuint GetVAO();

@@ -43,11 +43,19 @@ void Asset::ScaleAsset(float x, float y, float z)
 	AssetTransform->Scale(x, y, z);
 }
 
+void Asset::SetWorldSpace(glm::mat4 InWorldSpace) 
+{ 
+	AssetTransform->WorldSpaceOrientation = InWorldSpace;
+	for (ComponentBase* comp : Root->GetComponents())
+	{
+		comp->UpdateTransforms(InWorldSpace);
+	}
+}
+
 
 /** Getters */
 glm::vec3 Asset::GetOrigin() { return AssetTransform->OriginPoint; }
 GLuint Asset::GetAssetID() { return AssetID; }
 glm::mat4 Asset::GetWorldSpace() { return AssetTransform->WorldSpaceOrientation; }
-void Asset::SetWorldSpace(glm::mat4 InWorldSpace) { AssetTransform->WorldSpaceOrientation = InWorldSpace; }
 ComponentBase* Asset::GetRoot() { return Root; }
 Manager* Asset::GetManager() { return MyManager; }

@@ -4,7 +4,9 @@
 #include "../Shared/lodepng.h"
 
 Texture::Texture(std::string texturePath) {
+	unsigned int textureWidth, textureHeight;
 	unsigned nError = lodepng::decode(imageRGBA, textureWidth, textureHeight, texturePath.c_str());
+	TextureDimensions = glm::vec2(textureWidth, textureHeight);
 
 	if (nError != 0) {
 		std::cout << "Texture Loading Failed: Could not find " << texturePath << std::endl;
@@ -12,7 +14,7 @@ Texture::Texture(std::string texturePath) {
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageRGBA[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TextureDimensions.x, TextureDimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageRGBA[0]);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -35,12 +37,4 @@ Texture::~Texture() {
 
 GLuint Texture::GetTexture() {
 	return texture;
-}
-
-std::string Texture::GetType() {
-	return type;
-}
-
-void Texture::SetType(std::string InType) {
-	type = InType;
 }

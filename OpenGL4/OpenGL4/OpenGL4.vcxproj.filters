@@ -226,5 +226,7 @@
     <None Include="Source\imgui.ini" />
     <None Include="Preferences\Default\DefaultLayout.lo" />
     <None Include="Preferences\Default\SavedLayout.lo" />
+    <None Include="Shaders\PBR.vert" />
+    <None Include="Shaders\PBR.frag" />
   </ItemGroup>
 </Project>

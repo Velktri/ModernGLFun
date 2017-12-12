@@ -1,5 +1,10 @@
 #pragma once
 #include <GL/glew.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <string>
 #include <vector>
 
@@ -9,13 +14,10 @@ public:
 	~Texture();
 
 	GLuint GetTexture();
-	std::string GetType();
-	void SetType(std::string InType);
 
 private:
 	GLuint texture;
-	std::string type;
-	unsigned textureWidth, textureHeight;
+	glm::vec2 TextureDimensions;
 	std::vector<unsigned char> imageRGBA;
 };
 

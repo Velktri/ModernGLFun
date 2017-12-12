@@ -19,7 +19,7 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::Render(Shader* shader)
 {
-	if (MeshData)
+	if (MeshData && GetParentAsset()->Name != "MeshAsset_") //@TODO: add toggle visibility for assets
 	{
 		glUniform3f(shader->ShaderList["color"], Color.x, Color.y, Color.z);
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(ComponentTransform->WorldSpaceOrientation));
