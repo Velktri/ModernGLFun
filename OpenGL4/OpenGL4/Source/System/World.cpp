@@ -39,8 +39,8 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, 
 	MyManager->SetCurrentShader(NULL);
 	for each (Shader* s in MyManager->GetUserShaderList())
 	{
-		MyManager->ShadeAssets(InCameraPosition, InViewProjection, GetLights(), s);
-		MyManager->DrawAssets(s);
+		//MyManager->ShadeAssets(InCameraPosition, InViewProjection, GetLights(), s);
+		MyManager->DrawAssets(InCameraPosition, InViewProjection, s);
 	}
 
 	MyManager->ShadeLights(InViewProjection, MyManager->GetLightShader());

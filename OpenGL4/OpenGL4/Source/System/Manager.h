@@ -10,14 +10,15 @@ class Camera;
 class Texture;
 class Element;
 class Mesh;
+class Material;
 
 class Manager {
 public:
 	Manager();
 	~Manager();
 
-	void ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader);
-	void DrawAssets(Shader* AssetShader);
+	//void ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader);
+	void DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* AssetShader);
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
 	void ShadeLights(glm::mat4 InViewProjection, Shader* LightShader);
@@ -35,10 +36,11 @@ public:
 	/* GETTERS */
 	std::vector<Element*> GetMeshList();
 	Shader* GetSystemShader();
-	Shader* GetAssetShader();
 	Shader* GetLightShader();
 	Shader* GetDefaultShader();
 	Shader* GetCurrentShader();
+	Texture* GetDefaultTexture();
+	Material* GetDefaultMaterial();
 	std::vector<Shader*> GetUserShaderList();
 	Asset* GetSelectedAsset();
 	std::vector<Asset*> GetAssets();
@@ -49,31 +51,34 @@ public:
 	void SetPickerShader();
 	void SetCurrentShader(Shader* s);
 
+	glm::vec3 testColor;
+	float testRoughness;
+	float testMetallic;
+	Texture* BuildTexture(std::string path); //TEMP
+
 private:
+	// @TODO: create texture, shader, and material pools.
+	// @TODO: move assets to world class.
+
 	/* Assets */
 	std::unordered_map<Shader*, std::vector<Asset*>> AssetMap;
 	std::vector<Asset*> AssetList;
 	Asset* SelectedAsset;
+
+
 
 	/* Pools */
 	std::unordered_map<std::string, Mesh*> MeshPool;
 
 	/* Shader */
 	Shader* SystemShader;
-	Shader* AssetShader;
 	Shader* LightShader;
 	Shader* DefaultShader;
 	Shader* PickerShader;
-
 	Shader* CurrentShader;
 
-
-	/* TEMP */
-	Texture* Albedo;
-	Texture* Normal;
-	Texture* Metallic;
-	Texture* Roughness;
-	Texture* AO;
+	/* Material */
+	Material* DefaultMaterial;
 
 	bool bIsWireFrame;
 
@@ -82,8 +87,9 @@ private:
 	void BuildShaders();
 
 	/* Textures */
-	Texture* BuildTexture(std::string path);
+	//Texture* BuildTexture(std::string path);
 	std::vector<Texture*> TextureList;
+	Texture* DefaultTexture;
 
 	/* Lights */
 	std::vector<Light*> LightsList;

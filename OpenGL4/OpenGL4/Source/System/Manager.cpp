@@ -6,6 +6,7 @@
 #include "ModelData/Mesh.h"
 #include "ModelData/Element.h"
 #include "ModelData/Curve.h"
+#include "System/Material.h"
 #include "Components/MeshComponent.h"
 #include "Lights/Light.h"
 #include <iostream>
@@ -22,20 +23,11 @@ Manager::Manager()
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 	bIsWireFrame = false;
 
-	BuildLights(); // TEMP
+	DefaultTexture = BuildTexture("Models/Textures/Default.png");
 
-	Albedo = BuildTexture("Models/Textures/Albedo.png");
-	Normal = BuildTexture("Models/Textures/Normal.png");
-	Metallic = BuildTexture("Models/Textures/Metallic.png");
-	Roughness = BuildTexture("Models/Textures/Roughness.png");
-	AO = BuildTexture("Models/Textures/AO.png");
+	DefaultMaterial = new Material(this, DefaultShader); // create BuildMaterial function.
 
-	DefaultShader->Use();
-	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "albedoMap"), 0);
-	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "normalMap"), 1);
-	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "metallicMap"), 2);
-	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "roughnessMap"), 3);
-	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "aoMap"), 4);
+	BuildLights(); // @TEMP
 }
 
 
@@ -55,69 +47,54 @@ Manager::~Manager()
 	for each (Light* l in LightsList)  {  l->~Light();  }
 }
 
-void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader)
-{
-	if (InCurrentShader != CurrentShader)
-	{
-		CurrentShader = InCurrentShader;
-		CurrentShader->Use();
-		
-
-		glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
-		glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, Albedo->GetTexture());
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, Normal->GetTexture());
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, Metallic->GetTexture());
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, Roughness->GetTexture());
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, AO->GetTexture());
-		
-		for (int i = 0; i < LightsList.size(); i++)
-		{
-			glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
-						"lightPositions"), 
-						 1, 
-						 &LightsList[i]->WorldPosition[0]); 
-
-			glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
-						"lightColors"), 
-						 1, 
-						 &LightsList[i]->Color[0]); 
-		}
-
-		//glm::vec3 pos = WorldCamera->GetPosition();
-		//glUniform3f(AssetShader->ShaderList["viewPos"], pos.x, pos.y, pos.z);
-		//glUniform3f(AssetShader->ShaderList["dirLight.position"], 0.0f, 0.0f, 0.0f);
-		//glUniform3f(AssetShader->ShaderList["dirLight.ambient"], 0.05f, 0.05f, 0.05f);
-		//glUniform3f(AssetShader->ShaderList["dirLight.diffuse"], 1.0f, 1.0f, 1.0f);
-		//glUniform3f(AssetShader->ShaderList["dirLight.specular"], 0.5f, 0.5f, 0.5f);
-		//glUniform1i(AssetShader->ShaderList["material.diffuse"], 0);
-		//glUniform1i(AssetShader->ShaderList["material.specular"], 1);
-		//glUniform1f(AssetShader->ShaderList["material.shininess"], 32.0f);
-
-		//glUniform3f(AssetShader->ShaderList["pointLight.position"], Lights[0]->WorldPosition.x, Lights[0]->WorldPosition.y, Lights[0]->WorldPosition.z);
-		//glUniform3f(AssetShader->ShaderList["pointLight.ambient"], 0.05f, 0.05f, 0.05f);
-		//glUniform3f(AssetShader->ShaderList["pointLight.diffuse"], 0.8f, 0.8f, 0.8f);
-		//glUniform3f(AssetShader->ShaderList["pointLight.specular"], 1.0f, 1.0f, 1.0f);
-		//glUniform1f(AssetShader->ShaderList["pointLight.constant"], 1.0f);
-		//glUniform1f(AssetShader->ShaderList["pointLight.linear"], 0.09);
-		//glUniform1f(AssetShader->ShaderList["pointLight.quadratic"], 0.032);
-	}
-}
+//void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader)
+//{
+//	if (InCurrentShader != CurrentShader)
+//	{
+//		CurrentShader = InCurrentShader;
+//		CurrentShader->Use();
+//		
+//
+//		//glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
+//		//glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
+//
+//		//glActiveTexture(GL_TEXTURE1);
+//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Albedo->GetTexture() : DefaultTexture->GetTexture());
+//		//glActiveTexture(GL_TEXTURE2);
+//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Normal->GetTexture() : DefaultTexture->GetTexture());
+//		//glActiveTexture(GL_TEXTURE3);
+//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Metallic->GetTexture() : DefaultTexture->GetTexture());
+//		//glActiveTexture(GL_TEXTURE4);
+//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Roughness->GetTexture() : DefaultTexture->GetTexture());
+//		//glActiveTexture(GL_TEXTURE5);
+//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? AO->GetTexture() : DefaultTexture->GetTexture());
+//
+//		//glUniform3f(CurrentShader->ShaderList["colorTest"], testColor.x, testColor.y, testColor.z);
+//		//glUniform1f(CurrentShader->ShaderList["roughnessTest"], testRoughness);
+//		//glUniform1f(CurrentShader->ShaderList["metallicTest"], testMetallic);
+//		//glUniform1i(CurrentShader->ShaderList["bHasNormalMap"], showAlbedo);
+//		//
+//		//
+//		//for (int i = 0; i < LightsList.size(); i++)
+//		//{
+//		//	glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
+//		//				"lightPositions"), 
+//		//				 1, 
+//		//				 &LightsList[i]->WorldPosition[0]); 
+//
+//		//	glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
+//		//				"lightColors"), 
+//		//				 1, 
+//		//				 &LightsList[i]->Color[0]); 
+//		//}
+//	}
+//}
 
 void Manager::BuildShaders()
 {
 	SystemShader = new Shader("Shaders/System.vert", "Shaders/System.frag");
 	PickerShader = new Shader("Shaders/Picker.vert", "Shaders/Picker.frag");
-	//AssetShader = new Shader("Shaders/Lighting.vert", "Shaders/Lighting.frag");
 	LightShader = new Shader("Shaders/Lamp.vert", "Shaders/Lamp.frag");
-	//DefaultShader = new Shader("Shaders/Default.vert", "Shaders/Default.frag");
-
 	DefaultShader = new Shader("Shaders/PBR.vert", "Shaders/PBR.frag");
 
 	SystemShaderList.push_back(SystemShader);
@@ -125,11 +102,14 @@ void Manager::BuildShaders()
 	SystemShaderList.push_back(LightShader);
 
 	UserShaderList.push_back(DefaultShader);
-	//UserShaderList.push_back(AssetShader);
 }
 
-void Manager::DrawAssets(Shader* Shader)
+void Manager::DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* Shader)
 {
+	Shader->Use();
+	glUniformMatrix4fv(Shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
+	glUniform3f(Shader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
+
 	for each (Asset* mod in AssetMap[Shader])
 	{
 		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
@@ -264,7 +244,7 @@ Texture* Manager::BuildTexture(std::string path)
 
 void Manager::BuildLights()
 {
-	LightsList.push_back(new Light(glm::vec3(5.0f, 7.0f, 0.0f)));
+	LightsList.push_back(new Light(glm::vec3(-5.0f, 5.0f, 0.0f)));
 }
 
 Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
@@ -272,6 +252,7 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
+	bool bHasTextureCoords = false;
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -294,6 +275,7 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 		if (mesh->mTextureCoords[0])
 		{
 			vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+			bHasTextureCoords = true;
 		}
 		else
 		{
@@ -321,7 +303,7 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 	//	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	//}
 
-	Mesh* NewMesh = new Mesh(vertices, indices);
+	Mesh* NewMesh = new Mesh(vertices, indices, bHasTextureCoords);
 	if (NewMesh) { MeshPool.emplace(path, NewMesh); }
 	return NewMesh;
 }
@@ -346,10 +328,11 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 
 std::vector<Element*> Manager::GetMeshList() { return MeshList; }
 Shader* Manager::GetSystemShader() { return SystemShader; }
-Shader* Manager::GetAssetShader() { return AssetShader; }
 Shader* Manager::GetLightShader() { return LightShader; }
 Shader* Manager::GetDefaultShader() { return DefaultShader; }
 Shader* Manager::GetCurrentShader() { return CurrentShader; }
+Texture* Manager::GetDefaultTexture() { return DefaultTexture; }
+Material* Manager::GetDefaultMaterial() { return DefaultMaterial; }
 std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
 Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
 std::vector<Asset*> Manager::GetAssets() { return AssetList; }

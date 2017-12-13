@@ -173,6 +173,7 @@
     <ClCompile Include="Source\System\FrameBuffer.cpp" />
     <ClCompile Include="Source\System\Input.cpp" />
     <ClCompile Include="Source\System\Manager.cpp" />
+    <ClCompile Include="Source\System\Material.cpp" />
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\System\World.cpp" />
     <ClCompile Include="Source\UI\Layout.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Source\System\FrameBuffer.h" />
     <ClInclude Include="Source\System\Input.h" />
     <ClInclude Include="Source\System\Manager.h" />
+    <ClInclude Include="Source\System\Material.h" />
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\System\World.h" />
     <ClInclude Include="Source\UI\Layout.h" />

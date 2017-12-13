@@ -22,7 +22,12 @@ public:
 	~Element();
 
 	void Render(class Shader* shader);
+
+
+
+	/* GETTERS */
 	int GetType();
+	bool HasTextureCoords();
 	glm::vec3 Color;
 
 protected:
@@ -31,6 +36,7 @@ protected:
 	GLuint VAO, VBO, EBO;
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
+	bool BhasTexCoords;
 
 
 	ShaderType type;

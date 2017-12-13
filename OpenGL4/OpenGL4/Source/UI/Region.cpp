@@ -242,6 +242,17 @@ void Container::AssetEditorRegion()
 	BeginStyledMenuBar();
 		PanelSwitcher();
 	EndStyledMenuBar();
+
+	// @TEMP
+	static ImVec4 AlbedoColor = ImColor(114, 144, 154, 200);
+	ImGui::Text("Albedo Color:");
+	ImGui::SameLine(); ShowHelpMarker("Click on the colored square to open a color picker.\nCTRL+click on individual component to input value.\n");
+	ImGui::ColorEdit3("MyColor##1", (float*) &AlbedoColor, ImGuiColorEditFlags_HDR);
+	GetOwningLayout()->GetManager()->testColor = glm::vec3(AlbedoColor.x, AlbedoColor.y, AlbedoColor.z);
+	//ImGui::SameLine(); ImGui::Checkbox("Show Texture", &GetOwningLayout()->GetManager()->showAlbedo);
+
+	ImGui::SliderFloat("Roughness", &GetOwningLayout()->GetManager()->testRoughness, 0.025f, 1.0f);
+	ImGui::SliderFloat("Metallic", &GetOwningLayout()->GetManager()->testMetallic, 0.0f, 1.0f);
 	
 	/*
   ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);

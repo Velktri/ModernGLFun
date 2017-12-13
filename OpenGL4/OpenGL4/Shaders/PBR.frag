@@ -11,6 +11,11 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 
+uniform vec3 colorTest;
+uniform float metallicTest;
+uniform float roughnessTest;
+uniform bool bHasNormalMap;
+
 // lights
 uniform vec3 lightPositions;
 uniform vec3 lightColors;
@@ -82,12 +87,12 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 // ----------------------------------------------------------------------------
 void main()
 {		
-    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(metallicMap, TexCoords).r;
-    float roughness = texture(roughnessMap, TexCoords).r;
+    vec3 albedo     = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2)) * colorTest;
+    float metallic  = texture(metallicMap, TexCoords).r * metallicTest;
+    float roughness = texture(roughnessMap, TexCoords).r * roughnessTest;
     float ao        = texture(aoMap, TexCoords).r;
 
-    vec3 N = getNormalFromMap();
+    vec3 N = (bHasNormalMap) ? getNormalFromMap() : normalize(Normal);
     vec3 V = normalize(cameraPos - WorldPos);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 

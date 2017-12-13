@@ -7,6 +7,7 @@ Element::Element()
 {
 	type = NONE;
 	Color = glm::vec3(0.0f, 0.0f, 0.0f);
+	BhasTexCoords = false;
 }
 
 Element::~Element()
@@ -83,7 +84,5 @@ void Element::Render(Shader* shader)
 	}
 }
 
-int Element::GetType()
-{
-	return type;
-}
+int Element::GetType() { return type; }
+bool Element::HasTextureCoords() { return BhasTexCoords; }
