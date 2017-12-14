@@ -160,3 +160,4 @@ glm::mat4 Camera::GetProjection() { return Projection; }
 glm::mat4 Camera::GetViewMatrix() { return ViewMatrix; }
 glm::mat4 Camera::GetViewProjection() { return Projection * ViewMatrix; }
 Universe* Camera::GetOwningUniverse() { return OwningUniverse; }
+FrameBuffer* Camera::GetPickerFrame() { return PickerFrame; }

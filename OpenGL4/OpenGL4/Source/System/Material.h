@@ -10,6 +10,7 @@
 class Shader;
 class Manager;
 class Texture;
+class MeshComponent;
 
 class Material : public Resource
 {
@@ -17,7 +18,7 @@ public:
 	Material(Manager* InManager, Shader* InShader);
 	~Material();
 
-	void ShadeMesh(bool bHasUVs);
+	void ShadeMesh(MeshComponent* OwningComponent, bool bHasUVs);
 
 	/* Texture Inputs */
 	Texture* Albedo;

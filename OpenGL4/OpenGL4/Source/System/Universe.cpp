@@ -6,6 +6,7 @@
 #include "World.h"
 #include "Timer.h"
 #include "Camera.h"
+#include "System/FrameBuffer.h"
 #include "VR_HMD.h"
 
 Universe::Universe(Manager* InManager)
@@ -84,6 +85,12 @@ void Universe::RenderVR()
 	{
 		UserCameras.VRCamera->Render();
 	}
+}
+
+void Universe::GetSelectionResults(glm::vec2 Coords, glm::vec2 SceneSize)
+{
+	UserCameras.Perspective->RenderCameraFrame(SceneSize, EFrameTypes::ColorPicker);
+	UserCameras.Perspective->GetPickerFrame()->GetFrameSelection(MyManager, Coords);
 }
 
 /* 

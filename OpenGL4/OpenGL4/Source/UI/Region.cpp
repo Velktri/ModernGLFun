@@ -170,15 +170,6 @@ void Container::SceneRegion()
 			ImGui::Image((GLuint*) CameraFrame, SceneSize, ImVec2(0, 1), ImVec2(1, 0), ImColor(255, 255, 255, 255), ImVec4(0, 0, 0, 0));
 		}
 
-		//if (OwningLayout->IsSceneClicked() && OwningLayout->GetPolledRegion() == OwningNode->GetNodeID())
-		//{
-		//	glm::vec2 coords = OwningLayout->GetInput()->StartSelectionCoods;
-		//	coords.x -= ScenePosition.x;
-		//	coords.y -= ScenePosition.y;
-		//	//printf("%f, %f\n", coords.x, coords.y);
-		//	OwningLayout->GetManager()->CheckForSelection(PickerFrame->RenderColorPick(OwningLayout->GetUniverse(), glm::vec2(SceneSize.x, SceneSize.y), coords));
-		//}
-
 		bIsSceneHovered = false;
 		if (ImGui::IsItemHovered()) { bIsSceneHovered = true; }
 	ImGui::EndGroup();
@@ -200,8 +191,10 @@ void Container::OutlinerRegion()
 	{
 		char label[32];
 		sprintf_s(label, "Item %d", n);
-		if (ImGui::Selectable(CurrentAssets[n]->Name.c_str())) {}
-		//if (ImGui::Button(label, ImVec2(-1,0))) {}
+		if (ImGui::Selectable(CurrentAssets[n]->Name.c_str(), CurrentAssets[n] == GetOwningLayout()->GetManager()->GetSelectedAsset())) 
+		{ 
+			GetOwningLayout()->GetManager()->SetSelectedAsset(CurrentAssets[n]);  
+		}
 		ImGui::NextColumn();
 	}
 }
@@ -244,15 +237,18 @@ void Container::AssetEditorRegion()
 	EndStyledMenuBar();
 
 	// @TEMP
-	static ImVec4 AlbedoColor = ImColor(114, 144, 154, 200);
-	ImGui::Text("Albedo Color:");
-	ImGui::SameLine(); ShowHelpMarker("Click on the colored square to open a color picker.\nCTRL+click on individual component to input value.\n");
-	ImGui::ColorEdit3("MyColor##1", (float*) &AlbedoColor, ImGuiColorEditFlags_HDR);
-	GetOwningLayout()->GetManager()->testColor = glm::vec3(AlbedoColor.x, AlbedoColor.y, AlbedoColor.z);
-	//ImGui::SameLine(); ImGui::Checkbox("Show Texture", &GetOwningLayout()->GetManager()->showAlbedo);
+	Asset* SelectedAsset = GetOwningLayout()->GetManager()->GetSelectedAsset();
+	if (SelectedAsset)
+	{
+		ImVec4 AlbedoColor = ImColor(SelectedAsset->testColor.x, SelectedAsset->testColor.y, SelectedAsset->testColor.z, 0.0f);
+		ImGui::Text("Albedo Color:");
+		ImGui::SameLine(); ShowHelpMarker("Click on the colored square to open a color picker.\nCTRL+click on individual component to input value.\n");
+		ImGui::ColorEdit3("MyColor##1", (float*) &AlbedoColor, ImGuiColorEditFlags_HDR);
+		SelectedAsset->testColor = glm::vec3(AlbedoColor.x, AlbedoColor.y, AlbedoColor.z);
 
-	ImGui::SliderFloat("Roughness", &GetOwningLayout()->GetManager()->testRoughness, 0.025f, 1.0f);
-	ImGui::SliderFloat("Metallic", &GetOwningLayout()->GetManager()->testMetallic, 0.0f, 1.0f);
+		ImGui::SliderFloat("Roughness", &SelectedAsset->testRoughness, 0.025f, 1.0f);
+		ImGui::SliderFloat("Metallic", &SelectedAsset->testMetallic, 0.0f, 1.0f);
+	}
 	
 	/*
   ImGui::SetNextWindowSize(ImVec2(420, 450), ImGuiSetCond_FirstUseEver);

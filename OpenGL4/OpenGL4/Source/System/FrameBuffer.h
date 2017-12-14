@@ -6,6 +6,7 @@
 
 class World;
 class Camera;
+class Manager;
 
 class FrameBuffer {
 public:
@@ -13,7 +14,8 @@ public:
 	~FrameBuffer();
 
 	void RenderWorldFrame(Camera* InCamera, World* world, glm::vec2 FrameSize); 
-	void RenderColorPick(Camera* InCamera, World* world, glm::vec2 FrameSize/*, glm::vec2 pickerCoords*/);
+	void RenderColorPick(Camera* InCamera, World* world, glm::vec2 FrameSize);
+	void GetFrameSelection(Manager* InManager, glm::vec2 pickerCoords);
 	GLuint GetFrameTexture();
 
 

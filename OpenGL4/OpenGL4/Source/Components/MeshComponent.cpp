@@ -26,7 +26,7 @@ void MeshComponent::Render(Shader* InShader)
 	{
 		glUniform3f(InShader->ShaderList["color"], Color.x, Color.y, Color.z);
 		glUniformMatrix4fv(InShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(ComponentTransform->WorldSpaceOrientation));
-		MeshMaterial->ShadeMesh(MeshData->HasTextureCoords());
+		MeshMaterial->ShadeMesh(this, MeshData->HasTextureCoords());
 		MeshData->Render(InShader);
 	}
 

@@ -40,3 +40,4 @@ Texture::~Texture()
 }
 
 GLuint Texture::GetTexture() { return texture; }
+glm::vec2 Texture::GetTextureSize() { return TextureDimensions; }

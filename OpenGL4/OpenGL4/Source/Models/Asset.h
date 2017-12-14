@@ -44,6 +44,9 @@ public:
 	ComponentBase* GetRoot();
 	Manager* GetManager();
 
+	glm::vec3 testColor;
+	float testRoughness;
+	float testMetallic;
 
 private:
 	Transforms* AssetTransform;

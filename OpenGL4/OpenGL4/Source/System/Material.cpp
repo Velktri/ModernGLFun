@@ -3,6 +3,7 @@
 #include "System/Manager.h"
 #include "Lights/Light.h"
 #include "ModelData/Texture.h"
+#include "Components/MeshComponent.h"
 #include "System/Manager.h"
 
 Material::Material(Manager* InManager, Shader* InShader)
@@ -29,7 +30,7 @@ Material::~Material()
 
 }
 
-void Material::ShadeMesh(bool bHasUVs)
+void Material::ShadeMesh(MeshComponent* OwningComponent, bool bHasUVs)
 {
 	Texture* DefaultTexture = OwningManager->GetDefaultTexture();
 
@@ -44,10 +45,10 @@ void Material::ShadeMesh(bool bHasUVs)
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, (AO && bHasUVs) ? AO->GetTexture() : DefaultTexture->GetTexture());
 
-
-	glUniform3f(CoreShader->ShaderList["colorTest"], OwningManager->testColor.x, OwningManager->testColor.y, OwningManager->testColor.z);
-	glUniform1f(CoreShader->ShaderList["roughnessTest"], OwningManager->testRoughness);
-	glUniform1f(CoreShader->ShaderList["metallicTest"], OwningManager->testMetallic);
+	Asset* ParentAsset = OwningComponent->GetParentAsset();
+	glUniform3f(CoreShader->ShaderList["colorTest"], ParentAsset->testColor.x, ParentAsset->testColor.y, ParentAsset->testColor.z);
+	glUniform1f(CoreShader->ShaderList["roughnessTest"], ParentAsset->testRoughness);
+	glUniform1f(CoreShader->ShaderList["metallicTest"], ParentAsset->testMetallic);
 
 	std::vector<Light*> LightsList = OwningManager->GetLights();
 	for (int i = 0; i < LightsList.size(); i++)

@@ -18,7 +18,6 @@ public:
 	Manager();
 	~Manager();
 
-	void DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* AssetShader);
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
 	void ShadeLights(glm::mat4 InViewProjection, Shader* LightShader);
@@ -45,6 +44,7 @@ public:
 	Asset* GetSelectedAsset();
 	std::vector<Asset*> GetAssets();
 	int GetAssetListSize();
+	std::vector<Asset*> GetAssetsFromMap(Shader* InShader);
 	std::vector<Light*> GetLights();
 	void SetSystemShader(glm::mat4 InViewProjection);
 	void SetSelectedAsset(Asset* InAsset);

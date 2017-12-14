@@ -37,10 +37,17 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, 
 
 	/* User Rendering */
 	MyManager->SetCurrentShader(NULL);
-	for each (Shader* s in MyManager->GetUserShaderList())
+	for each (Shader* Shade in MyManager->GetUserShaderList())
 	{
-		//MyManager->ShadeAssets(InCameraPosition, InViewProjection, GetLights(), s);
-		MyManager->DrawAssets(InCameraPosition, InViewProjection, s);
+		Shade->Use();
+		glUniformMatrix4fv(Shade->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
+		glUniform3f(Shade->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
+
+		for each (Asset* mod in MyManager->GetAssetsFromMap(Shade))
+		{
+			glUniformMatrix4fv(Shade->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
+			mod->Render(Shade);
+		}
 	}
 
 	MyManager->ShadeLights(InViewProjection, MyManager->GetLightShader());

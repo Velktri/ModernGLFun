@@ -62,6 +62,7 @@ public:
 	Gizmo* GetGizmo();
 	void RenderVR();
 
+	void GetSelectionResults(glm::vec2 Coords, glm::vec2 SceneSize);
 private:
 	CameraSet UserCameras;
 	Manager* MyManager;

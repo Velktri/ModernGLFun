@@ -64,20 +64,6 @@ void Manager::BuildShaders()
 	UserShaderList.push_back(DefaultShader);
 }
 
-// @TODO: move to world once assets get moved.
-void Manager::DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* Shader)
-{
-	Shader->Use();
-	glUniformMatrix4fv(Shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
-	glUniform3f(Shader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
-
-	for each (Asset* mod in AssetMap[Shader])
-	{
-		glUniformMatrix4fv(Shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
-		mod->Render(Shader);
-	}
-}
-
 void Manager::SetSystemShader(glm::mat4 InViewProjection)
 {
 	SystemShader->Use();
@@ -272,7 +258,7 @@ Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for mul
 	//	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	//}
 
-	return new Mesh(vertices, indices, bHasTextureCoords);;
+	return new Mesh(vertices, indices, bHasTextureCoords);
 }
 
 //std::vector<Texture> Manager::ProcessTexture(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -304,6 +290,7 @@ std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
 Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
 std::vector<Asset*> Manager::GetAssets() { return AssetList; }
 int Manager::GetAssetListSize() { return AssetList.size(); }
+std::vector<Asset*> Manager::GetAssetsFromMap(Shader* InShader) { return AssetMap[InShader]; }
 std::vector<Light*> Manager::GetLights() { return LightsList; }
 void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
 void Manager::SetPickerShader() { CurrentShader = PickerShader; }

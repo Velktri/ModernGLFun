@@ -38,6 +38,7 @@ public:
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetViewProjection();
 	Universe* GetOwningUniverse();
+	FrameBuffer* GetPickerFrame();
 
 private:
 	/* Camera World Attributes */

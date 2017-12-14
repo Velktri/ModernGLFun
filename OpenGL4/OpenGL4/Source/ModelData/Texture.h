@@ -16,6 +16,7 @@ public:
 	~Texture();
 
 	GLuint GetTexture();
+	glm::vec2 GetTextureSize();
 
 private:
 	GLuint texture;

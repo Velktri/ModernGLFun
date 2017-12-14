@@ -1,5 +1,6 @@
 #include "FrameBuffer.h"
 #include "World.h"
+#include "System/Manager.h"
 #include "Camera.h"
 #include <iostream>
 
@@ -44,7 +45,7 @@ void FrameBuffer::RenderWorldFrame(Camera* InCamera, World* InWorld, glm::vec2 F
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void FrameBuffer::RenderColorPick(Camera* InCamera, World* InWorld, glm::vec2 FrameSize/*, glm::vec2 pickerCoords*/) // @TODO: expand to use box select in future. Move color selection to different function.
+void FrameBuffer::RenderColorPick(Camera* InCamera, World* InWorld, glm::vec2 FrameSize)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 	glViewport(0, 0, FrameSize.x, FrameSize.y);
@@ -53,18 +54,18 @@ void FrameBuffer::RenderColorPick(Camera* InCamera, World* InWorld, glm::vec2 Fr
 
 	InWorld->RenderColorWorld(InCamera, FrameSize);
 
-	//glFlush();
-	//glFinish();
-
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	//unsigned char data[4];
-	//glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+}
 
-	//return (data[0] + data[1] * 256 + data[2] * 256 * 256);
+void FrameBuffer::GetFrameSelection(Manager* InManager, glm::vec2 pickerCoords) // @TODO: expand to use box select in future. Move color selection to different function.
+{
+	unsigned char data[4];
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
+	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	InManager->CheckForSelection(data[0] + data[1] * 256 + data[2] * 256 * 256);
 }
 
 GLuint FrameBuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil) {
