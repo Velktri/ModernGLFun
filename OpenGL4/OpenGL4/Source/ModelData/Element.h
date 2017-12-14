@@ -1,4 +1,5 @@
 #pragma once
+#include "ModelData/Resource.h"
 #include <GL/glew.h>
 #include "../HelperTypes.h"
 #include <vector>
@@ -16,7 +17,7 @@ enum ShaderType {
 };
 
 
-class Element {
+class Element : public Resource {
 public:
 	Element();
 	~Element();

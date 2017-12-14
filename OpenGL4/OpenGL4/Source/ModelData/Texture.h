@@ -1,4 +1,5 @@
 #pragma once
+#include "ModelData/Resource.h"
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
@@ -8,7 +9,8 @@
 #include <string>
 #include <vector>
 
-class Texture {
+class Texture : public Resource 
+{
 public:
 	Texture(std::string texturePath);
 	~Texture();

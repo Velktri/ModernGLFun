@@ -3,14 +3,12 @@
 #include "../Shared/pathtools.h"
 #include "../Shared/lodepng.h"
 
-Texture::Texture(std::string texturePath) {
+Texture::Texture(std::string texturePath)
+{
 	unsigned int textureWidth, textureHeight;
-	unsigned nError = lodepng::decode(imageRGBA, textureWidth, textureHeight, texturePath.c_str());
-	TextureDimensions = glm::vec2(textureWidth, textureHeight);
-
-	if (nError != 0) {
-		std::cout << "Texture Loading Failed: Could not find " << texturePath << std::endl;
-	} else {
+	if (!lodepng::decode(imageRGBA, textureWidth, textureHeight, texturePath.c_str()))
+	{
+		TextureDimensions = glm::vec2(textureWidth, textureHeight);
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -29,12 +27,16 @@ Texture::Texture(std::string texturePath) {
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	else
+	{
+		std::cout << "Texture Loading Failed: Could not find " << texturePath << std::endl;
+	}
 }
 
 
-Texture::~Texture() {
+Texture::~Texture() 
+{
+
 }
 
-GLuint Texture::GetTexture() {
-	return texture;
-}
+GLuint Texture::GetTexture() { return texture; }

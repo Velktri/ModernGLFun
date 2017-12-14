@@ -13,4 +13,5 @@ Mesh::Mesh(std::vector<Vertex> InVertices, std::vector<GLuint> InIndices, bool I
 
 Mesh::~Mesh()
 {
+
 }

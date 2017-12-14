@@ -155,6 +155,7 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\ModelData\Curve.cpp" />
     <ClCompile Include="Source\ModelData\Element.cpp" />
+    <ClCompile Include="Source\ModelData\Resource.cpp" />
     <ClCompile Include="Source\Models\Gizmo.cpp" />
     <ClCompile Include="Source\ModelData\Grid.cpp" />
     <ClCompile Include="Source\ModelData\Line.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="Source\Lights\SunLight.h" />
     <ClInclude Include="Source\ModelData\Curve.h" />
     <ClInclude Include="Source\ModelData\Element.h" />
+    <ClInclude Include="Source\ModelData\Resource.h" />
     <ClInclude Include="Source\Models\Gizmo.h" />
     <ClInclude Include="Source\ModelData\Grid.h" />
     <ClInclude Include="Source\ModelData\Line.h" />

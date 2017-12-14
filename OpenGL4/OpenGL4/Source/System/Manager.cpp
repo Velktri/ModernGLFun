@@ -21,13 +21,16 @@ Manager::Manager()
 	BuildShaders();
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
-	bIsWireFrame = false;
 
-	DefaultTexture = BuildTexture("Models/Textures/Default.png");
-
-	DefaultMaterial = new Material(this, DefaultShader); // create BuildMaterial function.
+	DefaultTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Default.png"));
+	DefaultMaterial = reinterpret_cast<Material*>(BuildMaterial());
 
 	BuildLights(); // @TEMP
+
+	BuildTexture("Models/Textures/Albedo.png");
+	BuildTexture("Models/Textures/Normal.png");
+	BuildTexture("Models/Textures/Metallic.png");
+	BuildTexture("Models/Textures/Roughness.png");
 }
 
 
@@ -47,49 +50,6 @@ Manager::~Manager()
 	for each (Light* l in LightsList)  {  l->~Light();  }
 }
 
-//void Manager::ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader)
-//{
-//	if (InCurrentShader != CurrentShader)
-//	{
-//		CurrentShader = InCurrentShader;
-//		CurrentShader->Use();
-//		
-//
-//		//glUniformMatrix4fv(CurrentShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
-//		//glUniform3f(CurrentShader->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
-//
-//		//glActiveTexture(GL_TEXTURE1);
-//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Albedo->GetTexture() : DefaultTexture->GetTexture());
-//		//glActiveTexture(GL_TEXTURE2);
-//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Normal->GetTexture() : DefaultTexture->GetTexture());
-//		//glActiveTexture(GL_TEXTURE3);
-//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Metallic->GetTexture() : DefaultTexture->GetTexture());
-//		//glActiveTexture(GL_TEXTURE4);
-//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? Roughness->GetTexture() : DefaultTexture->GetTexture());
-//		//glActiveTexture(GL_TEXTURE5);
-//		//glBindTexture(GL_TEXTURE_2D, (showAlbedo) ? AO->GetTexture() : DefaultTexture->GetTexture());
-//
-//		//glUniform3f(CurrentShader->ShaderList["colorTest"], testColor.x, testColor.y, testColor.z);
-//		//glUniform1f(CurrentShader->ShaderList["roughnessTest"], testRoughness);
-//		//glUniform1f(CurrentShader->ShaderList["metallicTest"], testMetallic);
-//		//glUniform1i(CurrentShader->ShaderList["bHasNormalMap"], showAlbedo);
-//		//
-//		//
-//		//for (int i = 0; i < LightsList.size(); i++)
-//		//{
-//		//	glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
-//		//				"lightPositions"), 
-//		//				 1, 
-//		//				 &LightsList[i]->WorldPosition[0]); 
-//
-//		//	glUniform3fv(glGetUniformLocation(CurrentShader->GetShader(), 
-//		//				"lightColors"), 
-//		//				 1, 
-//		//				 &LightsList[i]->Color[0]); 
-//		//}
-//	}
-//}
-
 void Manager::BuildShaders()
 {
 	SystemShader = new Shader("Shaders/System.vert", "Shaders/System.frag");
@@ -104,6 +64,7 @@ void Manager::BuildShaders()
 	UserShaderList.push_back(DefaultShader);
 }
 
+// @TODO: move to world once assets get moved.
 void Manager::DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* Shader)
 {
 	Shader->Use();
@@ -235,11 +196,18 @@ void Manager::AddAssetToPool(Asset* InAsset)
 	}
 }
 
-Texture* Manager::BuildTexture(std::string path)
+Resource* Manager::BuildMaterial()
 {
-	Texture* newTexture = new Texture(path);
-	if (newTexture) { TextureList.push_back(newTexture); }
-	return newTexture;
+	Material* NewMaterial = new Material(this, DefaultShader);
+	if (NewMaterial) { MaterialList.push_back(NewMaterial); }
+	return NewMaterial;
+}
+
+Resource* Manager::BuildTexture(std::string path)
+{
+	Texture* NewTexture = new Texture(path);
+	if (NewTexture) { TextureList.push_back(NewTexture); }
+	return NewTexture;
 }
 
 void Manager::BuildLights()
@@ -247,7 +215,7 @@ void Manager::BuildLights()
 	LightsList.push_back(new Light(glm::vec3(-5.0f, 5.0f, 0.0f)));
 }
 
-Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
+Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)
 {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
@@ -287,9 +255,10 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 	for (GLuint i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
-
 		for (GLuint j = 0; j < face.mNumIndices; j++)
+		{
 			indices.push_back(face.mIndices[j]);
+		}
 	}
 
 	//if (mesh->mMaterialIndex >= 0)
@@ -303,12 +272,10 @@ Mesh* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-m
 	//	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	//}
 
-	Mesh* NewMesh = new Mesh(vertices, indices, bHasTextureCoords);
-	if (NewMesh) { MeshPool.emplace(path, NewMesh); }
-	return NewMesh;
+	return new Mesh(vertices, indices, bHasTextureCoords);;
 }
 
-//std::vector<Texture> Asset::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+//std::vector<Texture> Manager::ProcessTexture(aiMaterial* mat, aiTextureType type, std::string typeName)
 //{
 //	std::vector<Texture> textures;
 //	for (GLuint i = 0; i < mat->GetTextureCount(type); i++)

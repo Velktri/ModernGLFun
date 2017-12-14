@@ -11,13 +11,13 @@ class Texture;
 class Element;
 class Mesh;
 class Material;
+class Resource;
 
 class Manager {
 public:
 	Manager();
 	~Manager();
 
-	//void ShadeAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, std::vector<Light*> Lights, Shader* InCurrentShader);
 	void DrawAssets(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, Shader* AssetShader);
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
@@ -54,10 +54,8 @@ public:
 	glm::vec3 testColor;
 	float testRoughness;
 	float testMetallic;
-	Texture* BuildTexture(std::string path); //TEMP
 
 private:
-	// @TODO: create texture, shader, and material pools.
 	// @TODO: move assets to world class.
 
 	/* Assets */
@@ -65,10 +63,8 @@ private:
 	std::vector<Asset*> AssetList;
 	Asset* SelectedAsset;
 
-
-
 	/* Pools */
-	std::unordered_map<std::string, Mesh*> MeshPool;
+	std::unordered_map<std::string, Resource*> ResourcePool;
 
 	/* Shader */
 	Shader* SystemShader;
@@ -76,20 +72,19 @@ private:
 	Shader* DefaultShader;
 	Shader* PickerShader;
 	Shader* CurrentShader;
-
-	/* Material */
-	Material* DefaultMaterial;
-
-	bool bIsWireFrame;
-
 	std::vector<Shader*> UserShaderList;
 	std::vector<Shader*> SystemShaderList;
 	void BuildShaders();
 
+	/* Material */
+	Material* DefaultMaterial;
+	std::vector<Material*> MaterialList;
+	Resource* BuildMaterial();
+
 	/* Textures */
-	//Texture* BuildTexture(std::string path);
 	std::vector<Texture*> TextureList;
 	Texture* DefaultTexture;
+	Resource* BuildTexture(std::string path);
 
 	/* Lights */
 	std::vector<Light*> LightsList;
@@ -97,16 +92,16 @@ private:
 
 	/* Meshes */
 	std::vector<Element*> MeshList;
-	Mesh* ProcessMesh(std::string path);
+	Resource* ProcessMesh(std::string path);
 };
 
 
 template<class T>
 T* Manager::CheckPool(std::string path)
 {
-	if (std::is_same<T, Mesh>::value)
-	{
-		if (MeshPool.find(path) != MeshPool.end()) { return MeshPool.at(path); }
+	if (ResourcePool.find(path) != ResourcePool.end()) 
+	{ 
+		return reinterpret_cast<T*>(ResourcePool.at(path)); 
 	}
 
 	return NULL;
@@ -119,9 +114,21 @@ T* Manager::SpawnToPool(std::string path)
 	{
 		if (std::is_same<T, Mesh>::value)
 		{
-			T* NewMesh = ProcessMesh(path);
-			MeshPool.emplace(path, NewMesh);
+			T* NewMesh = reinterpret_cast<T*>(ProcessMesh(path));
+			ResourcePool.emplace(path, NewMesh);
 			return NewMesh;
+		}
+		else if (std::is_same<T, Texture>::value)
+		{
+			T* NewTexture = reinterpret_cast<T*>(BuildTexture(path));
+			ResourcePool.emplace(path, NewTexture);
+			return NewTexture;
+		}
+		else if (std::is_same<T, Material>::value)
+		{
+			T* NewMaterial = reinterpret_cast<T*>(BuildMaterial());
+			ResourcePool.emplace(path, NewMaterial);
+			return NewMaterial;
 		}
 	}
 	return NULL;

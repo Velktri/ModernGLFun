@@ -1,4 +1,5 @@
 #pragma once
+#include "ModelData/Resource.h"
 #include <GL/glew.h>
 #include <vector>
 
@@ -10,7 +11,7 @@ class Shader;
 class Manager;
 class Texture;
 
-class Material
+class Material : public Resource
 {
 public:
 	Material(Manager* InManager, Shader* InShader);

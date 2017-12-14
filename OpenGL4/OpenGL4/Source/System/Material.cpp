@@ -10,11 +10,11 @@ Material::Material(Manager* InManager, Shader* InShader)
 	CoreShader = InShader;
 	OwningManager = InManager;
 
-	Albedo =		/*NULL;*/ OwningManager->BuildTexture("Models/Textures/Albedo.png");
-	Normal =		/*NULL;*/ OwningManager->BuildTexture("Models/Textures/Normal.png");
-	Metallic =		/*NULL;*/ OwningManager->BuildTexture("Models/Textures/Metallic.png");
-	Roughness =		/*NULL;*/ OwningManager->BuildTexture("Models/Textures/Roughness.png");
-	AO =			/*NULL;*/ OwningManager->GetDefaultTexture();
+	Albedo = NULL;
+	Normal = NULL;
+	Metallic = NULL;
+	Roughness =	NULL;
+	AO = NULL;
 
 	CoreShader->Use();
 	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "albedoMap"), 1);
