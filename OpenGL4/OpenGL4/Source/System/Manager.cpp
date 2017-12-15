@@ -144,32 +144,12 @@ void Manager::Draw(Shader* shader)
 	}
 }
 
-// @TODO: rewrite
 void Manager::CheckForSelection(int InID)
 {
-	bool bIsFound = false;
-	for each (Asset* a in AssetList)
+	SelectedAsset = NULL;
+	for (Asset* a : AssetList)
 	{
-		if (a->GetAssetID() == InID)
-		{
-			SelectedAsset = a;
-			bIsFound = true;
-		}
-	}
-
-	if (!bIsFound)
-	{
-		SelectedAsset = NULL;
-	}
-
-
-	if (SelectedAsset)
-	{
-		printf("%s\n", SelectedAsset->Name.c_str());
-	}
-	else
-	{
-		printf("Null Selection.\n");
+		if (a->GetAssetID() == InID) { SelectedAsset = a; }
 	}
 }
 

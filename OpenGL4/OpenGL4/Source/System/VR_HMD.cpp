@@ -143,6 +143,7 @@ void VR_HMD::CreateVRDevices()
 				LeftController.ControllerRole = vr::TrackedControllerRole_LeftHand;
 				LeftController.DeviceID = TrackedDevice;
 				LeftController.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+				LeftController.DeviceModel->Name = "VR_Left Controller";
 			}
 			else if (HMD->GetControllerRoleForTrackedDeviceIndex(TrackedDevice) == vr::TrackedControllerRole_RightHand &&
 					 RightController.ControllerRole == vr::TrackedControllerRole_Invalid)
@@ -150,6 +151,7 @@ void VR_HMD::CreateVRDevices()
 				RightController.ControllerRole = vr::TrackedControllerRole_RightHand;
 				RightController.DeviceID = TrackedDevice;
 				RightController.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRController.obj");
+				RightController.DeviceModel->Name = "VR_Right Controller";
 			}
 		}
 
@@ -157,8 +159,9 @@ void VR_HMD::CreateVRDevices()
 			HMD->GetTrackedDeviceClass(TrackedDevice) == vr::TrackedDeviceClass_HMD &&
 			HMDDevice.DeviceModel == NULL)
 		{
-			HMDDevice.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRHMD.obj");
 			HMDDevice.DeviceID = TrackedDevice;
+			HMDDevice.DeviceModel = SceneUniverse->GetManager()->BuildAsset("Models/Primitives/VRHMD.obj");
+			HMDDevice.DeviceModel->Name = "VR_Head Mounted Display";
 		}
 	}
 }

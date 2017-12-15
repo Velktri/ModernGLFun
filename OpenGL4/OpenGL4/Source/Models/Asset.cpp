@@ -15,6 +15,10 @@ Asset::Asset(GLuint InAssetID, Manager* InManager)
 	MyManager = InManager;
 	AssetTransform = new Transforms();
 	Root = new ComponentBase(this);
+
+	testColor = glm::vec3(0.1568f, 0.2745f, 0.3137f);
+	testRoughness = 1.0f;
+	testMetallic = 0.8f;
 }
 
 Asset::~Asset()
