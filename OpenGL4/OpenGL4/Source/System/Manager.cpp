@@ -23,6 +23,7 @@ Manager::Manager()
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 
 	DefaultTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Default.png"));
+	DefaultLightTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Light.png"));
 	DefaultMaterial = reinterpret_cast<Material*>(BuildMaterial());
 
 	BuildLights(); // @TEMP
@@ -129,18 +130,20 @@ void Manager::BuildPrimative(Primatives InType)
 	AddAssetToPool(SpawnedAsset);
 }
 
-void Manager::ShadeLights(glm::mat4 InViewProjection, Shader* LightShader)
+void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection)
 {
 	LightShader->Use();
-	glUniformMatrix4fv(LightShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
-}
+	glUniformMatrix4fv(LightShader->ShaderList["Projection"], 1, GL_FALSE, glm::value_ptr(InProjection));
+	glUniformMatrix4fv(LightShader->ShaderList["View"], 1, GL_FALSE, glm::value_ptr(InView));
 
-void Manager::Draw(Shader* shader)
-{
-	for each (Light* li in LightsList)
+	for each (Light* light in LightsList)
 	{
-		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(li->GetOrientation()));
-		li->Draw();
+		glUniformMatrix4fv(LightShader->ShaderList["Model"], 1, GL_FALSE, glm::value_ptr(light->GetOrientation()));
+		glUniform3f(LightShader->ShaderList["LampColor"], light->Color.x / 255, light->Color.y / 255, light->Color.z / 255);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, DefaultLightTexture->GetTexture());
+		light->Draw();
 	}
 }
 
@@ -149,7 +152,7 @@ void Manager::CheckForSelection(int InID)
 	SelectedAsset = NULL;
 	for (Asset* a : AssetList)
 	{
-		if (a->GetAssetID() == InID) { SelectedAsset = a; }
+		if (a->GetAssetID() + 100 == InID) { SelectedAsset = a; } // @TODO: sync this + 100 with the RenderColorWorld + 100 in the World class.
 	}
 }
 
@@ -178,7 +181,9 @@ Resource* Manager::BuildTexture(std::string path)
 
 void Manager::BuildLights()
 {
-	LightsList.push_back(new Light(glm::vec3(-5.0f, 5.0f, 0.0f)));
+	LightShader->Use();
+	glUniform1i(glGetUniformLocation(LightShader->GetShader(), "LampTexture"), 1);
+	LightsList.push_back(new Light(glm::vec3(2.0f, 0.0f, 0.0f)));
 }
 
 Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)

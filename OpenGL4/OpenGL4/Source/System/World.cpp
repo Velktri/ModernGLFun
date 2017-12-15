@@ -20,21 +20,10 @@ World::~World()
 
 }
 
-void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, glm::vec2 FrameSize)
+void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 InProjection, glm::vec2 FrameSize)
 {
+	glm::mat4 InViewProjection = InProjection * InView;
 	glEnable(GL_DEPTH_TEST);
-
-	/* System Rendering */
-	MyManager->SetSystemShader(InViewProjection);
-	for each (Element* e in OwningUniverse->GetSystemElements())
-	{
-		glUniform3f(MyManager->GetSystemShader()->ShaderList["color"], e->Color.x, e->Color.y, e->Color.z);
-		e->Render(MyManager->GetSystemShader());
-	}
-
-	OwningUniverse->GetGizmo()->Render(MyManager->GetSystemShader());
-
-
 	/* User Rendering */
 	MyManager->SetCurrentShader(NULL);
 	for each (Shader* Shade in MyManager->GetUserShaderList())
@@ -50,8 +39,20 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, 
 		}
 	}
 
-	MyManager->ShadeLights(InViewProjection, MyManager->GetLightShader());
-	MyManager->Draw(MyManager->GetLightShader());
+	MyManager->DrawLights(InView, InProjection);
+
+
+	/* System Rendering */
+	MyManager->SetSystemShader(InViewProjection);
+	for each (Element* e in OwningUniverse->GetSystemElements())
+	{
+		glUniform3f(MyManager->GetSystemShader()->ShaderList["color"], e->Color.x, e->Color.y, e->Color.z);
+		e->Render(MyManager->GetSystemShader());
+	}
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	OwningUniverse->GetGizmo()->Render(MyManager->GetSystemShader());
+
 }
 
 void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
@@ -59,13 +60,15 @@ void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 	MyManager->SetPickerShader();
 	Shader* shader = MyManager->GetCurrentShader();
 	shader->Use();
-	glUniformMatrix4fv(shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(glm::scale(InCamera->GetProjection(), glm::vec3(1, -1, 1)) * InCamera->GetViewMatrix()));
+	glUniformMatrix4fv(shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InCamera->GetViewProjection()));
+
+	// @TODO: add gizmo selection
 
 	for each (Asset* mod in MyManager->GetAssets())
 	{
-		int r = (mod->GetAssetID() & 0x000000FF) >> 0;
-		int g = (mod->GetAssetID() & 0x0000FF00) >> 8;
-		int b = (mod->GetAssetID() & 0x00FF0000) >> 16;
+		int r = ((mod->GetAssetID() + 100) & 0x000000FF) >> 0;
+		int g = ((mod->GetAssetID() + 100) & 0x0000FF00) >> 8;
+		int b = ((mod->GetAssetID() + 100) & 0x00FF0000) >> 16;
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
 		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 		mod->Render(shader);

@@ -20,8 +20,7 @@ public:
 
 	Asset* BuildAsset(std::string path = "");
 	void BuildPrimative(Primatives InType);
-	void ShadeLights(glm::mat4 InViewProjection, Shader* LightShader);
-	void Draw(Shader* shader);
+	void DrawLights(glm::mat4 InView, glm::mat4 InProjection);
 	void CheckForSelection(int InID);
 	void AddAssetToPool(Asset* InAsset);
 
@@ -84,6 +83,7 @@ private:
 	/* Textures */
 	std::vector<Texture*> TextureList;
 	Texture* DefaultTexture;
+	Texture* DefaultLightTexture;
 	Resource* BuildTexture(std::string path);
 
 	/* Lights */

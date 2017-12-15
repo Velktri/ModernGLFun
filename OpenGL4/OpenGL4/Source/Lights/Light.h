@@ -7,9 +7,7 @@
 
 class Light {
 public:
-	Light();
-
-	Light(glm::vec3 Position);
+	Light(glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f));
 	~Light();
 
 	glm::vec3 WorldPosition;

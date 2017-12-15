@@ -1,17 +1,8 @@
 #include "Light.h"
 
-Light::Light() {
-	WorldPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-	BuildLight();
-
-	Color = glm::vec3(150.0f, 150.0f, 150.0f);
-}
-
 Light::Light(glm::vec3 Position) {
 	WorldPosition = Position;
 	BuildLight();
-
-	Color = glm::vec3(150.0f, 150.0f, 150.0f);
 }
 
 
@@ -36,10 +27,12 @@ void Light::Translate(float x, float y, float z) {
 
 void Light::BuildLight() {
 	GLfloat vertArr[] = {
-		0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 1.0f,
+		 0.25f,  0.25f,  0.0f,		1.0f, 0.0f,
+		 0.25f, -0.25f,  0.0f,		1.0f, 1.0f,
+		-0.25f,  0.25f,  0.0f,		0.0f, 0.0f,
+		-0.25f, -0.25f,  0.0f,		0.0f, 1.0f,
+
+
 	};
 
 	GLuint indices[] = {
@@ -61,12 +54,17 @@ void Light::BuildLight() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) 0);
+	
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
 
 	glBindVertexArray(0);
 
 	orientation = glm::translate(orientation, WorldPosition);
+
+	Color = glm::vec3(150.0f, 0.0f, 0.0f);
 }
 
 void Light::Draw() {

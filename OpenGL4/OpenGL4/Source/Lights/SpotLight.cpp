@@ -1,7 +1,7 @@
 #include "SpotLight.h"
 
-SpotLight::SpotLight(glm::vec3 Position) {
-	WorldPosition = Position;
+SpotLight::SpotLight(glm::vec3 InPosition) : Light(InPosition) {
+	WorldPosition = InPosition;
 	BuildLight();
 }
 

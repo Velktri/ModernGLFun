@@ -15,7 +15,7 @@ public:
 	World(Universe* InUniverse, Manager* InManager);
 	~World();
 
-	void RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InViewProjection, glm::vec2 FrameSize);
+	void RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 InProjection, glm::vec2 FrameSize);
 	void RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize);
 
 	std::vector<Light*> GetLights();

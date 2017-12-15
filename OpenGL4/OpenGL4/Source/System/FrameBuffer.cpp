@@ -38,7 +38,7 @@ void FrameBuffer::RenderWorldFrame(Camera* InCamera, World* InWorld, glm::vec2 F
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	InWorld->RenderWorld(InCamera->GetPosition(), InCamera->GetViewProjection(), FrameSize);
+	InWorld->RenderWorld(InCamera->GetPosition(), InCamera->GetViewMatrix(), InCamera->GetProjection()/*InCamera->GetViewProjection()*/, FrameSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);
@@ -63,7 +63,7 @@ void FrameBuffer::GetFrameSelection(Manager* InManager, glm::vec2 pickerCoords) 
 {
 	unsigned char data[4];
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
-	glReadPixels(pickerCoords.x, pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here
+	glReadPixels(pickerCoords.x, FrameSize_Y - pickerCoords.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data); //box selection here. Make sure that the the Y pixels are correctly inverted when they are read when creating box selection.
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	InManager->CheckForSelection(data[0] + data[1] * 256 + data[2] * 256 * 256);
 }

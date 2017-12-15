@@ -107,8 +107,7 @@ void main()
         vec3 L = normalize(lightPositions - WorldPos);
         vec3 H = normalize(V + L);
         float distance = length(lightPositions - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lightColors * attenuation;
+        vec3 radiance = lightColors / (distance * distance);
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);   

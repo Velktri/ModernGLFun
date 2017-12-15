@@ -68,7 +68,7 @@ void VR_HMD::UpdateHMDMatrixPose()
 
 		if (TrackedDevicePose[HMDDevice.DeviceID].bPoseIsValid)
 		{
-			HMDDevice.PoseData = /*glm::inverse(*/Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking)/*)*/;
+			HMDDevice.PoseData = Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking);
 		}
 
 		if (TrackedDevicePose[LeftController.DeviceID].bPoseIsValid)
@@ -196,15 +196,13 @@ void VR_HMD::RenderHMDEyes()
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glEnable(GL_MULTISAMPLE);
 
-	//glm::mat4 tempMat = Hmd34ToGLM(TrackedDevicePose[HMDDevice.DeviceID].mDeviceToAbsoluteTracking);
-	//glm::vec3 HMDPosition = glm::vec3(tempMat[3][0], tempMat[3][1], tempMat[3][2]);
 	glm::vec3 HMDPosition = glm::vec3(HMDDevice.PoseData[3][0], HMDDevice.PoseData[3][1], HMDDevice.PoseData[3][2]);
 
 	// Left Eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Left), glm::vec2(FrameWidth, FrameHeight));
+	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, glm::inverse(HMDDevice.PoseData)/*GetCurrentViewProjectionMatrix(vr::Eye_Left)*/, Projection_Left, glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
@@ -223,7 +221,7 @@ void VR_HMD::RenderHMDEyes()
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrame.RenderFramebufferId);
 	glViewport(0, 0, FrameWidth, FrameHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, GetCurrentViewProjectionMatrix(vr::Eye_Right), glm::vec2(FrameWidth, FrameHeight));
+	SceneUniverse->ActiveWorld->RenderWorld(HMDPosition, glm::inverse(HMDDevice.PoseData)/*GetCurrentViewProjectionMatrix(vr::Eye_Right)*/, Projection_Right, glm::vec2(FrameWidth, FrameHeight));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
