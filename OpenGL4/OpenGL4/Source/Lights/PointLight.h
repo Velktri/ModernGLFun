@@ -3,7 +3,7 @@
 
 class PointLight : public Light {
 public:
-	PointLight(glm::vec3 InPosition);
+	PointLight(Texture* InTexture, glm::vec3 InPosition);
 	~PointLight();
 };
 

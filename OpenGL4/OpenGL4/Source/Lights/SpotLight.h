@@ -3,7 +3,7 @@
 
 class SpotLight : public Light {
 public:
-	SpotLight(glm::vec3 InPosition);
+	SpotLight(Texture* InTexture, glm::vec3 InPosition);
 	~SpotLight();
 };
 

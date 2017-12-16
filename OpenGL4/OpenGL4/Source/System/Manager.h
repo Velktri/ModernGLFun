@@ -55,8 +55,6 @@ public:
 	float testMetallic;
 
 private:
-	// @TODO: move assets to world class.
-
 	/* Assets */
 	std::unordered_map<Shader*, std::vector<Asset*>> AssetMap;
 	std::vector<Asset*> AssetList;
@@ -88,7 +86,7 @@ private:
 
 	/* Lights */
 	std::vector<Light*> LightsList;
-	void BuildLights();
+	Light*  BuildLight(LampType InType, glm::vec3 InPosition = glm::vec3());
 
 	/* Meshes */
 	std::vector<Element*> MeshList;

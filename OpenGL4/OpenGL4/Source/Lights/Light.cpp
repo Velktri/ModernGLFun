@@ -1,38 +1,33 @@
 #include "Light.h"
 
-Light::Light(glm::vec3 Position) {
+Light::Light(Texture* InTexture, glm::vec3 Position)
+{
+	type = LampType::NONE;
 	WorldPosition = Position;
+	LightBillboard = InTexture;
 	BuildLight();
 }
 
-
-Light::~Light() {
+Light::~Light()
+{
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
 }
 
-GLuint Light::GetVAO() {
-	return VAO;
-}
-
-glm::mat4 Light::GetOrientation() {
-	return orientation;
-}
-
-void Light::Translate(float x, float y, float z) {
+void Light::Translate(float x, float y, float z)
+{
 	WorldPosition += glm::vec3(x, y, z);
 	orientation = glm::translate(orientation, glm::vec3(x, y, z));
 }
 
-void Light::BuildLight() {
+void Light::BuildLight() 
+{
 	GLfloat vertArr[] = {
 		 0.25f,  0.25f,  0.0f,		1.0f, 0.0f,
 		 0.25f, -0.25f,  0.0f,		1.0f, 1.0f,
 		-0.25f,  0.25f,  0.0f,		0.0f, 0.0f,
 		-0.25f, -0.25f,  0.0f,		0.0f, 1.0f,
-
-
 	};
 
 	GLuint indices[] = {
@@ -63,11 +58,21 @@ void Light::BuildLight() {
 	glBindVertexArray(0);
 
 	orientation = glm::translate(orientation, WorldPosition);
-
 	Color = glm::vec3(150.0f, 0.0f, 0.0f);
 }
 
-void Light::Draw() {
+void Light::Draw() 
+{
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+}
+
+GLuint Light::GetVAO() { return VAO; } 
+glm::mat4 Light::GetOrientation() { return orientation; }
+Texture* Light::GetLightTexture() { return LightBillboard; }
+LampType Light::GetType() { return type; }
+
+void Light::SetLightTexture(Texture* InTexture)
+{
+	if (!LightBillboard) { LightBillboard = InTexture; }
 }

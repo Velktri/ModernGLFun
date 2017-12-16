@@ -32,6 +32,13 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 
 		glUniformMatrix4fv(Shade->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
 		glUniform3f(Shade->ShaderList["cameraPos"], InCameraPosition.x, InCameraPosition.y, InCameraPosition.z);
 
+		std::vector<Light*> LightsList = MyManager->GetLights();
+		for (int i = 0; i < LightsList.size(); i++)
+		{
+			glUniform3fv(glGetUniformLocation(Shade->GetShader(), std::string("lightPositions[" + std::to_string(i) + ']').c_str()), LightsList.size(), &LightsList[i]->WorldPosition[0]);
+			glUniform3fv(glGetUniformLocation(Shade->GetShader(), std::string("lightColors[" + std::to_string(i) + ']').c_str()), LightsList.size(), &LightsList[i]->Color[0]);
+		}
+
 		for each (Asset* mod in MyManager->GetAssetsFromMap(Shade))
 		{
 			glUniformMatrix4fv(Shade->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
@@ -52,7 +59,6 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	OwningUniverse->GetGizmo()->Render(MyManager->GetSystemShader());
-
 }
 
 void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)

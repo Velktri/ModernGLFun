@@ -16,13 +16,6 @@ Material::Material(Manager* InManager, Shader* InShader)
 	Metallic = NULL;
 	Roughness =	NULL;
 	AO = NULL;
-
-	CoreShader->Use();
-	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "albedoMap"), 1);
-	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "normalMap"), 2);
-	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "metallicMap"), 3);
-	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "roughnessMap"), 4);
-	glUniform1i(glGetUniformLocation(CoreShader->GetShader(), "aoMap"), 5);
 }
 
 Material::~Material()
@@ -49,12 +42,5 @@ void Material::ShadeMesh(MeshComponent* OwningComponent, bool bHasUVs)
 	glUniform3f(CoreShader->ShaderList["colorTest"], ParentAsset->testColor.x, ParentAsset->testColor.y, ParentAsset->testColor.z);
 	glUniform1f(CoreShader->ShaderList["roughnessTest"], ParentAsset->testRoughness);
 	glUniform1f(CoreShader->ShaderList["metallicTest"], ParentAsset->testMetallic);
-
-	std::vector<Light*> LightsList = OwningManager->GetLights();
-	for (int i = 0; i < LightsList.size(); i++)
-	{
-		glUniform3fv(glGetUniformLocation(CoreShader->GetShader(), "lightPositions"), 1, &LightsList[i]->WorldPosition[0]);
-		glUniform3fv(glGetUniformLocation(CoreShader->GetShader(), "lightColors"), 1, &LightsList[i]->Color[0]);
-	}
 }
 

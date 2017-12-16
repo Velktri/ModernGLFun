@@ -39,3 +39,11 @@ enum class EFrameTypes
 	VR_LeftEye,
 	VR_RightEye
 };
+
+enum class LampType
+{
+	NONE = 0,
+	POINTLIGHT = 1,
+	SPOTLIGHT = 2,
+	SUNLIGHT = 3
+};

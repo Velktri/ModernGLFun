@@ -8,7 +8,9 @@
 #include "ModelData/Curve.h"
 #include "System/Material.h"
 #include "Components/MeshComponent.h"
-#include "Lights/Light.h"
+#include "Lights/PointLight.h"
+#include "Lights/SpotLight.h"
+#include "Lights/SunLight.h"
 #include <iostream>
 
 /* Assimp */
@@ -26,7 +28,14 @@ Manager::Manager()
 	DefaultLightTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Light.png"));
 	DefaultMaterial = reinterpret_cast<Material*>(BuildMaterial());
 
-	BuildLights(); // @TEMP
+	BuildLight(LampType::POINTLIGHT, glm::vec3(5.0f, 5.0f, 0.0f)); // @TEMP
+	BuildLight(LampType::POINTLIGHT, glm::vec3(-5.0f, 0.0f, -2.0f));
+	BuildLight(LampType::POINTLIGHT, glm::vec3(2.0f, 5.0f, 4.0f));
+
+	LightsList[0]->Color = glm::vec3(255, 0, 0);
+	LightsList[1]->Color = glm::vec3(0, 255, 0);
+	LightsList[2]->Color = glm::vec3(0, 0, 255);
+
 
 	BuildTexture("Models/Textures/Albedo.png");
 	BuildTexture("Models/Textures/Normal.png");
@@ -63,6 +72,16 @@ void Manager::BuildShaders()
 	SystemShaderList.push_back(LightShader);
 
 	UserShaderList.push_back(DefaultShader);
+
+	LightShader->Use();
+	glUniform1i(glGetUniformLocation(LightShader->GetShader(), "LampTexture"), 1);
+
+	DefaultShader->Use();
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "albedoMap"), 1);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "normalMap"), 2);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "metallicMap"), 3);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "roughnessMap"), 4);
+	glUniform1i(glGetUniformLocation(DefaultShader->GetShader(), "aoMap"), 5);
 }
 
 void Manager::SetSystemShader(glm::mat4 InViewProjection)
@@ -130,7 +149,7 @@ void Manager::BuildPrimative(Primatives InType)
 	AddAssetToPool(SpawnedAsset);
 }
 
-void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection)
+void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection) // @TODO: consider moving to world class.
 {
 	LightShader->Use();
 	glUniformMatrix4fv(LightShader->ShaderList["Projection"], 1, GL_FALSE, glm::value_ptr(InProjection));
@@ -142,7 +161,7 @@ void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection)
 		glUniform3f(LightShader->ShaderList["LampColor"], light->Color.x / 255, light->Color.y / 255, light->Color.z / 255);
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, DefaultLightTexture->GetTexture());
+		glBindTexture(GL_TEXTURE_2D, light->GetLightTexture()->GetTexture());
 		light->Draw();
 	}
 }
@@ -179,11 +198,26 @@ Resource* Manager::BuildTexture(std::string path)
 	return NewTexture;
 }
 
-void Manager::BuildLights()
+Light* Manager::BuildLight(LampType InType, glm::vec3 InPosition)
 {
-	LightShader->Use();
-	glUniform1i(glGetUniformLocation(LightShader->GetShader(), "LampTexture"), 1);
-	LightsList.push_back(new Light(glm::vec3(2.0f, 0.0f, 0.0f)));
+	Light* NewLight = NULL;
+	switch (InType)
+	{
+		case LampType::POINTLIGHT:
+			NewLight = new PointLight(DefaultLightTexture, InPosition);
+			break;
+		case LampType::SPOTLIGHT:
+			NewLight = new SpotLight(DefaultTexture, InPosition);
+			break;
+		case LampType::SUNLIGHT:
+			NewLight = new SunLight(DefaultTexture, InPosition);
+			break;
+		default:
+			break;
+	}
+
+	LightsList.push_back(NewLight);
+	return NewLight;
 }
 
 Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for multi-mesh imports (FBX system too)

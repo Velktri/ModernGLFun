@@ -17,8 +17,8 @@ uniform float roughnessTest;
 uniform bool bHasNormalMap;
 
 // lights
-uniform vec3 lightPositions;
-uniform vec3 lightColors;
+uniform vec3 lightPositions[3];
+uniform vec3 lightColors[3];
 
 uniform vec3 cameraPos;
 
@@ -102,12 +102,13 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-
+    for(int i = 0; i < 3; ++i) 
+    {
         // calculate per-light radiance
-        vec3 L = normalize(lightPositions - WorldPos);
+        vec3 L = normalize(lightPositions[i] - WorldPos);
         vec3 H = normalize(V + L);
-        float distance = length(lightPositions - WorldPos);
-        vec3 radiance = lightColors / (distance * distance);
+        float distance = length(lightPositions[i] - WorldPos);
+        vec3 radiance = lightColors[i] / (distance * distance);
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);   
@@ -127,14 +128,14 @@ void main()
         // multiply kD by the inverse metalness such that only non-metals 
         // have diffuse lighting, or a linear blend if partly metal (pure metals
         // have no diffuse light).
-        kD *= 1.0 - metallic;	  
+        kD *= 1.0 - metallic;
 
         // scale light by NdotL
-        float NdotL = max(dot(N, L), 0.0);        
+        float NdotL = max(dot(N, L), 0.0);
 
         // add to outgoing radiance Lo
-        Lo = (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-     
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    }
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).

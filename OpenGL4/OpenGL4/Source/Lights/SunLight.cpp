@@ -1,16 +1,15 @@
 #include "SunLight.h"
 
-SunLight::SunLight(glm::vec3 InPosition, glm::vec3 Direction) : Light(InPosition) {
-	WorldPosition = InPosition;
-	WorldDirection = Direction;
-	BuildLight();
+SunLight::SunLight(Texture* InTexture, glm::vec3 InPosition) : Light(InTexture, InPosition)
+{
+	WorldDirection = glm::vec3();
+	//BuildLight();
 }
 
 
-SunLight::~SunLight() {
+SunLight::~SunLight()
+{
 
 }
 
-glm::vec3 SunLight::GetDirection() {
-	return WorldDirection;
-}
+glm::vec3 SunLight::GetDirection() { return WorldDirection; }
