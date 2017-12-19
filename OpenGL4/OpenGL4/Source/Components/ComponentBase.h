@@ -22,6 +22,7 @@ public:
 
 	/** GETTERS - SETTERS */
 	std::string GetName();
+	Transforms* GetTransforms();
 	Asset* GetParentAsset();
 	std::vector<ComponentBase*> GetComponents();
 	void UpdateTransforms(glm::mat4 InWorldTransform);

@@ -4,6 +4,10 @@
 
 Transforms::Transforms()
 {
+	RelativePosition = glm::vec3();
+	RelativeRotation = glm::vec3();
+	RelativeScale = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	OriginPoint = glm::vec3(0.0f, 0.0f, 0.0f);
 	WorldSpaceOrientation = glm::mat4();
 }
@@ -13,20 +17,20 @@ Transforms::~Transforms()
 {
 }
 
-void Transforms::Translate(float x, float y, float z)
+void Transforms::Translate(glm::vec3 InVector)
 {
-	WorldSpaceOrientation = glm::translate(WorldSpaceOrientation, glm::vec3(x, y, z));
-	OriginPoint = glm::vec3(OriginPoint.x + x, OriginPoint.y + y, OriginPoint.z + z);
+	WorldSpaceOrientation = glm::translate(WorldSpaceOrientation, InVector);
+	OriginPoint += InVector;
 }
 
-void Transforms::Rotate(float x, float y, float z)
+void Transforms::Rotate(glm::vec3 InVector)
 {
-	if (x > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f)); }
-	if (y > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(y), glm::vec3(0.0f, 1.0f, 0.0f)); }
-	if (z > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(z), glm::vec3(0.0f, 0.0f, 1.0f)); }
+	if (InVector.x > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(InVector.x), glm::vec3(1.0f, 0.0f, 0.0f)); }
+	if (InVector.y > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(InVector.y), glm::vec3(0.0f, 1.0f, 0.0f)); }
+	if (InVector.z > 0) { WorldSpaceOrientation = glm::rotate(WorldSpaceOrientation, glm::radians(InVector.z), glm::vec3(0.0f, 0.0f, 1.0f)); }
 }
 
-void Transforms::Scale(float x, float y, float z)
+void Transforms::Scale(glm::vec3 InVector)
 {
-	WorldSpaceOrientation = glm::scale(WorldSpaceOrientation, glm::vec3(x, y, z));
+	WorldSpaceOrientation = glm::scale(WorldSpaceOrientation, InVector);
 }

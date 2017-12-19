@@ -12,6 +12,15 @@ class Manager;
 class Texture;
 class MeshComponent;
 
+enum class MaterialTextures
+{
+	EAlbedo,
+	ENormal,
+	EMetallic,
+	ERoughness,
+	EAO
+};
+
 class Material : public Resource
 {
 public:
@@ -19,6 +28,7 @@ public:
 	~Material();
 
 	void ShadeMesh(MeshComponent* OwningComponent, bool bHasUVs);
+	void ApplyTexture(MaterialTextures InType, Texture* InTexture);
 
 	/* Texture Inputs */
 	Texture* Albedo;
@@ -28,7 +38,7 @@ public:
 	Texture* AO;
 
 private:
-	std::vector<GLuint> MaterialTextures;
+	//std::vector<GLuint> MaterialTextures;
 	Shader* CoreShader;
 	Manager* OwningManager;
 };

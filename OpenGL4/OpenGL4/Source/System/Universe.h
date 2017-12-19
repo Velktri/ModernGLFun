@@ -59,7 +59,6 @@ public:
 	Manager* GetManager();
 	CameraSet GetCamaras();
 	std::vector<Element*> GetSystemElements();
-	Gizmo* GetGizmo();
 	void RenderVR();
 
 	void GetSelectionResults(glm::vec2 Coords, glm::vec2 SceneSize);
@@ -71,7 +70,6 @@ private:
 	void InitWorlds();
 
 	Grid* GridFloor;
-	Gizmo* SelectionGizmo;
 
 	int GRIDRADIUS_X = 20;
 	int GRIDRADIUS_Y = 20;

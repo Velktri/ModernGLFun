@@ -8,6 +8,7 @@
 #include "ModelData/Curve.h"
 #include "System/Material.h"
 #include "Components/MeshComponent.h"
+#include "Models\Gizmo.h"
 #include "Lights/PointLight.h"
 #include "Lights/SpotLight.h"
 #include "Lights/SunLight.h"
@@ -24,23 +25,31 @@ Manager::Manager()
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 
+
+
 	DefaultTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Default.png"));
 	DefaultLightTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Light.png"));
 	DefaultMaterial = reinterpret_cast<Material*>(BuildMaterial());
 
-	BuildLight(LampType::POINTLIGHT, glm::vec3(5.0f, 5.0f, 0.0f)); // @TEMP
-	BuildLight(LampType::POINTLIGHT, glm::vec3(-5.0f, 0.0f, -2.0f));
+	/* ------------------- TEMP -------------------------*/
+	BuildLight(LampType::POINTLIGHT, glm::vec3(5.0f, 5.0f, 0.0f));
+	BuildLight(LampType::POINTLIGHT, glm::vec3(-5.0f, 1.0f, -2.0f));
 	BuildLight(LampType::POINTLIGHT, glm::vec3(2.0f, 5.0f, 4.0f));
 
-	LightsList[0]->Color = glm::vec3(255, 0, 0);
-	LightsList[1]->Color = glm::vec3(0, 255, 0);
-	LightsList[2]->Color = glm::vec3(0, 0, 255);
+	LightsList[0]->Color = glm::vec3(200, 0, 0);
+	LightsList[1]->Color = glm::vec3(0, 200, 0);
+	LightsList[2]->Color = glm::vec3(0, 0, 200);
 
 
 	BuildTexture("Models/Textures/Albedo.png");
 	BuildTexture("Models/Textures/Normal.png");
 	BuildTexture("Models/Textures/Metallic.png");
 	BuildTexture("Models/Textures/Roughness.png");
+	/* ---------------------------------------------------*/
+
+	SelectionGizmo = new Gizmo(GetAssetListSize(), this);
+	Asset* NewAsset = BuildPrimative(Primatives::Cylinder);
+	NewAsset->TranslateAsset(glm::vec3(5.0f, 0.0f, 0.0f));
 }
 
 
@@ -51,13 +60,22 @@ Manager::~Manager()
 	for each (Shader* s in SystemShaderList) {  s->~Shader();  }
 
 	/* Assets */
-	for each (Asset* mod in AssetList)  {  mod->~Asset();  }
+	for each (Asset* mod in UserAssetList)  {  mod->~Asset();  }
 
 	/* Textures */
 	for each (Texture* t in TextureList)  {  t->~Texture();  }
 
 	/* Lights */
 	for each (Light* l in LightsList)  {  l->~Light();  }
+}
+
+void Manager::UpdateSelectedAsset(Asset* InAsset)
+{
+	SelectedAsset = InAsset;
+	if (SelectedAsset)
+	{
+		SelectionGizmo->SetWorldSpace(SelectedAsset->GetWorldSpace());
+	}
 }
 
 void Manager::BuildShaders()
@@ -90,63 +108,64 @@ void Manager::SetSystemShader(glm::mat4 InViewProjection)
 	glUniformMatrix4fv(SystemShader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InViewProjection));
 }
 
-Asset* Manager::BuildAsset(std::string path)
+Asset* Manager::BuildAsset(std::string path, bool bIsUserAsset)
 {
 	Asset* SpawnedAsset = NULL;
 	if (path == "")
 	{
-		SpawnedAsset = new Asset(AssetList.size(), this);
-		SpawnedAsset->Name = std::string("Asset_" + AssetList.size());
+		SpawnedAsset = new Asset(UserAssetList.size(), this);
+		SpawnedAsset->Name = std::string("Asset_" + UserAssetList.size());
 	}
 	else
 	{
-		SpawnedAsset = new MeshAsset(AssetList.size(), this, path);
-		SpawnedAsset->Name = std::string("MeshAsset_" + AssetList.size());
+		SpawnedAsset = new MeshAsset(UserAssetList.size(), this, path);
+		SpawnedAsset->Name = std::string("MeshAsset_" + UserAssetList.size());
 	}
 
-	AddAssetToPool(SpawnedAsset);
+	if (bIsUserAsset) { AddAssetToPool(SpawnedAsset); }
 
 	return SpawnedAsset;
 }
 
-void Manager::BuildPrimative(Primatives InType)
+Asset* Manager::BuildPrimative(Primatives InType)
 {
 	Asset* SpawnedAsset = NULL;
-	std::string AssetNum = std::to_string(AssetList.size());
+	std::string AssetNum = std::to_string(UserAssetList.size());
 	switch (InType)
 	{
 		case Primatives::Cube:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/cube.obj");
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this, "Models/Primitives/cube.obj");
 			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
 			break;
 		case Primatives::Plane:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/plane.obj");
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this, "Models/Primitives/plane.obj");
 			SpawnedAsset->Name = std::string("Plane_" + AssetNum);
 			break;
 		case Primatives::Sphere:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/Sphere.obj");
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this, "Models/Primitives/Sphere.obj");
 			SpawnedAsset->Name = std::string("Sphere_" + AssetNum);
 			break;
 		case Primatives::Cylinder:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/cylinder.obj");
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this, "Models/Primitives/cylinder.obj");
 			SpawnedAsset->Name = std::string("Cylinder_" + AssetNum);
 			break;
 		case Primatives::ECurve:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this);
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this);
 			dynamic_cast<MeshComponent*>(SpawnedAsset->GetRoot()->GetComponents()[0])->SetMesh(new Curve());
 			SpawnedAsset->Name = std::string("Curve_" + AssetNum);
 			break;
 		case Primatives::Smooth:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this, "Models/Primitives/smoothSphere.obj");
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this, "Models/Primitives/smoothSphere.obj");
 			SpawnedAsset->Name = std::string("SmoothSphere_" + AssetNum); // @TODO: change along with enum in future.
 			break;
 		default:
-			SpawnedAsset = new MeshAsset(AssetList.size(), this);
+			SpawnedAsset = new MeshAsset(UserAssetList.size(), this);
 			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
 			break;
 	}
 
 	AddAssetToPool(SpawnedAsset);
+	return SpawnedAsset;
 }
 
 void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection) // @TODO: consider moving to world class.
@@ -168,10 +187,21 @@ void Manager::DrawLights(glm::mat4 InView, glm::mat4 InProjection) // @TODO: con
 
 void Manager::CheckForSelection(int InID)
 {
-	SelectedAsset = NULL;
-	for (Asset* a : AssetList)
+	printf("InID = %d\n", InID);
+	if (SelectedAsset && InID >= UserAssetList.size() && InID != 0x00FFFFFF)
 	{
-		if (a->GetAssetID() + 100 == InID) { SelectedAsset = a; } // @TODO: sync this + 100 with the RenderColorWorld + 100 in the World class.
+		printf("Selected Gizmo.\n");
+		// get selected axis
+		// figure out how far to move
+		// translate
+	}
+	else
+	{
+		SelectedAsset = NULL;
+		for (Asset* a : UserAssetList)
+		{
+			if (a->GetAssetID() == InID) { UpdateSelectedAsset(a); }
+		}
 	}
 }
 
@@ -180,7 +210,7 @@ void Manager::AddAssetToPool(Asset* InAsset)
 	if (InAsset)
 	{
 		AssetMap[DefaultShader].push_back(InAsset);
-		AssetList.push_back(InAsset);
+		UserAssetList.push_back(InAsset);
 	}
 }
 
@@ -298,6 +328,7 @@ Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for mul
 
 
 
+std::vector<Texture*> Manager::GetTextures() { return TextureList; }
 std::vector<Element*> Manager::GetMeshList() { return MeshList; }
 Shader* Manager::GetSystemShader() { return SystemShader; }
 Shader* Manager::GetLightShader() { return LightShader; }
@@ -307,10 +338,11 @@ Texture* Manager::GetDefaultTexture() { return DefaultTexture; }
 Material* Manager::GetDefaultMaterial() { return DefaultMaterial; }
 std::vector<Shader*> Manager::GetUserShaderList() { return UserShaderList; }
 Asset* Manager::GetSelectedAsset() { return SelectedAsset; }
-std::vector<Asset*> Manager::GetAssets() { return AssetList; }
-int Manager::GetAssetListSize() { return AssetList.size(); }
+std::vector<Asset*> Manager::GetUserAssets() { return UserAssetList; }
+int Manager::GetAssetListSize() { return UserAssetList.size(); }
 std::vector<Asset*> Manager::GetAssetsFromMap(Shader* InShader) { return AssetMap[InShader]; }
 std::vector<Light*> Manager::GetLights() { return LightsList; }
 void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
 void Manager::SetPickerShader() { CurrentShader = PickerShader; }
 void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
+Gizmo* Manager::GetGizmo() { return SelectionGizmo; }

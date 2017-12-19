@@ -8,6 +8,7 @@
 #include "System/Universe.h"
 #include "System/Camera.h"
 #include "Models/Asset.h"
+#include "System/Material.h"
 
 // @TODO: Give proper styling to dropdown menus.
 static void ShowHelpMarker(const char* desc)
@@ -186,7 +187,7 @@ void Container::OutlinerRegion()
 	ImGui::Text("Without border:");
 	ImGui::Columns(2, "AssetColumns", false);  // 3-ways, no border
 	ImGui::Separator();
-	std::vector<Asset*> CurrentAssets = GetOwningLayout()->GetManager()->GetAssets();
+	std::vector<Asset*> CurrentAssets = GetOwningLayout()->GetManager()->GetUserAssets();
 	for (int n = 0; n < CurrentAssets.size(); n++)
 	{
 		char label[32];
@@ -248,6 +249,51 @@ void Container::AssetEditorRegion()
 
 		ImGui::SliderFloat("Roughness", &SelectedAsset->testRoughness, 0.025f, 1.0f);
 		ImGui::SliderFloat("Metallic", &SelectedAsset->testMetallic, 0.0f, 1.0f);
+
+		std::vector<Texture*> TextureList = GetOwningLayout()->GetManager()->GetTextures();
+		if (ImGui::Button("Albedo Texture")) { ImGui::OpenPopup("Albedo Texture"); }
+		if (ImGui::BeginPopup("Albedo Texture"))
+		{
+			for (int i = 0; i < TextureList.size(); i++)
+			{
+				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::EAlbedo, TextureList[i]); } // @TODO: rework for future.
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::Button("Normal Texture")) { ImGui::OpenPopup("Normal Texture"); }
+		if (ImGui::BeginPopup("Normal Texture"))
+		{
+			for (int i = 0; i < TextureList.size(); i++)
+			{
+				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::ENormal, TextureList[i]); } // @TODO: rework for future.
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::Button("Metallic Texture")) { ImGui::OpenPopup("Metallic Texture"); }
+		if (ImGui::BeginPopup("Metallic Texture"))
+		{
+			for (int i = 0; i < TextureList.size(); i++)
+			{
+				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::EMetallic, TextureList[i]); } // @TODO: rework for future.
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::Button("Roughness Texture")) { ImGui::OpenPopup("Roughness Texture"); }
+		if (ImGui::BeginPopup("Roughness Texture"))
+		{
+			for (int i = 0; i < TextureList.size(); i++)
+			{
+				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::ERoughness, TextureList[i]); } // @TODO: rework for future.
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 	
 	/*

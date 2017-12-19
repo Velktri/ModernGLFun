@@ -32,27 +32,35 @@ void Asset::Render(Shader* shader)
 	Root->Render(shader);
 }
 
-void Asset::TranslateAsset(float x, float y, float z)
+void Asset::TranslateAsset(glm::vec3 InVector)
 {
-	AssetTransform->Translate(x, y, z);
+	AssetTransform->Translate(InVector);
+	UpdateComponentOrientation();
 }
 
-void Asset::RotateAsset(float x, float y, float z)
+void Asset::RotateAsset(glm::vec3 InVector)
 {
-	AssetTransform->Rotate(x, y, z);
+	AssetTransform->Rotate(InVector);
+	UpdateComponentOrientation();
 }
 
-void Asset::ScaleAsset(float x, float y, float z)
+void Asset::ScaleAsset(glm::vec3 InVector)
 {
-	AssetTransform->Scale(x, y, z);
+	AssetTransform->Scale(InVector);
+	UpdateComponentOrientation();
 }
 
 void Asset::SetWorldSpace(glm::mat4 InWorldSpace) 
 { 
 	AssetTransform->WorldSpaceOrientation = InWorldSpace;
+	UpdateComponentOrientation();
+}
+
+void Asset::UpdateComponentOrientation()
+{
 	for (ComponentBase* comp : Root->GetComponents())
 	{
-		comp->UpdateTransforms(InWorldSpace);
+		comp->UpdateTransforms(AssetTransform->WorldSpaceOrientation);
 	}
 }
 

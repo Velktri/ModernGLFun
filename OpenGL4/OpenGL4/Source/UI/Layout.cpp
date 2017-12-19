@@ -110,6 +110,8 @@ bool Layout::MasterWindow()
 		RenderRegions();
 	ImGui::End();
 	ImGui::PopStyleVar(3);
+	bool t = true;
+	ImGui::ShowTestWindow(&t);
 	return bQuitLayout;
 }
 

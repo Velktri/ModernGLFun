@@ -9,11 +9,15 @@ public:
 	Transforms();
 	~Transforms();
 
-	void Translate(float x, float y, float z);
-	void Rotate(float x, float y, float z);
-	void Scale(float x, float y, float z);
+	void Translate(glm::vec3 InVector);
+	void Rotate(glm::vec3 InVector);
+	void Scale(glm::vec3 InVector);
 
 	glm::vec3 OriginPoint;
 	glm::mat4 WorldSpaceOrientation;
+
+	glm::vec3 RelativePosition;
+	glm::vec3 RelativeRotation;
+	glm::vec3 RelativeScale;
 };
 

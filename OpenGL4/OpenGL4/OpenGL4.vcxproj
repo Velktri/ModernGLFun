@@ -178,6 +178,7 @@
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\System\World.cpp" />
     <ClCompile Include="Source\UI\Layout.cpp" />
+    <ClCompile Include="Source\UI\Node.cpp" />
     <ClCompile Include="Source\UI\Region.cpp" />
     <ClCompile Include="Source\System\VR_HMD.cpp" />
     <ClCompile Include="Source\System\Universe.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\System\World.h" />
     <ClInclude Include="Source\UI\Layout.h" />
+    <ClInclude Include="Source\UI\Node.h" />
     <ClInclude Include="Source\UI\Region.h" />
     <ClInclude Include="Source\System\VR_HMD.h" />
     <ClInclude Include="Source\System\Universe.h" />

@@ -29,9 +29,9 @@ public:
 	Asset(GLuint InAssetID, Manager* InManager);
 	~Asset();
 	virtual void Render(Shader* shader);
-	void TranslateAsset(float x, float y, float z);
-	void RotateAsset(float x, float y, float z);
-	void ScaleAsset(float x, float y, float z);
+	void TranslateAsset(glm::vec3 InVector);
+	void RotateAsset(glm::vec3 InVector);
+	void ScaleAsset(glm::vec3 InVector);
 
 
 	std::string Name;
@@ -53,5 +53,7 @@ private:
 	GLuint AssetID;
 	ComponentBase* Root;
 	Manager* MyManager;
+
+	void UpdateComponentOrientation();
 };
 

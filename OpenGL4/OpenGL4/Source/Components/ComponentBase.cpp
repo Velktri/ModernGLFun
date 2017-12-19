@@ -24,10 +24,7 @@ void ComponentBase::Render(Shader* shader)
 {
 	for (ComponentBase* comp : Components)
 	{
-		if (comp)
-		{
-			comp->Render(shader);
-		}
+		if (comp) { comp->Render(shader); }
 	}
 }
 
@@ -36,25 +33,29 @@ void ComponentBase::AddComponent(ComponentBase* InComponent)
 	if (InComponent) { Components.push_back(InComponent); }
 }
 
-void ComponentBase::TranslateComponent(float x, float y, float z)
+void ComponentBase::TranslateComponent(float x, float y, float z) // @TODO: when components are editable look into possible orientation updating issues.
 {
-	ComponentTransform->Translate(x, y, z);
+	ComponentTransform->RelativePosition += glm::vec3(x, y, z);
 }
 
-void ComponentBase::RotateComponent(float x, float y, float z)
+void ComponentBase::RotateComponent(float x, float y, float z) // @TODO: when components are editable look into possible orientation updating issues.
 {
-	ComponentTransform->Rotate(x, y, z);
+	ComponentTransform->RelativeRotation += glm::vec3(x, y, z);
 }
 
-void ComponentBase::ScaleComponent(float x, float y, float z)
+void ComponentBase::ScaleComponent(float x, float y, float z) // @TODO: when components are editable look into possible orientation updating issues.
 {
-	ComponentTransform->Scale(x, y, z);
+	ComponentTransform->RelativeScale += glm::vec3(x, y, z);
 }
 
 void ComponentBase::UpdateTransforms(glm::mat4 InWorldTransform)
 {
 	ComponentTransform->WorldSpaceOrientation = InWorldTransform;
+
 	// @TODO: add relative offsets
+	ComponentTransform->Translate(ComponentTransform->RelativePosition);
+	ComponentTransform->Rotate(ComponentTransform->RelativeRotation);
+	ComponentTransform->Scale(ComponentTransform->RelativeScale);
 
 	for (ComponentBase* comp : Components)
 	{
@@ -63,5 +64,6 @@ void ComponentBase::UpdateTransforms(glm::mat4 InWorldTransform)
 }
 
 std::string ComponentBase::GetName() { return Name; }
+Transforms* ComponentBase::GetTransforms() { return ComponentTransform; }
 Asset* ComponentBase::GetParentAsset() { return ParentAsset; }
 std::vector<ComponentBase*> ComponentBase::GetComponents() { return Components; }

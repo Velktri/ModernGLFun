@@ -12,14 +12,15 @@ class Element;
 class Mesh;
 class Material;
 class Resource;
+class Gizmo;
 
 class Manager {
 public:
 	Manager();
 	~Manager();
 
-	Asset* BuildAsset(std::string path = "");
-	void BuildPrimative(Primatives InType);
+	Asset* BuildAsset(std::string path = "", bool bIsUserAsset = true);
+	Asset* BuildPrimative(Primatives InType);
 	void DrawLights(glm::mat4 InView, glm::mat4 InProjection);
 	void CheckForSelection(int InID);
 	void AddAssetToPool(Asset* InAsset);
@@ -33,6 +34,8 @@ public:
 
 	/* GETTERS */
 	std::vector<Element*> GetMeshList();
+	std::vector<Texture*> GetTextures();
+	Gizmo* GetGizmo();
 	Shader* GetSystemShader();
 	Shader* GetLightShader();
 	Shader* GetDefaultShader();
@@ -41,7 +44,7 @@ public:
 	Material* GetDefaultMaterial();
 	std::vector<Shader*> GetUserShaderList();
 	Asset* GetSelectedAsset();
-	std::vector<Asset*> GetAssets();
+	std::vector<Asset*> GetUserAssets();
 	int GetAssetListSize();
 	std::vector<Asset*> GetAssetsFromMap(Shader* InShader);
 	std::vector<Light*> GetLights();
@@ -57,8 +60,10 @@ public:
 private:
 	/* Assets */
 	std::unordered_map<Shader*, std::vector<Asset*>> AssetMap;
-	std::vector<Asset*> AssetList;
+	std::vector<Asset*> UserAssetList;
 	Asset* SelectedAsset;
+	Gizmo* SelectionGizmo;
+	void UpdateSelectedAsset(Asset* InAsset);
 
 	/* Pools */
 	std::unordered_map<std::string, Resource*> ResourcePool;
@@ -92,7 +97,6 @@ private:
 	std::vector<Element*> MeshList;
 	Resource* ProcessMesh(std::string path);
 };
-
 
 template<class T>
 T* Manager::CheckPool(std::string path)

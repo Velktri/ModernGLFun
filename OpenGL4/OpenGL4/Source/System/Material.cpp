@@ -44,3 +44,27 @@ void Material::ShadeMesh(MeshComponent* OwningComponent, bool bHasUVs)
 	glUniform1f(CoreShader->ShaderList["metallicTest"], ParentAsset->testMetallic);
 }
 
+void Material::ApplyTexture(MaterialTextures InType, Texture* InTexture)
+{
+	switch (InType)
+	{
+		case MaterialTextures::EAlbedo:
+			Albedo = InTexture;
+			break;
+		case MaterialTextures::ENormal:
+			Normal = InTexture;
+			break;
+		case MaterialTextures::EMetallic:
+			Metallic = InTexture;
+			break;
+		case MaterialTextures::ERoughness:
+			Roughness = InTexture;
+			break;
+		case MaterialTextures::EAO:
+			AO = InTexture;
+			break;
+		default:
+			InTexture = NULL;
+			break;
+	}
+}

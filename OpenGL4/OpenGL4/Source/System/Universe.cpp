@@ -1,6 +1,5 @@
 #include "Universe.h"
 #include "ModelData\Grid.h"
-#include "Models\Gizmo.h"
 #include "ModelData\Line.h"
 #include "Manager.h"
 #include "World.h"
@@ -15,9 +14,7 @@ Universe::Universe(Manager* InManager)
 	UniversalTimer = new Timer();
 
 	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-	SelectionGizmo = new Gizmo(MyManager->GetAssetListSize(), MyManager);
 	SystemElements.push_back(GridFloor);
-	//SystemElements.push_back(SelectionGizmo);
 
 	InitCameras();
 	InitWorlds();
@@ -153,4 +150,3 @@ Timer* Universe::GetUniversalTimer() { return UniversalTimer; }
 Manager* Universe::GetManager() { return MyManager; }
 CameraSet Universe::GetCamaras() { return UserCameras; }
 std::vector<Element*> Universe::GetSystemElements() { return SystemElements; }
-Gizmo* Universe::GetGizmo() { return SelectionGizmo; }

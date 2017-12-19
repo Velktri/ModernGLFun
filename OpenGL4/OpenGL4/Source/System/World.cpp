@@ -5,9 +5,12 @@
 #include "Timer.h"
 #include "Models\Gizmo.h"
 #include "ModelData\Element.h"
+#include "System\Transforms.h"
 #include "Models\Asset.h"
 #include "Models\Shader.h"
 #include "Lights\Light.h"
+#include "Components\MeshComponent.h"
+#include "Components\ComponentBase.h"
 
 World::World(Universe* InUniverse, Manager* InManager)
 {
@@ -57,8 +60,11 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 
 		e->Render(MyManager->GetSystemShader());
 	}
 
-	glClear(GL_DEPTH_BUFFER_BIT);
-	OwningUniverse->GetGizmo()->Render(MyManager->GetSystemShader());
+	if (MyManager->GetSelectedAsset())
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+		MyManager->GetGizmo()->Render(MyManager->GetSystemShader());
+	}
 }
 
 void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
@@ -68,16 +74,33 @@ void World::RenderColorWorld(Camera* InCamera, glm::vec2 FrameSize)
 	shader->Use();
 	glUniformMatrix4fv(shader->ShaderList["ViewProjection"], 1, GL_FALSE, glm::value_ptr(InCamera->GetViewProjection()));
 
-	// @TODO: add gizmo selection
-
-	for each (Asset* mod in MyManager->GetAssets())
+	int AssetSize = 0;
+	for each (Asset* mod in MyManager->GetUserAssets())
 	{
-		int r = ((mod->GetAssetID() + 100) & 0x000000FF) >> 0;
-		int g = ((mod->GetAssetID() + 100) & 0x0000FF00) >> 8;
-		int b = ((mod->GetAssetID() + 100) & 0x00FF0000) >> 16;
+		int r = ((mod->GetAssetID()) & 0x000000FF) >> 0; //@TODO: this only allows to 256 different assets. needs to be reworked.
+		int g = ((mod->GetAssetID()) & 0x0000FF00) >> 8;
+		int b = ((mod->GetAssetID()) & 0x00FF0000) >> 16;
 		glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(mod->GetWorldSpace()));
 		glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 		mod->Render(shader);
+		AssetSize++;
+	}
+
+	// @TODO: add gizmo selection
+	if (MyManager->GetSelectedAsset())
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+		for (ComponentBase* comp : MyManager->GetGizmo()->GetRoot()->GetComponents())
+		{
+			int r = (AssetSize & 0x000000FF) >> 0; //@TODO: this only allows to 256 different assets. needs to be reworked.
+			int g = (AssetSize & 0x0000FF00) >> 8;
+			int b = (AssetSize & 0x00FF0000) >> 16;
+			glUniformMatrix4fv(shader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(comp->GetTransforms()->WorldSpaceOrientation));
+			glUniform4f(shader->ShaderList["PickingColor"], r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+			comp->Render(shader);
+
+			AssetSize++;
+		}
 	}
 }
 

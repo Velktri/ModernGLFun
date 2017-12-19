@@ -8,10 +8,12 @@ public:
 	Gizmo(GLuint InAssetID, Manager* InManager);
 	~Gizmo();
 
+
+	virtual void Render(Shader* shader) override;
+
+private:
 	MeshComponent* TranslateX;
 	MeshComponent* TranslateY;
 	MeshComponent* TranslateZ;
-
-	virtual void Render(Shader* shader) override;
 };
 
