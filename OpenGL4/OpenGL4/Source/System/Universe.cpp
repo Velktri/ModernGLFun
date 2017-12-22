@@ -20,18 +20,18 @@ Universe::Universe(Manager* InManager)
 
 Universe::~Universe()
 {
-	if (UserCameras.Perspective) { UserCameras.Perspective->~Camera(); }
-	if (UserCameras.Top) { UserCameras.Top->~Camera(); }
-	if (UserCameras.Front) { UserCameras.Front->~Camera(); }
-	if (UserCameras.Side) { UserCameras.Side->~Camera(); }
-	if (UserCameras.VRCamera) { UserCameras.VRCamera->~VR_HMD(); }
+	if (UserCameras.Perspective) { delete UserCameras.Perspective; }
+	if (UserCameras.Top) { delete UserCameras.Top; }
+	if (UserCameras.Front) { delete UserCameras.Front; }
+	if (UserCameras.Side) { delete UserCameras.Side; }
+	if (UserCameras.VRCamera) { delete UserCameras.VRCamera; }
 
 	for (World* w : Worlds)
 	{
-		if (w) { w->~World(); }
+		if (w) { delete w; }
 	}
 
-	if (UniversalTimer) { UniversalTimer->~Timer(); }
+	if (UniversalTimer) { delete UniversalTimer; }
 }
 
 void Universe::InitCameras()

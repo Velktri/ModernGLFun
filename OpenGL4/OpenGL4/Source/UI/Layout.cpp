@@ -29,7 +29,7 @@ Layout::Layout(SDL_Window* InWindow, Manager* InManager, Universe* InUniverse, I
 
 Layout::~Layout()
 {
-	if (LayoutRoot) { LayoutRoot->~TreeNode(); }
+	if (LayoutRoot) { delete LayoutRoot; }
 }
 
 void Layout::LoadDefaultLayout()
@@ -105,7 +105,8 @@ bool Layout::MasterWindow()
 										 ImGuiWindowFlags_NoResize |
 										 ImGuiWindowFlags_NoTitleBar |
 										 ImGuiWindowFlags_NoScrollbar |
-										 ImGuiWindowFlags_NoSavedSettings);
+										 ImGuiWindowFlags_NoSavedSettings | 
+										 ImGuiWindowFlags_NoBringToFrontOnFocus);
 		
 		RenderRegions();
 	ImGui::End();
@@ -264,9 +265,9 @@ TreeNode* Layout::BuildNode(std::string NodeString)
 	if (static_cast<RegionTypes>(NodeData.Type) == RegionTypes::Spacer)
 	{
 		bool VOrientation = GeoString::ParseBool(Data[6]);
-		ImVec2 SpaceSize = (VOrientation) ? ImVec2(SplitSpacing/*std::stoi(Data[4])*/, std::stoi(Data[5])) : ImVec2(std::stoi(Data[4]), SplitSpacing/*std::stoi(Data[5])*/);
+		ImVec2 SpaceSize = (VOrientation) ? ImVec2(SplitSpacing, std::stoi(Data[5])) : ImVec2(std::stoi(Data[4]), SplitSpacing);
 
-		NewNode->BuildSplitter(SpaceSize/*ImVec2(std::stoi(Data[4]), std::stoi(Data[5]))*/, VOrientation);
+		NewNode->BuildSplitter(SpaceSize, VOrientation);
 	}
 
 	return NewNode;
@@ -308,14 +309,14 @@ TreeNode::~TreeNode()
 {
 	if (RightNode)
 	{
-		if (RightNode->Contents) { RightNode->Contents->~Region(); }
-		RightNode->~TreeNode(); 
+		if (RightNode->Contents) { delete RightNode->Contents; }
+		delete RightNode; 
 	}
 
 	if (LeftNode) 
 	{ 
-		if (LeftNode->Contents) { LeftNode->Contents->~Region(); }
-		LeftNode->~TreeNode(); 
+		if (LeftNode->Contents) { delete LeftNode->Contents; }
+		delete LeftNode; 
 	}
 }
 
@@ -343,7 +344,7 @@ void TreeNode::Render()
 
 void TreeNode::BuildSplitter(ImVec2 InSize, bool InOrientation)
 {
-	if (Contents) {	Contents->~Region(); }
+	if (Contents) {	delete Contents; }
 	Contents = new Splitter(InSize, OwningLayout, this, InOrientation);
 	Data.Type = RegionTypes::Spacer;
 }

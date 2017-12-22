@@ -18,5 +18,5 @@ Line::Line(glm::vec3 Start, glm::vec3 End)
 
 Line::~Line()
 {
-	Element::~Element();
+
 }

@@ -26,8 +26,8 @@ Camera::Camera(Universe* InUniverse, glm::vec3 position)
 
 Camera::~Camera()
 {
-	if (SceneFrame) { SceneFrame->~FrameBuffer(); }
-	if (PickerFrame) { PickerFrame->~FrameBuffer(); }
+	if (SceneFrame) { delete SceneFrame; }
+	if (PickerFrame) { delete PickerFrame; }
 }
 
 void Camera::PanCamera(int Start_X, int Start_Y, GLfloat deltaTime)

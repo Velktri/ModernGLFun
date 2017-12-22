@@ -61,23 +61,26 @@ Manager::Manager()
 Manager::~Manager()
 {
 	/* Shaders */
-	for each (Shader* s in UserShaderList)   {  s->~Shader();  }
-	for each (Shader* s in SystemShaderList) {  s->~Shader();  }
+	for each (Shader* s in UserShaderList)   { if (s) { delete s; } }
+	for each (Shader* s in SystemShaderList) { if (s) { delete s; } }
+	UserShaderList.clear();
+	SystemShaderList.clear();
 
 	/* Assets */
-	for each (Asset* mod in UserAssetList)  {  mod->~Asset();  }
+	for each (Asset* mod in UserAssetList)  { if (mod) { delete mod; } }
+	UserAssetList.clear();
 
 	/* Textures */
-	for each (Texture* t in TextureList)  {  t->~Texture();  }
+	for each (Texture* t in TextureList)  { if (t) { delete t; } }
+	TextureList.clear();
 
 	/* Lights */
-	for each (Light* l in LightsList)  {  l->~Light();  }
+	for each (Light* l in LightsList) { if (l) { delete l; } }
+	LightsList.clear();
 
 	/* System */
-	for (Element* e : SystemElements)
-	{
-		if (e) { e->~Element(); }
-	}
+	for (Element* e : SystemElements) { if (e) { delete e; } }
+	SystemElements.clear();
 }
 
 void Manager::BuildShaders()
@@ -354,11 +357,16 @@ Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for mul
 
 void Manager::ClearLines()
 {
-	for each (Element* e in SystemElements)
+	for (auto it = SystemElements.begin(); it != SystemElements.end();)
 	{
-		if (e->GetType() == ShaderType::LINE)
+		if ((*it)->GetType() == ShaderType::LINE)
 		{
-			e->~Element();
+			delete *it;
+			it = SystemElements.erase(it);
+		}
+		else
+		{
+			it++;
 		}
 	}
 }

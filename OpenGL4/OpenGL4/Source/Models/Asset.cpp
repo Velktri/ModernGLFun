@@ -23,8 +23,8 @@ Asset::Asset(GLuint InAssetID, Manager* InManager)
 
 Asset::~Asset()
 {
-	Root->~ComponentBase();
-	AssetTransform->~Transforms();
+	delete Root;
+	delete AssetTransform;
 }
 
 void Asset::Render(Shader* shader)

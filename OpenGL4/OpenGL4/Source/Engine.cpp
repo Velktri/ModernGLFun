@@ -89,10 +89,10 @@ void Engine::Run()
 
 void Engine::CleanUp()
 {
-	if (MyUniverse) { MyUniverse->~Universe(); }
-	if (MyManager)  { MyManager->~Manager(); }
-	if (UILayout)   { UILayout->~Layout(); }
-	if (MyInput)    { MyInput->~Input(); }
+	if (MyUniverse) { delete MyUniverse; }
+	if (MyManager)	{ delete MyManager; }
+	if (UILayout)	{ delete UILayout; }
+	if (MyInput)	{ delete MyInput; }
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(MainWindow);

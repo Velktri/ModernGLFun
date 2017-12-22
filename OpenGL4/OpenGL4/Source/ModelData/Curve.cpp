@@ -2,7 +2,8 @@
 
 
 
-Curve::Curve() {
+Curve::Curve()
+{
 	type = CURVE;
 	StepSize = 20.0f;
 
@@ -15,19 +16,22 @@ Curve::Curve() {
 }
 
 
-Curve::~Curve() {
+Curve::~Curve()
+{
 }
 
-void Curve::EvaluateCubic() {
+void Curve::EvaluateCubic()
+{
 	int check = 0;
 	float step = (1 / StepSize);
 	float t = 0 - step;
-	for (float u = 0; u <= StepSize; u++) {
+	for (float u = 0; u <= StepSize; u++)
+	{
 		t += step;
 
 		Vertex point;
 		point.Position = glm::vec3(((1 - t)*(1 - t)*p0.x) + (2 * (1 - t) * t* p1.x) + (t*t*p2.x),
-								   ((1 - t)*(1 - t)*p0.y) + (2 * (1 - t) * t* p1.y) + (t*t*p2.y),
+			((1 - t)*(1 - t)*p0.y) + (2 * (1 - t) * t* p1.y) + (t*t*p2.y),
 								   ((1 - t)*(1 - t)*p0.z) + (2 * (1 - t) * t* p1.z) + (t*t*p2.z));
 
 		vertices.push_back(point);
@@ -35,12 +39,18 @@ void Curve::EvaluateCubic() {
 	}
 }
 
-void Curve::UpdateControlPoint(int index, glm::vec3 InPosition) {
-	if (index == 1) {
+void Curve::UpdateControlPoint(int index, glm::vec3 InPosition)
+{
+	if (index == 1)
+	{
 		p0 += InPosition;
-	} else 	if (index == 2) {
+	}
+	else 	if (index == 2)
+	{
 		p1 += InPosition;
-	} else	if (index == 3) {
+	}
+	else	if (index == 3)
+	{
 		p2 += InPosition;
 	}
 	vertices.clear();

@@ -14,10 +14,10 @@ ComponentBase::~ComponentBase()
 {
 	for (ComponentBase* Comp : Components)
 	{
-		if (Comp) { Comp->~ComponentBase(); }
+		if (Comp) { delete Comp; }
 	}
 
-	ComponentTransform->~Transforms();
+	delete ComponentTransform;
 }
 
 void ComponentBase::Render(Shader* shader)
