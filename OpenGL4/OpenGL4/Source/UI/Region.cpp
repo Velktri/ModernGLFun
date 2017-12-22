@@ -153,7 +153,7 @@ void Container::SceneRegion()
 			ImGui::EndPopup();
 		}
 
-		if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetUniverse()->ClearLines(); };
+		if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetManager()->ClearLines(); };
 
 		float MenuSize = ImGui::GetCurrentWindow()->MenuBarHeight();
 	EndStyledMenuBar();
@@ -194,7 +194,7 @@ void Container::OutlinerRegion()
 		sprintf_s(label, "Item %d", n);
 		if (ImGui::Selectable(CurrentAssets[n]->Name.c_str(), CurrentAssets[n] == GetOwningLayout()->GetManager()->GetSelectedAsset())) 
 		{ 
-			GetOwningLayout()->GetManager()->SetSelectedAsset(CurrentAssets[n]);  
+			GetOwningLayout()->GetManager()->UpdateSelectedAsset(CurrentAssets[n]);  
 		}
 		ImGui::NextColumn();
 	}
@@ -294,6 +294,14 @@ void Container::AssetEditorRegion()
 
 			ImGui::EndPopup();
 		}
+
+		
+		ImGui::Text("%s", SelectedAsset->Name.c_str());
+		ImGui::Text("X: %f", SelectedAsset->GetOrigin().x);
+		ImGui::Text("Y: %f", SelectedAsset->GetOrigin().y);
+		ImGui::Text("Z: %f", SelectedAsset->GetOrigin().z);
+
+		if (ImGui::Button("Reset Origin")) { SelectedAsset->SetWorldSpace(glm::mat4()); }
 	}
 	
 	/*

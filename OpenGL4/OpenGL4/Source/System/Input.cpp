@@ -7,6 +7,7 @@
 #include "Manager.h"
 #include "UI/Layout.h"
 #include "UI/Region.h"
+#include "Models/Gizmo.h"
 
 Input::Input(Universe* InUniverse, Manager* InManager)
 {
@@ -30,6 +31,7 @@ void Input::UpdateInput()
 bool Input::ExecuteInput(Region* InActiveRegion)
 {
 	bool SceneHovering = false;
+	ActiveSceneCamera = MyUniverse->GetCamaras().Perspective; // @TODO: have every scene remember a camera and update with that in future.
 	if (InActiveRegion) // @TODO: rewrite for multiple scenes
 	{
 		Container* ActiveContainer = dynamic_cast<Container*>(InActiveRegion);
@@ -54,17 +56,22 @@ bool Input::ExecuteInput(Region* InActiveRegion)
 	}
 
 	SDL_PumpEvents();
-	if (keyState[SDL_SCANCODE_LALT] || keyState[SDL_SCANCODE_RALT])
+
+	if (SceneHovering)
 	{
-		if (mouseState && SceneHovering) { ProcessMouseEvents(); }
-	}
-	else
-	{
-		if (SceneHovering) { QuerySelection(); }
+		if (keyState[SDL_SCANCODE_LALT] || keyState[SDL_SCANCODE_RALT])
+		{
+			if (mouseState) { ProcessMouseEvents(); }
+		}
+		else
+		{
+			QuerySelection();
+		}
 	}
 
 
-	StartSelectionCoods = glm::vec2(xState, yState);
+
+	//StartSelectionCoods = glm::vec2(xState, yState);
 
 	ProcessKeyEvents();
 	return true;
@@ -94,26 +101,51 @@ void Input::QuerySelection()
 {
 	if (mouseState & SDL_BUTTON_LMASK)
 	{
-		if (bLeftIsPressed == false)
+		if (bLeftIsPressed == false) //Left mouse has been pressed this frame
 		{
-			StartSelectionCoods = glm::vec2(xState, yState);
+			StartSelectionCoods = glm::vec2(xState - ActiveSceneRegion->GetScenePosition().x, yState - ActiveSceneRegion->GetScenePosition().y);
+			CurrentSelectionCoods = StartSelectionCoods;
+			MyUniverse->GetSelectionResults(StartSelectionCoods, glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
 			bLeftIsPressed = true;
 		}
-		EndSelectionCoods = glm::vec2(xState, yState);
+		else //Left mouse was pressed in a previous frame but hasn't been released.
+		{
+			if (MyManager->GetGizmo()->IsGizmoSelected())
+			{
+				CurrentSelectionCoods = glm::vec2(xState - ActiveSceneRegion->GetScenePosition().x, yState - ActiveSceneRegion->GetScenePosition().y);
+				glm::vec2 SceneSize = glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y);
+				glm::vec3 CameraPosition;
+				glm::vec3 RayCastDirection;
+				glm::vec3 CameraLookDir = ActiveSceneCamera->GetFrontCameraDirection();
+				MyUniverse->ConvertScreenToWorldSpace(CurrentSelectionCoods,
+													  SceneSize,
+													  glm::inverse(ActiveSceneCamera->GetViewProjection()),
+													  CameraPosition,
+													  RayCastDirection);
+
+				MyManager->GetGizmo()->CalculateGizmoMovement(CameraPosition, RayCastDirection, CameraLookDir);
+			}
+		}
 	}
-	else if (bLeftIsPressed == true)
+	else if (bLeftIsPressed == true) // Left mouse was just released this frame
 	{
 		bLeftIsPressed = false;
-		SelectAssets(StartSelectionCoods, EndSelectionCoods);
+		if (MyManager->GetGizmo()->IsGizmoSelected())
+		{
+			MyManager->GetGizmo()->ActiveAxis = ActiveHandle::None;
+		}
+		else
+		{
+			SelectAssets(StartSelectionCoods, CurrentSelectionCoods);
+		}
 	}
 }
 
 void Input::SelectAssets(glm::vec2 Start, glm::vec2 End)
 {
-	MyUniverse->CastRaytrace(MyUniverse->GetCamaras().Perspective, glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
-						glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
-	MyUniverse->GetSelectionResults(glm::vec2(Start.x - ActiveSceneRegion->GetScenePosition().x, Start.y - ActiveSceneRegion->GetScenePosition().y), 
-									glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y));
+	glm::vec2 SceneSize = glm::vec2(ActiveSceneRegion->GetSceneSize().x, ActiveSceneRegion->GetSceneSize().y);
+	MyUniverse->CastRaytrace(MyUniverse->GetCamaras().Perspective, Start, SceneSize);
+	MyUniverse->GetSelectionResults(Start, SceneSize);
 	bSelectionRequest = true;
 }
 

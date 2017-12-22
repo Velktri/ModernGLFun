@@ -13,9 +13,6 @@ Universe::Universe(Manager* InManager)
 	MyManager = InManager;
 	UniversalTimer = new Timer();
 
-	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
-	SystemElements.push_back(GridFloor);
-
 	InitCameras();
 	InitWorlds();
 }
@@ -35,11 +32,6 @@ Universe::~Universe()
 	}
 
 	if (UniversalTimer) { UniversalTimer->~Timer(); }
-
-	for (Element* e : SystemElements)
-	{
-		if (e) { e->~Element(); }
-	}
 }
 
 void Universe::InitCameras()
@@ -99,10 +91,7 @@ Asset* Universe::CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec
 	glm::vec3 WorldPosition;
 	glm::vec3 WorldDirection;
 	ConvertScreenToWorldSpace(DeviceCoords, SceneSize, glm::inverse(InCamera->GetViewProjection()), WorldPosition, WorldDirection);
-
-	glm::vec3 lEnd = WorldPosition + (WorldDirection * -100.0f);
-
-	SystemElements.push_back(new Line(WorldPosition, lEnd));
+	MyManager->DrawLine(WorldPosition, WorldDirection, 100.0f);
 
 	return NULL;
 }
@@ -134,19 +123,6 @@ void Universe::ConvertScreenToWorldSpace(glm::vec2 InScreenSelection, glm::vec2 
 	WorldDirection = ((DirCheck.x * DirCheck.x + DirCheck.y * DirCheck.y + DirCheck.z * DirCheck.z) == 0) ? glm::vec3() : glm::normalize(RayEndWorldSpace - RayStartWorldSpace);
 }
 
-void Universe::ClearLines()
-{
-	for each (Element* e in SystemElements)
-	{
-		if (e->GetType() == ShaderType::LINE)
-		{
-			e->~Element();
-		}
-	}
-}
-
-
 Timer* Universe::GetUniversalTimer() { return UniversalTimer; }
 Manager* Universe::GetManager() { return MyManager; }
 CameraSet Universe::GetCamaras() { return UserCameras; }
-std::vector<Element*> Universe::GetSystemElements() { return SystemElements; }

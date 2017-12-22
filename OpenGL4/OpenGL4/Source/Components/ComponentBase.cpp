@@ -52,7 +52,6 @@ void ComponentBase::UpdateTransforms(glm::mat4 InWorldTransform)
 {
 	ComponentTransform->WorldSpaceOrientation = InWorldTransform;
 
-	// @TODO: add relative offsets
 	ComponentTransform->Translate(ComponentTransform->RelativePosition);
 	ComponentTransform->Rotate(ComponentTransform->RelativeRotation);
 	ComponentTransform->Scale(ComponentTransform->RelativeScale);

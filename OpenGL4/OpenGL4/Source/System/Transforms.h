@@ -13,6 +13,8 @@ public:
 	void Rotate(glm::vec3 InVector);
 	void Scale(glm::vec3 InVector);
 
+	glm::vec3 GetPosition();
+
 	glm::vec3 OriginPoint;
 	glm::mat4 WorldSpaceOrientation;
 

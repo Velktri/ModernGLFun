@@ -24,6 +24,14 @@ void MeshComponent::Render(Shader* InShader)
 {
 	if (MeshData && GetParentAsset()->Name != "MeshAsset_") //@TODO: add toggle visibility for assets
 	{
+		if (ComponentTransform->WorldSpaceOrientation != GetParentAsset()->GetWorldSpace())
+		{
+			ComponentTransform->WorldSpaceOrientation = GetParentAsset()->GetWorldSpace();
+			ComponentTransform->Translate(ComponentTransform->RelativePosition);
+			ComponentTransform->Rotate(ComponentTransform->RelativeRotation);
+			ComponentTransform->Scale(ComponentTransform->RelativeScale);
+		}
+
 		glUniform3f(InShader->ShaderList["color"], Color.x, Color.y, Color.z);
 		glUniformMatrix4fv(InShader->ShaderList["model"], 1, GL_FALSE, glm::value_ptr(ComponentTransform->WorldSpaceOrientation));
 		MeshMaterial->ShadeMesh(this, MeshData->HasTextureCoords());

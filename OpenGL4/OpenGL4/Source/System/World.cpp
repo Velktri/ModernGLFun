@@ -54,7 +54,7 @@ void World::RenderWorld(glm::vec3 InCameraPosition, glm::mat4 InView, glm::mat4 
 
 	/* System Rendering */
 	MyManager->SetSystemShader(InViewProjection);
-	for each (Element* e in OwningUniverse->GetSystemElements())
+	for each (Element* e in MyManager->GetSystemElements())
 	{
 		glUniform3f(MyManager->GetSystemShader()->ShaderList["color"], e->Color.x, e->Color.y, e->Color.z);
 		e->Render(MyManager->GetSystemShader());

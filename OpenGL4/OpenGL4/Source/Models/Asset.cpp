@@ -66,8 +66,9 @@ void Asset::UpdateComponentOrientation()
 
 
 /** Getters */
-glm::vec3 Asset::GetOrigin() { return AssetTransform->OriginPoint; }
+glm::vec3 Asset::GetOrigin() { return AssetTransform->GetPosition(); }
 GLuint Asset::GetAssetID() { return AssetID; }
 glm::mat4 Asset::GetWorldSpace() { return AssetTransform->WorldSpaceOrientation; }
 ComponentBase* Asset::GetRoot() { return Root; }
 Manager* Asset::GetManager() { return MyManager; }
+Transforms* Asset::GetAssetTransforms() { return AssetTransform; }

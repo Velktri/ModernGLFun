@@ -8,6 +8,7 @@
 class Universe;
 class Manager;
 class Region;
+class Camera;
 
 class Input {
 public:
@@ -26,6 +27,7 @@ private:
 	Universe* MyUniverse;
 	Manager* MyManager;
 	Region* ActiveSceneRegion;
+	Camera* ActiveSceneCamera;
 
 	int xState;
 	int yState;
@@ -35,7 +37,7 @@ private:
 
 	bool bLeftIsPressed;
 	bool bSelectionRequest;
-	glm::vec2 EndSelectionCoods;
+	glm::vec2 CurrentSelectionCoods;
 
 	void ProcessMouseEvents();
 	void ProcessKeyEvents();

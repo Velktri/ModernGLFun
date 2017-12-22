@@ -38,7 +38,7 @@ void FrameBuffer::RenderWorldFrame(Camera* InCamera, World* InWorld, glm::vec2 F
 	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	InWorld->RenderWorld(InCamera->GetPosition(), InCamera->GetViewMatrix(), InCamera->GetProjection()/*InCamera->GetViewProjection()*/, FrameSize);
+	InWorld->RenderWorld(InCamera->GetPosition(), InCamera->GetViewMatrix(), InCamera->GetProjection(), FrameSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.35f, 0.55f, 0.55f, 1.0f);

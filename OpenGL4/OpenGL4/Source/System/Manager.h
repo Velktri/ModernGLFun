@@ -13,6 +13,7 @@ class Mesh;
 class Material;
 class Resource;
 class Gizmo;
+class Grid;
 
 class Manager {
 public:
@@ -24,6 +25,9 @@ public:
 	void DrawLights(glm::mat4 InView, glm::mat4 InProjection);
 	void CheckForSelection(int InID);
 	void AddAssetToPool(Asset* InAsset);
+	Element* DrawLine(glm::vec3 StartPoint, glm::vec3 EndPoint);
+	Element* DrawLine(glm::vec3 StartPoint, glm::vec3 LineDirection, float Distance);
+	void ClearLines();
 
 	template<class T>
 	T* CheckPool(std::string path);
@@ -49,9 +53,10 @@ public:
 	std::vector<Asset*> GetAssetsFromMap(Shader* InShader);
 	std::vector<Light*> GetLights();
 	void SetSystemShader(glm::mat4 InViewProjection);
-	void SetSelectedAsset(Asset* InAsset);
+	void UpdateSelectedAsset(Asset* InAsset);
 	void SetPickerShader();
 	void SetCurrentShader(Shader* s);
+	std::vector<Element*> GetSystemElements();
 
 	glm::vec3 testColor;
 	float testRoughness;
@@ -63,7 +68,7 @@ private:
 	std::vector<Asset*> UserAssetList;
 	Asset* SelectedAsset;
 	Gizmo* SelectionGizmo;
-	void UpdateSelectedAsset(Asset* InAsset);
+	
 
 	/* Pools */
 	std::unordered_map<std::string, Resource*> ResourcePool;
@@ -96,6 +101,15 @@ private:
 	/* Meshes */
 	std::vector<Element*> MeshList;
 	Resource* ProcessMesh(std::string path);
+
+	/* System */
+	Grid* GridFloor;
+
+	int GRIDRADIUS_X = 20;
+	int GRIDRADIUS_Y = 20;
+	float GRIDSPACING = 1.0;
+
+	std::vector<Element*> SystemElements;
 };
 
 template<class T>

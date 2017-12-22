@@ -34,3 +34,8 @@ void Transforms::Scale(glm::vec3 InVector)
 {
 	WorldSpaceOrientation = glm::scale(WorldSpaceOrientation, InVector);
 }
+
+glm::vec3 Transforms::GetPosition()
+{
+	return glm::vec3(WorldSpaceOrientation[3][0], WorldSpaceOrientation[3][1], WorldSpaceOrientation[3][2]);
+}

@@ -43,12 +43,13 @@ public:
 	void SetWorldSpace(glm::mat4 InWorldSpace);
 	ComponentBase* GetRoot();
 	Manager* GetManager();
+	Transforms* GetAssetTransforms();
 
 	glm::vec3 testColor;
 	float testRoughness;
 	float testMetallic;
 
-private:
+protected:
 	Transforms* AssetTransform;
 	GLuint AssetID;
 	ComponentBase* Root;

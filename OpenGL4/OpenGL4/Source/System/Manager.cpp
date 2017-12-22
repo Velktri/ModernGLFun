@@ -6,9 +6,11 @@
 #include "ModelData/Mesh.h"
 #include "ModelData/Element.h"
 #include "ModelData/Curve.h"
+#include "ModelData/Line.h"
 #include "System/Material.h"
 #include "Components/MeshComponent.h"
 #include "Models\Gizmo.h"
+#include "ModelData\Grid.h"
 #include "Lights/PointLight.h"
 #include "Lights/SpotLight.h"
 #include "Lights/SunLight.h"
@@ -25,6 +27,9 @@ Manager::Manager()
 	CurrentShader = DefaultShader;
 	AssetMap[DefaultShader] = std::vector<Asset*>();
 
+
+	GridFloor = new Grid(GRIDRADIUS_X, GRIDRADIUS_Y, GRIDSPACING);
+	SystemElements.push_back(GridFloor);
 
 
 	DefaultTexture = reinterpret_cast<Texture*>(BuildTexture("Models/Textures/Default.png"));
@@ -67,14 +72,11 @@ Manager::~Manager()
 
 	/* Lights */
 	for each (Light* l in LightsList)  {  l->~Light();  }
-}
 
-void Manager::UpdateSelectedAsset(Asset* InAsset)
-{
-	SelectedAsset = InAsset;
-	if (SelectedAsset)
+	/* System */
+	for (Element* e : SystemElements)
 	{
-		SelectionGizmo->SetWorldSpace(SelectedAsset->GetWorldSpace());
+		if (e) { e->~Element(); }
 	}
 }
 
@@ -160,7 +162,7 @@ Asset* Manager::BuildPrimative(Primatives InType)
 			break;
 		default:
 			SpawnedAsset = new MeshAsset(UserAssetList.size(), this);
-			SpawnedAsset->Name = std::string("Cube_" + AssetNum);
+			SpawnedAsset->Name = std::string("Mesh_" + AssetNum);
 			break;
 	}
 
@@ -191,9 +193,19 @@ void Manager::CheckForSelection(int InID)
 	if (SelectedAsset && InID >= UserAssetList.size() && InID != 0x00FFFFFF)
 	{
 		printf("Selected Gizmo.\n");
-		// get selected axis
-		// figure out how far to move
-		// translate
+
+		if (InID == UserAssetList.size())
+		{
+			SelectionGizmo->ActiveAxis = ActiveHandle::Translate_X;
+		}
+		else if (InID == UserAssetList.size() + 1)
+		{
+			SelectionGizmo->ActiveAxis = ActiveHandle::Translate_Y;
+		}
+		else if (InID == UserAssetList.size() + 2)
+		{
+			SelectionGizmo->ActiveAxis = ActiveHandle::Translate_Z;
+		}
 	}
 	else
 	{
@@ -212,6 +224,20 @@ void Manager::AddAssetToPool(Asset* InAsset)
 		AssetMap[DefaultShader].push_back(InAsset);
 		UserAssetList.push_back(InAsset);
 	}
+}
+
+Element* Manager::DrawLine(glm::vec3 StartPoint, glm::vec3 EndPoint)
+{
+	Element* NewLine = new Line(StartPoint, EndPoint);
+	SystemElements.push_back(NewLine);
+	return NewLine;
+}
+
+Element* Manager::DrawLine(glm::vec3 StartPoint, glm::vec3 LineDirection, float Distance)
+{
+	Element* NewLine = new Line(StartPoint, StartPoint + (LineDirection * (-1 * Distance)));
+	SystemElements.push_back(NewLine);
+	return NewLine;
 }
 
 Resource* Manager::BuildMaterial()
@@ -326,7 +352,26 @@ Resource* Manager::ProcessMesh(std::string path) // @TODO: design system for mul
 
 
 
+void Manager::ClearLines()
+{
+	for each (Element* e in SystemElements)
+	{
+		if (e->GetType() == ShaderType::LINE)
+		{
+			e->~Element();
+		}
+	}
+}
 
+
+void Manager::UpdateSelectedAsset(Asset* InAsset)
+{
+	SelectedAsset = InAsset;
+	if (SelectedAsset)
+	{
+		SelectionGizmo->AttachAsset(SelectedAsset);
+	}
+}
 
 std::vector<Texture*> Manager::GetTextures() { return TextureList; }
 std::vector<Element*> Manager::GetMeshList() { return MeshList; }
@@ -344,5 +389,5 @@ std::vector<Asset*> Manager::GetAssetsFromMap(Shader* InShader) { return AssetMa
 std::vector<Light*> Manager::GetLights() { return LightsList; }
 void Manager::SetCurrentShader(Shader* s) { CurrentShader = s; }
 void Manager::SetPickerShader() { CurrentShader = PickerShader; }
-void Manager::SetSelectedAsset(Asset* InAsset) { SelectedAsset = InAsset; }
 Gizmo* Manager::GetGizmo() { return SelectionGizmo; }
+std::vector<Element*> Manager::GetSystemElements() { return SystemElements; }

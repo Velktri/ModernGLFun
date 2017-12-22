@@ -11,7 +11,6 @@ class World;
 class Manager;
 class Timer;
 class Gizmo;
-class Grid;
 class Element;
 class Asset;
 
@@ -51,14 +50,12 @@ public:
 	void InitVR();
 	Asset* CastRaytrace(Camera* InCamera, glm::vec2 DeviceCoords, glm::vec2 SceneSize);
 	void ConvertScreenToWorldSpace(glm::vec2 InScreenSelection, glm::vec2 InSceneSpace, glm::mat4 InvertedViewProjection, glm::vec3& WorldPosition, glm::vec3& WorldDirection);
-	void ClearLines();
 
 
 	/* GETTERS */
 	Timer* GetUniversalTimer();
 	Manager* GetManager();
 	CameraSet GetCamaras();
-	std::vector<Element*> GetSystemElements();
 	void RenderVR();
 
 	void GetSelectionResults(glm::vec2 Coords, glm::vec2 SceneSize);
@@ -68,13 +65,5 @@ private:
 	Timer* UniversalTimer;
 	void InitCameras();
 	void InitWorlds();
-
-	Grid* GridFloor;
-
-	int GRIDRADIUS_X = 20;
-	int GRIDRADIUS_Y = 20;
-	float GRIDSPACING = 1.0;
-
-	std::vector<Element*> SystemElements;
 };
 
