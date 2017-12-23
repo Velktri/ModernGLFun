@@ -99,10 +99,13 @@ public:
 	ResizingData ResizingNode;
 
 	float SplitSpacing;
+	ImVec4 SplitColor;
 	int AddAndGetRegionCount();
 
 	TreeNode* GenerateLayout(char* FilePath);
 	void SaveLayout();
+
+	bool t; // @TEMP
 
 private:
 	SDL_Window* Window;

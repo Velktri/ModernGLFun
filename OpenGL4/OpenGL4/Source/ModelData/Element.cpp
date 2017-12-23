@@ -15,7 +15,6 @@ Element::~Element()
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
-	printf("Element is deleted!");
 }
 
 void Element::Init()

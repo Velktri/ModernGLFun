@@ -103,7 +103,7 @@ glm::vec3 Gizmo::GetMovementVector(glm::vec3 CameraPosition, glm::vec3 RayCastDi
 	//check to make sure we're not co-planar
 	if (glm::abs(DotProductWithPlaneNormal) > 0.00001f)
 	{
-		//Get closest point on plane
+		//Get Ray-Plane intersection point
 		float FarClip = 1000.0f;
 		glm::intersectRayPlane(CameraPosition, -RayCastDirection, RequestedPosition, PlaneNormal, FarClip);
 		RequestedPosition = CameraPosition + (-RayCastDirection * FarClip);

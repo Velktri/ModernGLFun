@@ -58,8 +58,15 @@ bool Layout::RenderLayout()
 void Layout::LoadDefaultStyle(std::string path)
 { 
 	ImGui::StyleColorsDark(); 
-	SplitSpacing = 2.0f;
+	ImGuiStyle* style = &ImGui::GetStyle();
+	ImVec4* colors = style->Colors;
+	colors[ImGuiCol_ChildWindowBg]          = (ImVec4) ImColor(50, 53, 58);
+	colors[ImGuiCol_ScrollbarBg]			= (ImVec4) ImColor(50, 53, 58);
+	colors[ImGuiCol_MenuBarBg]				= (ImVec4) ImColor(40, 43, 48);
+
+	SplitSpacing = 4.0f;
 	GlobalMinRegionSize = 25;
+	SplitColor = (ImVec4) ImColor(30, 33, 38);
 }
 
 void Layout::ImportAsset()
@@ -111,7 +118,7 @@ bool Layout::MasterWindow()
 		RenderRegions();
 	ImGui::End();
 	ImGui::PopStyleVar(3);
-	bool t = true;
+	t = true;
 	ImGui::ShowTestWindow(&t);
 	return bQuitLayout;
 }

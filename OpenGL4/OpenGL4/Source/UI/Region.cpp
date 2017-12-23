@@ -110,15 +110,8 @@ void Container::StatsRegion()
 		WindowSpliter();
 	EndStyledMenuBar();
 
-	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(200, 200, 0));
-	std::string newName = "Stats_" + std::to_string(OwningNode->GetNodeID());
-	ImGui::BeginChild(newName.c_str(), OwningNode->GetRegionSize(), true, ImGuiWindowFlags_NoScrollbar);
-
 	ImGui::TextColored(ImVec4(0.7f, 0.0f, 0.7f, 1.0f), "NODE: %d", OwningNode->GetNodeID());
 	ImGui::TextColored(ImVec4(0.7f, 0.0f, 0.7f, 1.0f), "NODE SIZE: %f, %f", OwningNode->GetRegionSize().x, OwningNode->GetRegionSize().y);
-
-	ImGui::EndChild();
-	ImGui::PopStyleColor();
 }
 
 void Container::SceneRegion()
@@ -2137,7 +2130,7 @@ bool Splitter::Render()
 	if (bIsVertical) { ImGui::SameLine(); }
 
 	std::string id = "splitter_" + std::to_string(GetRegionID());
-	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, (ImVec4) ImColor(255, 255, 255));
+	ImGui::PushStyleColor(ImGuiCol_ChildWindowBg, OwningLayout->SplitColor);
 	ImGui::BeginChild(id.c_str(), SplitterSize, false, ContainerStyleFlags);
 	(bIsVertical) ? VerticalSplit() : HorizontalSplit();
 	ImGui::EndChild();
