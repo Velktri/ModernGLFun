@@ -99,8 +99,8 @@ void Layout::ImportAsset()
 
 bool Layout::MasterWindow()
 {
-	//ImGuiIO& io = ImGui::GetIO();
-	//io.MouseDrawCursor = true;
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseDrawCursor = true;
 
 	ImGui::SetNextWindowSize(WindowDimensions, ImGuiCond_Always);
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);

@@ -123,18 +123,18 @@ void Container::SceneRegion()
 		PanelSwitcher();
 
 		if (ImGui::Button("Frames")) { ImGui::OpenPopup("FrameSelect"); }
-		if (ImGui::BeginPopup("FrameSelect"))
+		if (BeginStyledPopup("FrameSelect"))
 		{
 			if (ImGui::Selectable("SceneFrame"))	{ RenderFrame = EFrameTypes::Scene; };
 			if (ImGui::Selectable("PickerFrame"))	{ RenderFrame = EFrameTypes::ColorPicker; };
 			if (ImGui::Selectable("Left Eye")) 		{ RenderFrame = EFrameTypes::VR_LeftEye; };
 			if (ImGui::Selectable("Right Eye"))		{ RenderFrame = EFrameTypes::VR_RightEye; };
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Primatives")) { ImGui::OpenPopup("PrimativesSelect"); }
-		if (ImGui::BeginPopup("PrimativesSelect"))
+		if (BeginStyledPopup("PrimativesSelect"))
 		{
 			if (ImGui::Selectable("Cube"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::Cube); };
 			if (ImGui::Selectable("Plane"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::Plane); };
@@ -143,7 +143,7 @@ void Container::SceneRegion()
 			if (ImGui::Selectable("SmoothTest"))	{ OwningLayout->GetManager()->BuildPrimative(Primatives::Smooth); }; // @TODO: change with enum
 			if (ImGui::Selectable("Curve"))			{ OwningLayout->GetManager()->BuildPrimative(Primatives::ECurve); };
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Clear Lines"))	{ OwningLayout->GetManager()->ClearLines(); };
@@ -201,15 +201,14 @@ void Container::MainMenuRegion()
 		if (ImGui::Button("Save Layout")) { OwningLayout->SaveLayout(); } ImGui::SameLine();
 
 		if (ImGui::Button("File")) { ImGui::OpenPopup("File"); } ImGui::SameLine();
-		if (ImGui::BeginPopup("File"))
+		if (BeginStyledPopup("File"))
 		{
 			if (ImGui::Selectable("Quit")) { OwningLayout->ShutDown(); }
-			ImGui::EndPopup();
-
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Edit")) { ImGui::OpenPopup("Edit"); }
-		if (ImGui::BeginPopup("Edit"))
+		if (BeginStyledPopup("Edit"))
 		{
 			if (ImGui::Selectable("Undo")) { printf("Pressed Undo!\n"); }
 			if (ImGui::Selectable("Redo", false, ImGuiSelectableFlags_Disabled)) { /* Disabled item */ }
@@ -218,7 +217,7 @@ void Container::MainMenuRegion()
 			if (ImGui::Selectable("Copy")) { printf("Pressed Copy!\n"); }
 			if (ImGui::Selectable("Paste")) { printf("Pressed Paste!\n"); }
 			// @TODO: add VR options
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 	EndStyledMenuBar();
 }
@@ -245,47 +244,49 @@ void Container::AssetEditorRegion()
 
 		std::vector<Texture*> TextureList = GetOwningLayout()->GetManager()->GetTextures();
 		if (ImGui::Button("Albedo Texture")) { ImGui::OpenPopup("Albedo Texture"); }
-		if (ImGui::BeginPopup("Albedo Texture"))
+		if (BeginStyledPopup("Albedo Texture"))
 		{
 			for (int i = 0; i < TextureList.size(); i++)
 			{
 				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::EAlbedo, TextureList[i]); } // @TODO: rework for future.
 			}
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Normal Texture")) { ImGui::OpenPopup("Normal Texture"); }
-		if (ImGui::BeginPopup("Normal Texture"))
+		if (BeginStyledPopup("Normal Texture"))
 		{
 			for (int i = 0; i < TextureList.size(); i++)
 			{
 				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::ENormal, TextureList[i]); } // @TODO: rework for future.
 			}
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Metallic Texture")) { ImGui::OpenPopup("Metallic Texture"); }
-		if (ImGui::BeginPopup("Metallic Texture"))
+		if (BeginStyledPopup("Metallic Texture"))
 		{
 			for (int i = 0; i < TextureList.size(); i++)
 			{
 				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::EMetallic, TextureList[i]); } // @TODO: rework for future.
 			}
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		if (ImGui::Button("Roughness Texture")) { ImGui::OpenPopup("Roughness Texture"); }
-		if (ImGui::BeginPopup("Roughness Texture"))
+		if (BeginStyledPopup("Roughness Texture"))
 		{
 			for (int i = 0; i < TextureList.size(); i++)
 			{
-				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) { GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::ERoughness, TextureList[i]); } // @TODO: rework for future.
+				if (ImGui::Selectable(std::string("Texture" + std::to_string(i)).c_str())) 
+				{ GetOwningLayout()->GetManager()->GetDefaultMaterial()->ApplyTexture(MaterialTextures::ERoughness, TextureList[i]); 
+				} // @TODO: rework for future.
 			}
 
-			ImGui::EndPopup();
+			EndStyledPopup();
 		}
 
 		
@@ -2107,6 +2108,27 @@ void Container::EndStyledMenuBar()
 	ImGui::PopStyleVar();
 }
 
+bool Container::BeginStyledPopup(const char* InPopupName)
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, style->Colors[ImGuiCol_ChildWindowBg]);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f)); 
+	bool check = ImGui::BeginPopup(InPopupName);
+	if (!check) 
+	{ 
+		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
+	}
+	return check;
+}
+
+void Container::EndStyledPopup()
+{	
+	ImGui::EndPopup();
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor();
+}
+
 int Region::GetRegionID() { return OwningNode->GetNodeID(); }
 
 
@@ -2146,7 +2168,7 @@ void Splitter::VerticalSplit()
 	float Movement = 0.0f;
 	std::string Name = "Vsplit_" + std::to_string(GetRegionID());
 	ImGui::InvisibleButton(Name.c_str(), SplitterSize);
-	//if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeEW); }
+	if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeEW); }
 	if (ImGui::IsItemActive())
 	{ 
 		OwningLayout->ResizingNode.Node = OwningNode;
@@ -2158,7 +2180,7 @@ void Splitter::HorizontalSplit()
 {
 	std::string Name = "Hsplit_" + std::to_string(GetRegionID());
 	ImGui::InvisibleButton(Name.c_str(), SplitterSize);
-	//if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeNS); }
+	if (ImGui::IsItemHovered()) { ImGui::SetMouseCursor(ImGuiMouseCursor_::ImGuiMouseCursor_ResizeNS); }
 	if (ImGui::IsItemActive()) 
 	{ 
 		OwningLayout->ResizingNode.Node = OwningNode;

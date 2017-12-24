@@ -75,6 +75,9 @@ private:
 	/* Region Styling */
 	void BeginStyledMenuBar();
 	void EndStyledMenuBar();
+
+	bool BeginStyledPopup(const char* InPopupName);
+	void EndStyledPopup();
 };
 
 class Splitter : public Region
